@@ -1,0 +1,76 @@
+/* RESET */
+body {
+    margin: 0;
+    font-family: 'Helvetica Neue', sans-serif;
+    background-color: #fff;
+    color: #000;
+}
+
+/* HEADER */
+.header {
+    background: #000;
+    padding: 15px 0;
+}
+
+.logo {
+    color: #fff;
+    font-size: 24px;
+    font-weight: 500;
+    margin: 0;
+}
+
+.menu-icon,
+.header-icons i {
+    color: #fff;
+    font-size: 22px;
+    cursor: pointer;
+}
+
+.header-icons i {
+    margin-left: 15px;
+}
+
+/* HOVER UNDERLINE */
+.product-title {
+    position: relative;
+    display: inline-block;
+}
+
+.product-title::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 1px;
+    bottom: -3px;
+    left: 0;
+    background-color: black;
+    transition: width 0.3s ease;
+}
+
+.product-title:hover::after {
+    width: 100%;
+}
+
+/* HERO */
+.hero {
+    height: 90vh;
+    background: url('/static/img/hero.jpg') center/cover no-repeat;
+}
+
+/* CATEGORIES */
+.category-card {
+    text-align: center;
+    padding: 30px;
+    border: 1px solid #eee;
+    transition: all 0.3s;
+}
+
+.category-card:hover {
+    background: #000;
+    color: #fff;
+}
+
+/* BLUR EFFECT */
+.blur {
+    filter: blur(5px);
+}

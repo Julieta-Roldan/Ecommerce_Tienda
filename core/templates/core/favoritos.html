@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+<!DOCTYPE html>
+...
+
+<div class="container my-5">
+    <h2>Favoritos</h2>
+
+    <div class="row g-4">
+        {% for producto in favoritos %}
+        <div class="col-6 col-md-3">
+            <div class="card border-0">
+                <img src="{{ producto.imagen.url }}" class="img-fluid">
+                <h6 class="product-title mt-2">{{ producto.nombre }}</h6>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}

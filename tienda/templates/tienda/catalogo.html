@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+<!DOCTYPE html>
+...
+
+<div class="container my-5">
+    <div class="row g-4">
+
+        {% for producto in productos %}
+        <div class="col-6 col-md-4 col-lg-3">
+            <div class="card border-0">
+                <img src="{{ producto.imagen.url }}" class="card-img-top" alt="{{ producto.nombre }}">
+                <div class="card-body px-0">
+                    <h6 class="product-title">{{ producto.nombre }}</h6>
+                    <p class="fw-bold">$ {{ producto.precio }}</p>
+
+                    <div class="d-flex gap-1">
+                        <span class="color-dot bg-dark"></span>
+                        <span class="color-dot bg-secondary"></span>
+                        <span class="color-dot bg-light border"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+    </div>
+</div>
+
+{% endblock %}

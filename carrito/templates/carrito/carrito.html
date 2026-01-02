@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container my-5">
+    <h2>Carrito</h2>
+
+    {% for item in items %}
+    <div class="d-flex justify-content-between border-bottom py-3">
+        <div>
+            <strong>{{ item.producto.nombre }}</strong><br>
+            Cantidad: {{ item.cantidad }}
+        </div>
+        <div>
+            $ {{ item.subtotal }}
+        </div>
+    </div>
+    {% endfor %}
+
+    <div class="text-end mt-4">
+        <h4>Total: $ {{ total }}</h4>
+        <button class="btn btn-dark">Finalizar compra</button>
+    </div>
+</div>
+
+{% endblock %}
