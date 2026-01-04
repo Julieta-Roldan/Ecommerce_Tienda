@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from .models import Producto
 import json
 from django.shortcuts import get_object_or_404
-
+from django.db.models import Q
 
 
 # LISTAR PRODUCTOS
@@ -95,3 +95,21 @@ def catalogo(request):
 def producto_detalle(request, id):
     producto = get_object_or_404(Producto, id=id)
     return render(request, 'tienda/producto.html', {'producto': producto})
+
+
+def buscar_productos(request):
+    query = request.GET.get('q', '')
+
+    productos = Producto.objects.filter(
+        Q(nombre__icontains=query) |
+        Q(categoria__nombre__icontains=query)
+    ).distinct()
+
+    return {
+        'query': query,
+        'productos': productos
+    }
+    
+def vista_busqueda(request):
+    data = buscar_productos(request)
+    return render(request, 'tienda/busqueda.html', data)

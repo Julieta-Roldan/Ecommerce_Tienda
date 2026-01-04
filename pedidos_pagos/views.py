@@ -8,6 +8,7 @@ from .models import Pedido, ItemPedido
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 import json
+from .models import Pago
 
 @login_required
 def crear_pedido_desde_carrito(request):
@@ -139,3 +140,24 @@ def checkout_cliente_externo(request):
         "pedido_id": pedido.id,
         "total": float(total)
     })
+
+
+def crear_pago_pendiente(pedido):
+    pago = Pago.objects.create(
+        pedido=pedido,
+        monto=pedido.total,
+        estado='pendiente'
+    )
+    return pago
+
+def confirmar_pago(pago_id, referencia_externa):
+    pago = Pago.objects.get(id=pago_id)
+
+    pago.estado = 'aprobado'
+    pago.referencia_externa = referencia_externa
+    pago.save()
+
+    pedido = pago.pedido
+    pedido.estado = 'pagado'
+    pedido.save()
+

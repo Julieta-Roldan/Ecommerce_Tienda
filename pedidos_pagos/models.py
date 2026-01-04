@@ -1,8 +1,6 @@
 from django.db import models
-
-# Create your models here.
-from django.contrib.auth.models import User
 from tienda.models import Producto
+from carrito.models import Carrito
 
 
 class Pedido(models.Model):
@@ -15,28 +13,22 @@ class Pedido(models.Model):
         ('cancelado', 'Cancelado'),
     ]
 
-    usuario = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        blank=True,
-        null=True
+    carrito = models.OneToOneField(
+        Carrito,
+        on_delete=models.PROTECT,
+        related_name='pedido'
     )
 
-    cliente_email = models.EmailField(blank=True, null=True)
-    cliente_telefono = models.CharField(max_length=30, blank=True, null=True)
-    
-    # AGREGAR estos campos al modelo Pedido
+    email = models.EmailField(blank=True, null=True)
+    telefono = models.CharField(max_length=30, blank=True, null=True)
 
-    email_cliente = models.EmailField(blank=True, null=True)
-    telefono_cliente = models.CharField(max_length=20, blank=True, null=True)
-
-
-    fecha_creacion = models.DateTimeField(auto_now_add=True)
     estado = models.CharField(
         max_length=20,
         choices=ESTADOS,
         default='pendiente'
     )
+
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"Pedido #{self.id}"
@@ -47,18 +39,67 @@ class Pedido(models.Model):
 
 
 class ItemPedido(models.Model):
+
     pedido = models.ForeignKey(
         Pedido,
         on_delete=models.CASCADE,
         related_name='items'
     )
-    producto = models.ForeignKey(Producto, on_delete=models.PROTECT)
-    cantidad = models.PositiveIntegerField(default=1)
+
+    producto = models.ForeignKey(
+        Producto,
+        on_delete=models.PROTECT
+    )
+
+    nombre_producto = models.CharField(max_length=200)
     precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
+    cantidad = models.PositiveIntegerField(default=1)
 
     def __str__(self):
-        return f"{self.cantidad} x {self.producto.nombre}"
+        return f"{self.cantidad} x {self.nombre_producto}"
 
     @property
     def subtotal(self):
         return self.cantidad * self.precio_unitario
+
+
+class Pago(models.Model):
+
+    ESTADOS = [
+        ('pendiente', 'Pendiente'),
+        ('aprobado', 'Aprobado'),
+        ('rechazado', 'Rechazado'),
+    ]
+
+    pedido = models.ForeignKey(
+        Pedido,
+        on_delete=models.CASCADE,
+        related_name='pagos'
+    )
+
+    metodo = models.CharField(
+        max_length=50,
+        default='mercadopago'
+    )
+
+    monto = models.DecimalField(
+        max_digits=10,
+        decimal_places=2
+    )
+
+    estado = models.CharField(
+        max_length=20,
+        choices=ESTADOS,
+        default='pendiente'
+    )
+
+    referencia_externa = models.CharField(
+        max_length=200,
+        blank=True,
+        null=True
+    )
+
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Pago #{self.id} - {self.estado}"

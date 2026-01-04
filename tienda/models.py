@@ -14,6 +14,16 @@ class Categoria(models.Model):
         return self.nombre
 
 
+class Talle(models.Model):
+        nombre = models.CharField(max_length=10)
+        
+
+class Color(models.Model):
+    nombre = models.CharField(max_length=30)
+    codigo_hex = models.CharField(max_length=7, blank=True, null=True)
+
+        
+        
 class Producto(models.Model):
     categoria = models.ForeignKey(Categoria, on_delete=models.PROTECT)
     nombre = models.CharField(max_length=150)
@@ -23,6 +33,9 @@ class Producto(models.Model):
     activo = models.BooleanField(default=True)
     creado = models.DateTimeField(auto_now_add=True)
     actualizado = models.DateTimeField(auto_now=True)
+    talles = models.ManyToManyField(Talle, blank=True)
+    colores = models.ManyToManyField(Color, blank=True)
+
 
     class Meta:
         verbose_name = 'Producto'
@@ -31,3 +44,38 @@ class Producto(models.Model):
 
     def __str__(self):
         return self.nombre
+    
+    
+    
+
+    class Meta:
+        verbose_name = 'Talle'
+        verbose_name_plural = 'Talles'
+
+    def __str__(self):
+        return self.nombre
+
+
+    class Meta:
+        verbose_name = 'Color'
+        verbose_name_plural = 'Colores'
+
+    def __str__(self):
+        return self.nombre
+
+class ImagenProducto(models.Model):
+    producto = models.ForeignKey(
+        Producto,
+        related_name='imagenes',
+        on_delete=models.CASCADE
+    )
+    imagen = models.ImageField(upload_to='productos/')
+    orden = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        verbose_name = 'Imagen del producto'
+        verbose_name_plural = 'Imágenes del producto'
+        ordering = ['orden']
+
+    def __str__(self):
+        return f"Imagen de {self.producto.nombre}"
