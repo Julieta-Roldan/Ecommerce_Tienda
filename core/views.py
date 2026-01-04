@@ -15,3 +15,15 @@ def health_check(request):
 def index(request):
     return render(request, 'core/index.html')
 
+#yo
+
+def ubicacion(request):
+    return render(request, 'core/ubicacion.html')
+
+def favoritos(request):
+    # Aquí simulamos una lista vacía para que no de error
+    return render(request, 'core/favoritos.html', {'favoritos': []})
+
+def carrito(request):
+    # Cambiamos la ruta para que coincida con tu carpeta 'carrito'
+    return render(request, 'carrito/carrito.html', {'items': [], 'total': 0})

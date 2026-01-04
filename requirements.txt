@@ -19,7 +19,7 @@ jupyter_core==5.8.1
 kiwisolver==1.4.9
 matplotlib==3.10.6
 matplotlib-inline==0.1.7
-mysqlclient==2.2.7
+#mysqlclient==2.2.7
 nest-asyncio==1.6.0
 numpy==2.3.3
 packaging==25.0

@@ -2,28 +2,136 @@
 {% load static %}
 
 {% block content %}
-<section class="hero d-flex align-items-center justify-content-center" style="height: 400px; background: #f4f4f4;">
-    <div class="text-center">
-        <h1 class="display-4 fw-bold">TIENDA LORE</h1>
-        <p class="lead">Nueva Temporada 2025</p>
+
+<section class="hero">
+    <div class="hero-content">
+        <h1>TIENDA LORE</h1>
+        <p>NUEVA TEMPORADA 2026</p>
+        <a href="#" class="btn-luxury">VER COLECCIÓN</a>
     </div>
 </section>
 
-<div class="container my-5">
-    <div class="row g-4">
+<div id="categorias" class="container mt-5 mb-5">
+    <div class="row g-3">
+        
         <div class="col-6 col-md-3">
-            <div class="category-card p-4 border text-center">Pantalones</div>
+            <div class="category-card" style="background-image: url('https://acdn-us.mitiendanube.com/stores/001/039/300/products/_dsc0208nkjnb-8204fa31ada5a1173e17471627902197-1024-1024.webp');">
+                <div class="category-content">Pantalones</div>
+            </div>
         </div>
+
         <div class="col-6 col-md-3">
-            <div class="category-card p-4 border text-center">Remeras</div>
+            <div class="category-card" style="background-image: url('https://acdn-us.mitiendanube.com/stores/001/039/300/products/_dsc0097-f81bb954ff3e7495a717570073424739-1024-1024.webp');">
+                <div class="category-content">Remeras</div>
+            </div>
         </div>
+
         <div class="col-6 col-md-3">
-            <div class="category-card p-4 border text-center">Vestidos</div>
+            <div class="category-card" style="background-image: url('https://miaminovias.com/cdn/shop/files/GL3558_CHAMPAGNE_1O.jpg?v=1737356845&width=600');">
+                <div class="category-content">Vestidos</div>
+            </div>
         </div>
+
         <div class="col-6 col-md-3">
-            <div class="category-card p-4 border text-center">Accesorios</div>
+            <div class="category-card" style="background-image: url('https://goldgirlsdiary.wordpress.com/wp-content/uploads/2020/08/f09d9192f09d9382f09d9382f09d92b6-40f09d9388f09d92b6f09d9388f09d9388f09d938ef09d92b8f09d92bdf09d919cf09d919c-shared-by-f09d9192f09d9382f09d9382f09d92b6-on-we-heart-it.jpg');">
+                <div class="category-content">Accesorios</div>
+            </div>
         </div>
+
     </div>
 </div>
+<section class="benefits-section py-5">
+    <div class="container">
+        <div class="row text-center g-4">
+            
+            <div class="col-md-4">
+                <div class="benefit-item">
+                    <i class="bi bi-credit-card benefit-icon"></i>
+                    <h3>3 y 6 cuotas sin interés!</h3>
+                </div>
+            </div>
 
+            <div class="col-md-4">
+                <div class="benefit-item">
+                    <i class="bi bi-percent benefit-icon"></i>
+                    <h3>20% de descuento con transferencia</h3>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="benefit-item">
+                    <i class="bi bi-arrow-repeat benefit-icon"></i>
+                    <h3>Cambios y devoluciones</h3>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<section class="featured-products py-5">
+    <div class="container">
+       <center><h2 class="section-title text-center mb-5">PRODUCTOS DESTACADOS</h2></center> 
+        
+        <div class="row g-4">
+            <div class="col-6 col-md-3">
+                <div class="product-card">
+                    <div class="product-image">
+                        <span class="badge-new">NUEVO</span>
+                        <img src="https://acdn-us.mitiendanube.com/stores/001/536/681/products/audaz-fiestas57869-41bb3c5ba8ad5810ad17653749816023-1024-1024.webp" alt="Remera Cobain">
+                    </div>
+                    <div class="product-info text-center">
+                        <h3 class="product-name">CONJUNTO DE BOLADITOS</h3>
+                        <p class="product-price">$20.000</p>
+                        <p class="product-installments">3 cuotas sin interés de <strong>$6.666</strong></p>
+                        <button class="btn-add-cart">AGREGAR AL CARRITO</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-6 col-md-3">
+                <div class="product-card">
+                    <div class="product-image">
+                        <span class="badge-new">NUEVO</span>
+                        <img src="https://acdn-us.mitiendanube.com/stores/001/536/681/products/audaz-fiestas58114-3cedbcc785453cdf5017653738267532-1024-1024.webp" alt="Buzo Grunge">
+                    </div>
+                    <div class="product-info text-center">
+                        <h3 class="product-name">TOP Y FALDA</h3>
+                        <p class="product-price">$25.000</p>
+                        <p class="product-installments">3 cuotas sin interés de <strong>$8.333,33</strong></p>
+                        <button class="btn-add-cart">AGREGAR AL CARRITO</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="product-card">
+                    <div class="product-image">
+                        <span class="badge-new">NUEVO</span>
+                        <img src="https://acdn-us.mitiendanube.com/stores/001/536/681/products/audaz-ecom-1056296-c4159f0f7efd248f0a17641734408107-1024-1024.webp" alt="Buzo Grunge">
+                    </div>
+                    <div class="product-info text-center">
+                        <h3 class="product-name">VESTIDO MOURA</h3>
+                        <p class="product-price">$18.000</p>
+                        <p class="product-installments">3 cuotas sin interés de <strong>$6.000</strong></p>
+                        <button class="btn-add-cart">AGREGAR AL CARRITO</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="product-card">
+                    <div class="product-image">
+                        <span class="badge-new">NUEVO</span>
+                        <img src="https://acdn-us.mitiendanube.com/stores/001/536/681/products/audaz-ecom-849507-1e835fef099f3c7aae17615764274222-1024-1024.webp" alt="Buzo Grunge">
+                    </div>
+                    <div class="product-info text-center">
+                        <h3 class="product-name">BLUSA BORDADA</h3>
+                        <p class="product-price">$15.000</p>
+                        <p class="product-installments">3 cuotas sin interés de <strong>$5.000</strong></p>
+                        <button class="btn-add-cart">AGREGAR AL CARRITO</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 {% endblock %}

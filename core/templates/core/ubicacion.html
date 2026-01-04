@@ -1,27 +1,63 @@
 {% extends 'base.html' %}
-{% block content %}
 {% load static %}
-<!DOCTYPE html>
-...
 
-<div class="container-fluid my-5">
-    <div class="row">
+{% block content %}
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 
-        <div class="col-md-6 p-0">
-            <iframe 
-                src="https://www.google.com/maps?q=Achupallas+6748&output=embed"
-                width="100%" height="400" style="border:0;" allowfullscreen>
-            </iframe>
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-11 col-xl-10">
+            <div class="card border-0 shadow-lg overflow-hidden" style="border-radius: 20px;">
+                <div class="row g-0">
+                    
+                    <div class="col-md-7">
+                        <div class="h-100" style="min-height: 450px;">
+                            <iframe 
+                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3278.4357287739506!2d-58.63348162425391!3d-34.74465497290457!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95bcc4633784534d%3A0xc3c9a09e03d33301!2sAchupallas%206748%2C%20B1759%20Gonz%C3%A1lez%20Cat%C3%A1n%2C%20Provincia%20de%20Buenos%20Aires!5e0!3m2!1ses-419!2sar!4v1704295000000!5m2!1ses-419!2sar" 
+                                width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+                            </iframe>
+                        </div>
+                    </div>
+
+                    <div class="col-md-5 d-flex align-items-center bg-white">
+                        <div class="p-4 p-md-5 w-100">
+                            <h2 class="mb-4" style="font-family: 'Playfair Display', serif; font-size: 2.5rem; border-bottom: 2px solid #000; padding-bottom: 10px;">Visítanos</h2>
+                            
+                            <div class="info-box mb-4">
+                                <h3 class="h5 fw-bold mb-3">Tienda Lore</h3>
+                                <p class="fs-6 mb-2">📍 <strong>Dirección:</strong> Achupallas 6748</p>
+                                <p class="fs-6 mb-2">🕘 <strong>Horarios:</strong> 9-13 hs / 17-20 hs</p>
+                                <p class="fs-6 mb-0">📞 <strong>Teléfono:</strong> 11 3592-8717</p>
+                            </div>
+
+                            <hr class="my-4">
+
+                            <a href="https://wa.me/541135928717" class="btn btn-dark btn-lg rounded-pill w-100 py-3 d-flex align-items-center justify-content-center shadow" style="letter-spacing: 1px; font-weight: 600;">
+                                <i class="bi bi-whatsapp me-2"></i> ENVIAR MENSAJE
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
         </div>
-
-        <div class="col-md-6 d-flex flex-column justify-content-center p-5">
-            <h3>Tienda Lore</h3>
-            <p>📍 Achupallas 6748</p>
-            <p>🕘 9–13 / 17–20</p>
-            <p>📞 113592-8717</p>
-        </div>
-
     </div>
 </div>
 
+<style>
+    /* Un pequeño ajuste extra para que se vea de boutique */
+    .card {
+        transition: transform 0.3s ease;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+    }
+    .info-box p {
+        color: #333;
+        transition: color 0.3s;
+    }
+    .info-box p:hover {
+        color: #000;
+    }
+</style>
 {% endblock %}
