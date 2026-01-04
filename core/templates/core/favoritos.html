@@ -1,22 +1,30 @@
 {% extends 'base.html' %}
-{% block content %}
 {% load static %}
-<!DOCTYPE html>
-...
 
+{% block content %}
 <div class="container my-5">
-    <h2>Favoritos</h2>
+    <h2 class="mb-4 fw-bold">Mis Favoritos</h2>
 
     <div class="row g-4">
-        {% for producto in favoritos %}
-        <div class="col-6 col-md-3">
-            <div class="card border-0">
-                <img src="{{ producto.imagen.url }}" class="img-fluid">
-                <h6 class="product-title mt-2">{{ producto.nombre }}</h6>
+        {% if favoritos %}
+            {% for producto in favoritos %}
+            <div class="col-6 col-md-3">
+                <div class="card border-0 shadow-sm h-100">
+                    <img src="{{ producto.imagen.url }}" class="card-img-top img-fluid" alt="{{ producto.nombre }}">
+                    <div class="card-body text-center">
+                        <h6 class="product-title mt-2">{{ producto.nombre }}</h6>
+                        <p class="fw-bold">${{ producto.precio }}</p>
+                    </div>
+                </div>
             </div>
-        </div>
-        {% endfor %}
+            {% endfor %}
+        {% else %}
+            <div class="col-12 text-center py-5">
+                <i class="bi bi-heart text-muted" style="font-size: 3rem;"></i>
+                <p class="mt-3">Aún no tienes productos favoritos.</p>
+                <a href="{% url 'home' %}" class="btn btn-dark mt-2">Ir a la tienda</a>
+            </div>
+        {% endif %}
     </div>
 </div>
-
 {% endblock %}

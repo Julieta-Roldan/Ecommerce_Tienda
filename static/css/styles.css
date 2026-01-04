@@ -1,76 +1,357 @@
-/* RESET */
+/* =========================================
+   1. CONFIGURACIÓN GLOBAL
+   ========================================= */
+:root {
+    --black: #000000;
+    --white: #ffffff;
+    --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 body {
+    background-color: var(--white);
+    color: var(--black);
+    font-family: 'Inter', sans-serif;
     margin: 0;
-    font-family: 'Helvetica Neue', sans-serif;
-    background-color: #fff;
-    color: #000;
+    overflow-x: hidden;
 }
 
-/* HEADER */
+/* QUITAR EL AZUL DE TODOS LOS LINKS */
+a {
+    text-decoration: none !important;
+    color: inherit;
+}
+/* =========================================
+   2. HEADER (Logo Centrado y 5 Iconos)
+   ========================================= */
 .header {
-    background: #000;
-    padding: 15px 0;
+    background: var(--black);
+    color: var(--white);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
 }
 
-.logo {
-    color: #fff;
+.header .container-fluid {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Forzamos a que los laterales midan lo mismo para que el centro sea real */
+.header-left, 
+.header-icons {
+    flex: 1; 
+    display: flex;
+    align-items: center;
+}
+
+.header-icons {
+    justify-content: flex-end; /* Iconos a la derecha */
+}
+
+.header-center {
+    flex: 0 0 auto;
+    text-align: center;
+}
+
+.logo-text {
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: 5px;
+    margin: 0;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.header-icons a {
+    color: var(--white) !important;
+    margin-left: 18px; /* Espacio entre los 5 iconos */
+    font-size: 20px;
+    transition: var(--transition);
+}
+
+.menu-icon {
     font-size: 24px;
-    font-weight: 500;
+    cursor: pointer;
+    color: var(--white);
+}
+/* =========================================
+   3. SIDEBAR (Lo que hacía que se viera mal arriba)
+   ========================================= */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: -320px; /* Escondido por defecto */
+    width: 300px;
+    height: 100%;
+    background: var(--black);
+    color: var(--white);
+    z-index: 2000;
+    transition: var(--transition);
+    padding: 30px;
+}
+
+.sidebar.active {
+    left: 0; /* Se muestra al hacer click */
+}
+
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+}
+
+.sidebar-menu {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar-menu li {
+    margin-bottom: 20px;
+}
+
+.sidebar-menu a {
+    color: var(--white);
+    font-size: 0.9rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.7);
+    display: none;
+    z-index: 1500;
+}
+
+.overlay.active {
+    display: block;
+}
+
+/* =========================================
+   4. CATEGORÍAS (Tamaño 250px)
+   ========================================= */
+.category-card {
+    height: 250px; /* Tamaño chico solicitado */
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.category-card::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.4);
+}
+
+.category-content {
+    position: relative;
+    z-index: 2;
+    color: var(--white);
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    border: 1px solid white;
+    padding: 8px 15px;
+}
+
+/* BANNER PRINCIPAL (HERO) */
+.hero {
+    height: 70vh;
+    background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), 
+                      url('https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=2070&auto=format&fit=crop');
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: #ffffff;
+}
+
+.hero h1 {
+    font-size: clamp(2.5rem, 8vw, 5rem);
+    font-weight: 800;
+    letter-spacing: 12px;
     margin: 0;
 }
 
-.menu-icon,
-.header-icons i {
-    color: #fff;
-    font-size: 22px;
-    cursor: pointer;
+.hero p {
+    font-size: 1.1rem;
+    letter-spacing: 4px;
+    margin-top: 10px;
 }
 
-.header-icons i {
-    margin-left: 15px;
-}
-
-/* HOVER UNDERLINE */
-.product-title {
-    position: relative;
+/* BOTÓN BLANCO ELEGANTE */
+.btn-luxury {
     display: inline-block;
+    margin-top: 25px;
+    padding: 12px 35px;
+    border: 1px solid #ffffff;
+    color: #ffffff !important;
+    text-decoration: none;
+    letter-spacing: 3px;
+    font-weight: 600;
+    transition: all 0.3s ease;
 }
 
-.product-title::after {
-    content: '';
-    position: absolute;
-    width: 0;
-    height: 1px;
-    bottom: -3px;
-    left: 0;
-    background-color: black;
-    transition: width 0.3s ease;
+.btn-luxury:hover {
+    background: #ffffff;
+    color: #000000 !important;
 }
 
-.product-title:hover::after {
-    width: 100%;
-}
-
-/* HERO */
-.hero {
-    height: 90vh;
-    background: url('/static/img/hero.jpg') center/cover no-repeat;
-}
-
-/* CATEGORIES */
+/* AJUSTE DE CATEGORÍAS (Para que se vea como la foto) */
 .category-card {
-    text-align: center;
-    padding: 30px;
-    border: 1px solid #eee;
-    transition: all 0.3s;
+    height: 250px;
+    border-radius: 8px;
 }
 
-.category-card:hover {
+.category-content {
+    border: 1px solid #fff;
+    padding: 10px 20px;
+    background: rgba(0,0,0,0.2);
+}
+
+/* =========================================
+   SECCIÓN BENEFICIOS
+   ========================================= */
+.benefits-section {
+    background-color: #fff;
+    border-top: 1px solid #f0f0f0;
+    margin-top: 20px;
+}
+
+.benefit-item {
+    padding: 20px;
+}
+
+.benefit-icon {
+    font-size: 2.5rem;
+    color: #000000; /* Gris suave como la imagen */
+    margin-bottom: 15px;
+    display: block;
+}
+
+.benefit-item h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    color: #161616;
+    font-weight: 400;
+    margin-bottom: 5px;
+}
+
+
+/* Ajuste por si quieres que los iconos sean un poco más delgados */
+.benefit-icon::before {
+    font-weight: 100 !important;
+}
+
+/* =========================================
+   SECCIÓN PRODUCTOS DESTACADOS
+   ========================================= */
+.section-title {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    letter-spacing: 2px;
+    border-bottom: 2px solid #000;
+    display: inline-block;
+    padding-bottom: 5px;
+    margin-bottom: 40px;
+}
+
+.product-card {
+    background: #fff;
+    transition: transform 0.3s ease;
+}
+
+.product-image {
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 15px;
+}
+
+.product-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Etiquetas (Nuevo / Descuento) */
+.badge-new, .badge-discount {
+    position: absolute;
+    top: 10px;
+    left: 10px;
     background: #000;
     color: #fff;
+    padding: 5px 10px;
+    font-size: 10px;
+    font-weight: 700;
+    z-index: 10;
 }
 
-/* BLUR EFFECT */
-.blur {
-    filter: blur(5px);
+.badge-discount {
+    background: #333;
+}
+
+/* Info del Producto */
+.product-name {
+    font-size: 11px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.product-price {
+    font-size: 18px;
+    font-weight: 800;
+    margin-bottom: 5px;
+}
+
+.old-price {
+    text-decoration: line-through;
+    color: #999;
+    font-size: 14px;
+    margin-right: 5px;
+}
+
+.product-installments {
+    font-size: 10px;
+    color: #333;
+    border: 1px solid #ddd;
+    padding: 5px;
+    margin-bottom: 15px;
+}
+
+/* Botón Agregar al Carrito */
+.btn-add-cart {
+    width: 100%;
+    background: #1a1a1a;
+    color: #fff;
+    border: none;
+    padding: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    transition: background 0.3s;
+}
+
+.btn-add-cart:hover {
+    background: #333;
 }

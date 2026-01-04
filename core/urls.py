@@ -7,5 +7,9 @@ urlpatterns = [
     path('', views.health_check, name='core-health'),
     path('', index, name='home'),
     
-    
+    #yo
+    path('ubicacion/', views.ubicacion, name='ubicacion'),
+    path('favoritos/', views.favoritos, name='favoritos'),
+    path('carrito/', views.carrito, name='carrito'),
+
 ]
