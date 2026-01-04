@@ -9,6 +9,7 @@ from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 import json
 from .models import Pago
+from .services import crear_pedido_desde_carrito
 
 @login_required
 def crear_pedido_desde_carrito(request):
@@ -161,3 +162,20 @@ def confirmar_pago(pago_id, referencia_externa):
     pedido.estado = 'pagado'
     pedido.save()
 
+def confirmar_pedido(request, carrito_id):
+    carrito = get_object_or_404(Carrito, id=carrito_id)
+
+    email = request.POST.get('email')
+    telefono = request.POST.get('telefono')
+
+    pedido = crear_pedido_desde_carrito(
+        carrito=carrito,
+        email=email,
+        telefono=telefono
+    )
+
+    return JsonResponse({
+        'pedido_id': pedido.id,
+        'total': pedido.total,
+        'estado': pedido.estado
+    })
