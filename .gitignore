@@ -1,0 +1,52 @@
+# ======================
+# DJANGO
+# ======================
+*.pyc
+__pycache__/
+*.log
+*.pot
+*.mo
+local_settings.py
+
+# ======================
+# DATABASE
+# ======================
+db.sqlite3
+
+# ======================
+# MEDIA FILES
+# ======================
+media/
+
+# ======================
+# ENVIRONMENTS
+# ======================
+.env
+.env.*
+.venv/
+venv/
+ENV/
+env/
+
+# ======================
+# STATIC COLLECTED
+# ======================
+staticfiles/
+
+# ======================
+# IDEs / EDITORS
+# ======================
+.vscode/
+.idea/
+
+# ======================
+# OS FILES
+# ======================
+.DS_Store
+Thumbs.db
+
+
+db.sqlite3
+__pycache__/
+*.py[cod]
+.venv/
