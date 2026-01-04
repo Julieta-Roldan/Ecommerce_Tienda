@@ -70,3 +70,17 @@ def eliminar_producto(request, producto_id):
         return JsonResponse({"mensaje": "Producto eliminado correctamente."})
 
     return JsonResponse({"mensaje": "El producto no estaba en el carrito."})
+
+
+def obtener_carrito(request):
+    if not request.session.session_key:
+        request.session.create()
+
+    session_key = request.session.session_key
+
+    carrito, creado = Carrito.objects.get_or_create(
+        session_key=session_key
+    )
+
+    return carrito
+

@@ -5,6 +5,8 @@ from .views import (
     actualizar_producto, eliminar_producto
 )
 from .views import catalogo
+from . import views
+
 
 urlpatterns = [
     path('productos/', listar_productos),
@@ -13,5 +15,6 @@ urlpatterns = [
     path('productos/<int:producto_id>/actualizar/', actualizar_producto),
     path('productos/<int:producto_id>/eliminar/', eliminar_producto),
     path('catalogo/', catalogo, name='catalogo'),
+    path('buscar/', views.vista_busqueda, name='buscar_productos'),
     
 ]
