@@ -36,3 +36,4 @@ class ItemCarrito(models.Model):
 
 def total(self):
     return sum(item.subtotal() for item in self.items.all())
+

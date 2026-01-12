@@ -12,9 +12,14 @@ def health_check(request):
     """
     return HttpResponse("Ecommerce_Tienda Backend funcionando — core.health_check")
 
-def index(request):
-    return render(request, 'core/index.html')
+from tienda.models import Producto
 
+def index(request):
+    # Esto busca tus productos en la base de datos
+    productos_db = Producto.objects.all()[:4] 
+    
+    # Esto se los manda al HTML con el nombre 'productos'
+    return render(request, 'core/index.html', {'productos': productos_db})
 #yo
 
 def ubicacion(request):
@@ -27,3 +32,4 @@ def favoritos(request):
 def carrito(request):
     # Cambiamos la ruta para que coincida con tu carpeta 'carrito'
     return render(request, 'carrito/carrito.html', {'items': [], 'total': 0})
+

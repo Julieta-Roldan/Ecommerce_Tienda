@@ -1,19 +1,29 @@
 /* =========================================
    1. CONFIGURACIÓN GLOBAL
    ========================================= */
+
 :root {
     --black: #000000;
     --white: #ffffff;
     --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* CAMBIO AQUÍ: Esto obliga al footer a irse al fondo */
 body {
     background-color: var(--white);
     color: var(--black);
     font-family: 'Inter', sans-serif;
     margin: 0;
-    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Ocupa el 100% de la pantalla */
 }
+
+/* Esto envuelve el contenido dinámico y lo hace crecer */
+main {
+    flex: 1;
+}
+
 
 /* QUITAR EL AZUL DE TODOS LOS LINKS */
 a {
@@ -23,6 +33,7 @@ a {
 /* =========================================
    2. HEADER (Logo Centrado y 5 Iconos)
    ========================================= */
+
 .header {
     background: var(--black);
     color: var(--white);
@@ -354,4 +365,86 @@ a {
 
 .btn-add-cart:hover {
     background: #333;
+}
+
+
+/* =========================================
+   FOOTER MINI (COMPACTO)
+   ========================================= */
+.footer-mini {
+    background-color: #000;
+    color: #fff;
+    margin-top: 50px;
+    border-top: 1px solid #222;
+}
+
+.footer-brand {
+    font-weight: 800;
+    letter-spacing: 3px;
+    font-size: 1rem;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.footer-socials a {
+    color: #fff !important;
+    font-size: 1.1rem;
+    margin-right: 12px;
+}
+
+/* Estilo para los links del centro */
+.footer-nav a {
+    display: block; /* Uno debajo del otro */
+    color: #fff !important; /* En blanco como pediste */
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    margin-bottom: 5px;
+    transition: opacity 0.3s;
+}
+
+.footer-nav a:hover {
+    opacity: 0.6;
+}
+
+.footer-info {
+    font-size: 0.75rem;
+    color: #bbb;
+    margin-bottom: 2px;
+}
+
+.footer-bottom {
+    border-top: 1px solid #111;
+    padding: 15px 0;
+    text-align: center;
+}
+
+.footer-bottom p {
+    font-size: 0.6rem;
+    color: #444;
+    margin: 0;
+    letter-spacing: 1px;
+}
+
+/* Estilo para los circulitos de colores */
+/* Estilo para los circulitos de colores */
+.color-dot {
+    display: inline-block;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%; /* Lo hace redondo */
+    border: 2px solid #eeeeee; /* Borde suave */
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.color-dot:hover {
+    transform: scale(1.15);
+    border-color: #000000;
+}
+
+/* Por si no carga el color, que al menos se vea un gris claro */
+.color-dot:empty {
+    background-color: #f8f8f8;
 }

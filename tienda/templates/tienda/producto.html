@@ -1,42 +1,65 @@
 {% extends 'base.html' %}
 {% block content %}
 {% load static %}
-<!DOCTYPE html>
-...
+{% load humanize %}
 
 <div class="container my-5">
     <div class="row">
-
-        <div class="col-md-6">
-            <img src="{{ producto.imagen.url }}" class="img-fluid">
+        <div class="col-md-6 mb-4">
+            {% if producto.imagenes.all %}
+                <img src="{{ producto.imagenes.first.imagen.url }}" class="img-fluid rounded shadow-sm" alt="{{ producto.nombre }}">
+            {% else %}
+                <div class="bg-light d-flex align-items-center justify-content-center" style="height: 400px;">
+                    <p class="text-muted">Sin imagen</p>
+                </div>
+            {% endif %}
         </div>
 
         <div class="col-md-6">
-            <h2 class="product-title">{{ producto.nombre }}</h2>
-            <p class="fs-4 fw-bold">$ {{ producto.precio }}</p>
+            <h2 class="product-title fw-bold text-uppercase">{{ producto.nombre }}</h2>
+            <p class="fs-3 fw-bold text-dark">$ {{ producto.precio|floatformat:"0"|intcomma }}</p>
+            <p class="text-muted my-4">{{ producto.descripcion }}</p>
 
             <div class="my-3">
-                <label>Talle</label>
-                <select class="form-select">
-                    <option>S</option>
-                    <option>M</option>
-                    <option>L</option>
+                <label class="fw-bold mb-2">Talle</label>
+                <select class="form-select w-50">
+                    {% for talle in producto.talles.all %}
+                        <option value="{{ talle.id }}">{{ talle.nombre }}</option>
+                    {% empty %}
+                        <option>Talle único</option>
+                    {% endfor %}
                 </select>
             </div>
 
-            <div class="my-3">
-                <label>Color</label>
-                <div class="d-flex gap-2">
-                    <span class="color-dot bg-dark"></span>
-                    <span class="color-dot bg-secondary"></span>
-                </div>
-            </div>
+           <div class="my-3">
+    <label class="fw-bold mb-2">Color</label>
+    <div class="d-flex gap-2">
+        {% for color in producto.colores.all %}
+            <span class="color-dot" 
+                  data-hex="{{ color.codigo_hex }}"
+                  title="{{ color.nombre }}">
+            </span>
+        {% empty %}
+            <span class="text-muted small">No especificado</span>
+        {% endfor %}
+    </div>
+</div>
 
-            <button class="btn btn-dark w-100 mb-2">Comprar</button>
-            <button class="btn btn-outline-dark w-100">Agregar al carrito</button>
+<script>
+    document.querySelectorAll('.color-dot').forEach(dot => {
+        const color = dot.getAttribute('data-hex');
+        dot.style.backgroundColor = color;
+    });
+</script>
+
+            <div class="mt-5">
+                <button class="btn btn-dark w-100 py-3 mb-2 fw-bold">COMPRAR AHORA</button>
+                <button class="btn btn-outline-dark w-100 py-2">AGREGAR AL CARRITO</button>
+            </div>
         </div>
 
     </div>
 </div>
+
 
 {% endblock %}

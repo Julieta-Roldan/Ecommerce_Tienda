@@ -86,11 +86,18 @@ def eliminar_producto(request, producto_id):
 
 
 
-def catalogo(request):
-    productos = Producto.objects.all()
-    return render(request, 'tienda/catalogo.html', {'productos': productos})
-
-
+# Busca tu función catalogo y reemplazala por esta:
+def catalogo(request, nombre_categoria=None):
+    productos = Producto.objects.filter(activo=True)
+    
+    if nombre_categoria:
+        # Filtramos por el nombre de la categoría (usamos __iexact para ignorar mayúsculas)
+        productos = productos.filter(categoria__nombre__iexact=nombre_categoria)
+    
+    return render(request, 'tienda/catalogo.html', {
+        'productos': productos,
+        'categoria_actual': nombre_categoria
+    })
 
 def producto_detalle(request, id):
     producto = get_object_or_404(Producto, id=id)
@@ -110,6 +117,7 @@ def buscar_productos(request):
         'productos': productos
     }
     
+# Esto ya lo tienes, solo verifica que el return esté correcto
 def vista_busqueda(request):
-    data = buscar_productos(request)
+    data = buscar_productos(request) # Aquí llama a tu función que filtra con Q
     return render(request, 'tienda/busqueda.html', data)

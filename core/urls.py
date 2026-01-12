@@ -11,5 +11,6 @@ urlpatterns = [
     path('ubicacion/', views.ubicacion, name='ubicacion'),
     path('favoritos/', views.favoritos, name='favoritos'),
     path('carrito/', views.carrito, name='carrito'),
+ 
 
 ]

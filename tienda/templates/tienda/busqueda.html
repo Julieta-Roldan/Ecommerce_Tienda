@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container my-5">
+    <h2>Resultados para: "{{ query }}"</h2>
+    <hr>
+
+    {% if productos %}
+        <div class="row g-4">
+            {% for producto in productos %}
+            <div class="col-6 col-md-4 col-lg-3">
+                <div class="card border-0">
+                    {% if producto.imagen %}
+                        <img src="{{ producto.imagen.url }}" class="card-img-top" alt="{{ producto.nombre }}">
+                    {% endif %}
+                    <div class="card-body px-0">
+                        <h6 class="product-title">{{ producto.nombre }}</h6>
+                        <p class="fw-bold">$ {{ producto.precio }}</p>
+                        <a href="{% url 'producto_detalle' producto.id %}" class="btn btn-outline-dark btn-sm">Ver más</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-light text-center py-5">
+            <h4>No encontramos nada que coincida con "{{ query }}"</h4>
+            <p>Intenta con otra palabra o revisa la ortografía.</p>
+            <a href="{% url 'catalogo' %}" class="btn btn-dark">Volver al catálogo</a>
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}
