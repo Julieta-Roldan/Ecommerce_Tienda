@@ -1,64 +1,74 @@
-from django.shortcuts import render
-
-# Create your views here.
 from django.http import JsonResponse
-from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from tienda.models import Producto
 from .models import Carrito, ItemCarrito
+from django.shortcuts import render 
+
+def obtener_carrito(request):
+    """
+    Devuelve el carrito asociado a la sesión actual.
+    Si no existe, lo crea.
+    """
+    if not request.session.session_key:
+        request.session.create()
+
+    session_key = request.session.session_key
+
+    carrito, _ = Carrito.objects.get_or_create(
+        session_key=session_key
+    )
+
+    return carrito
 
 
-@login_required
 def agregar_producto(request, producto_id):
+    """
+    Agrega un producto al carrito de la sesión.
+    Si el producto ya existe, incrementa la cantidad.
+    """
+    carrito = obtener_carrito(request)
 
-    # Buscar producto o devolver error 404
     producto = get_object_or_404(Producto, id=producto_id)
 
-    # Obtener o crear carrito del usuario
-    carrito, _ = Carrito.objects.get_or_create(usuario=request.user)
-
-    # Buscar si el producto ya está en el carrito
     item, creado = ItemCarrito.objects.get_or_create(
         carrito=carrito,
         producto=producto
     )
 
-    # Si ya estaba, solo se incrementa la cantidad
     if not creado:
         item.cantidad += 1
         item.save()
 
     return JsonResponse({
         "mensaje": f"{producto.nombre} agregado al carrito.",
-        "cantidad_actual": item.cantidad
+        "cantidad": item.cantidad
     })
 
 
-@login_required
 def ver_carrito(request):
+    items = []
+    total = 0
 
-    carrito, _ = Carrito.objects.get_or_create(usuario=request.user)
+    if request.session.session_key:
+        carrito = Carrito.objects.filter(
+            session_key=request.session.session_key
+        ).first()
 
-    datos = {
-        "usuario": request.user.username,
-        "total": carrito.total,
-        "items": [
-            {
-                "producto": item.producto.nombre,
-                "cantidad": item.cantidad,
-                "subtotal": item.subtotal
-            }
-            for item in carrito.items.all()
-        ]
-    }
+        if carrito:
+            items = carrito.items.select_related("producto")
+            total = carrito.total()
 
-    return JsonResponse(datos)
+    return render(request, "carrito/carrito.html", {
+        "items": items,
+        "total": total
+    })
 
 
-@login_required
 def eliminar_producto(request, producto_id):
-
-    carrito, _ = Carrito.objects.get_or_create(usuario=request.user)
+    """
+    Elimina un producto del carrito.
+    """
+    carrito = obtener_carrito(request)
 
     item = ItemCarrito.objects.filter(
         carrito=carrito,
@@ -67,20 +77,6 @@ def eliminar_producto(request, producto_id):
 
     if item:
         item.delete()
-        return JsonResponse({"mensaje": "Producto eliminado correctamente."})
+        return JsonResponse({"mensaje": "Producto eliminado del carrito."})
 
     return JsonResponse({"mensaje": "El producto no estaba en el carrito."})
-
-
-def obtener_carrito(request):
-    if not request.session.session_key:
-        request.session.create()
-
-    session_key = request.session.session_key
-
-    carrito, creado = Carrito.objects.get_or_create(
-        session_key=session_key
-    )
-
-    return carrito
-

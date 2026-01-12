@@ -36,8 +36,7 @@ class Pedido(models.Model):
     @property
     def total(self):
         return sum(item.subtotal for item in self.items.all())
-
-
+    
 class ItemPedido(models.Model):
 
     pedido = models.ForeignKey(
