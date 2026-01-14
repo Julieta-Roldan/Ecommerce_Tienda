@@ -5,6 +5,7 @@ class UsuariosConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'usuarios'
 
-    def ready(self):
-        from .signals import crear_roles
-        crear_roles(sender=self)
+    # def ready(self):
+    #     from .signals import crear_roles
+    #     crear_roles(sender=self)
+

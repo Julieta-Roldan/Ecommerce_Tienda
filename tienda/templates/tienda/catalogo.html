@@ -1,31 +1,79 @@
 {% extends 'base.html' %}
 {% block content %}
 {% load static %}
-<!DOCTYPE html>
-...
+{% load humanize %} 
 
 <div class="container my-5">
     <div class="row g-4">
-
+        
         {% for producto in productos %}
         <div class="col-6 col-md-4 col-lg-3">
-            <div class="card border-0">
-                <img src="{{ producto.imagen.url }}" class="card-img-top" alt="{{ producto.nombre }}">
-                <div class="card-body px-0">
-                    <h6 class="product-title">{{ producto.nombre }}</h6>
-                    <p class="fw-bold">$ {{ producto.precio }}</p>
+            <a href="{% url 'producto_detalle' producto.id %}" class="text-decoration-none text-dark">
+                <div class="card border-0 h-100 shadow-hover">
+                    
+                    <div class="position-relative overflow-hidden">
+                        {% if producto.imagenes.all %}
+                            <img src="{{ producto.imagenes.first.imagen.url }}" class="card-img-top custom-img" alt="{{ producto.nombre }}">
+                        {% else %}
+                            <div class="bg-light d-flex align-items-center justify-content-center custom-img">
+                                <p class="text-muted small">Sin imagen</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="card-body px-0 text-center">
+                        <h6 class="text-uppercase fw-bold mb-1" style="font-size: 0.85rem; letter-spacing: 1px;">
+                            {{ producto.nombre }}
+                        </h6>
+                        <p class="fw-bold mb-3 text-secondary">
+                            $ {{ producto.precio|floatformat:"0"|intcomma }}
+                        </p>
 
-                    <div class="d-flex gap-1">
-                        <span class="color-dot bg-dark"></span>
-                        <span class="color-dot bg-secondary"></span>
-                        <span class="color-dot bg-light border"></span>
+                        <div class="d-grid px-2">
+                            <span class="btn btn-dark btn-sm text-uppercase fw-bold py-2" style="font-size: 0.7rem;">
+                                Ver detalles
+                            </span>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </a>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center">
+            <p class="text-muted">No hay productos disponibles en este momento.</p>
         </div>
         {% endfor %}
 
     </div>
 </div>
+
+<style>
+    /* Ajuste de las imágenes para que todas midan lo mismo */
+    .custom-img {
+        aspect-ratio: 2/3;
+        object-fit: cover;
+        width: 100%;
+        transition: transform 0.5s ease;
+    }
+
+    /* Efecto de zoom suave al pasar el mouse */
+    .card:hover .custom-img {
+        transform: scale(1.05);
+    }
+
+    /* Sombra suave al pasar el mouse por la tarjeta */
+    .shadow-hover {
+        transition: all 0.3s ease;
+    }
+    
+    .shadow-hover:hover {
+        transform: translateY(-5px);
+    }
+
+    /* Ajuste para que el texto no se pegue */
+    .card-body {
+        padding-top: 15px !important;
+    }
+</style>
 
 {% endblock %}

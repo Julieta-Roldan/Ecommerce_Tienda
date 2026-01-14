@@ -9,12 +9,12 @@ from . import views
 
 
 urlpatterns = [
-    path('productos/', listar_productos),
-    path('productos/<int:producto_id>/', obtener_producto),
-    path('productos/crear/', crear_producto),
-    path('productos/<int:producto_id>/actualizar/', actualizar_producto),
-    path('productos/<int:producto_id>/eliminar/', eliminar_producto),
-    path('catalogo/', catalogo, name='catalogo'),
-    path('buscar/', views.vista_busqueda, name='buscar_productos'),
+    # Ruta para ver TODO el catálogo
+    path('catalogo/', views.catalogo, name='catalogo'),
     
+    # NUEVA RUTA: Para filtrar por categoría (ej: catalogo/pantalones/)
+    path('catalogo/<str:nombre_categoria>/', views.catalogo, name='catalogo_categoria'),
+    
+    path('buscar/', views.vista_busqueda, name='buscar_productos'),
+    path('producto/<int:id>/', views.producto_detalle, name='producto_detalle'),
 ]

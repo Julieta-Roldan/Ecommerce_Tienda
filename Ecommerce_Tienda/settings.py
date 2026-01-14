@@ -50,7 +50,7 @@ INSTALLED_APPS = [
     'usuarios',         # autenticación interna y perfiles (Dueño/Empleado)
     'carrito',          # lógica del carrito de compras
     'pedidos_pagos',    # pedidos, checkout y pagos (Mercado Pago)
-    
+    'django.contrib.humanize', #yo
 
 ]
 
@@ -130,13 +130,14 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'es-ar' #'en-us' este estaba, lo cambié
 
 TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
 USE_TZ = True
+
 
 
 # Static files (CSS, JavaScript, Images)
