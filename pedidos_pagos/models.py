@@ -12,12 +12,14 @@ class Pedido(models.Model):
         ('entregado', 'Entregado'),
         ('cancelado', 'Cancelado'),
     ]
-
+    
     carrito = models.OneToOneField(
-        Carrito,
-        on_delete=models.PROTECT,
-        related_name='pedido'
-    )
+    Carrito,
+    on_delete=models.PROTECT,
+    related_name='pedido',
+    null=True,
+    blank=True
+)
 
     email = models.EmailField(blank=True, null=True)
     telefono = models.CharField(max_length=30, blank=True, null=True)
