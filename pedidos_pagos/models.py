@@ -12,12 +12,14 @@ class Pedido(models.Model):
         ('entregado', 'Entregado'),
         ('cancelado', 'Cancelado'),
     ]
-
+    
     carrito = models.OneToOneField(
-        Carrito,
-        on_delete=models.PROTECT,
-        related_name='pedido'
-    )
+    Carrito,
+    on_delete=models.PROTECT,
+    related_name='pedido',
+    null=True,
+    blank=True
+)
 
     email = models.EmailField(blank=True, null=True)
     telefono = models.CharField(max_length=30, blank=True, null=True)
@@ -36,8 +38,7 @@ class Pedido(models.Model):
     @property
     def total(self):
         return sum(item.subtotal for item in self.items.all())
-
-
+    
 class ItemPedido(models.Model):
 
     pedido = models.ForeignKey(

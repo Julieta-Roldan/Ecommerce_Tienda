@@ -1,181 +1,208 @@
-from django.shortcuts import render
-
-# Create your views here.
-from django.http import JsonResponse
-from django.contrib.auth.decorators import login_required
-from carrito.models import Carrito, ItemCarrito
-from .models import Pedido, ItemPedido
-from django.shortcuts import get_object_or_404
-from django.views.decorators.csrf import csrf_exempt
 import json
-from .models import Pago
-from .services import crear_pedido_desde_carrito
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import get_object_or_404
+from django.db import transaction
 
-@login_required
-def crear_pedido_desde_carrito(request):
-
-    try:
-        carrito = Carrito.objects.get(usuario=request.user)
-    except Carrito.DoesNotExist:
-        return JsonResponse({"error": "El usuario no tiene carrito"}, status=400)
-
-    if carrito.items.count() == 0:
-        return JsonResponse({"error": "El carrito está vacío"}, status=400)
-
-    # 1. Crear el pedido
-    pedido = Pedido.objects.create(
-        usuario=request.user,
-        estado='pendiente'
-    )
-
-    # 2. Pasar items del carrito al pedido
-    for item in carrito.items.all():
-        ItemPedido.objects.create(
-            pedido=pedido,
-            producto=item.producto,
-            cantidad=item.cantidad,
-            precio_unitario=item.producto.precio
-        )
-
-    # 3. Vaciar carrito
-    carrito.items.all().delete()
-
-    return JsonResponse({
-        "mensaje": "Pedido creado correctamente",
-        "pedido_id": pedido.id,
-        "total": pedido.total
-    })
-
-
-
-@login_required
-def listar_pedidos_usuario(request):
-
-    pedidos = Pedido.objects.filter(usuario=request.user)
-
-    datos = [
-        {
-            "id": p.id,
-            "estado": p.estado,
-            "fecha": p.fecha_creacion,
-            "total": p.total
-        }
-        for p in pedidos
-    ]
-
-    return JsonResponse({"pedidos": datos})
-
-
-@login_required
-def ver_detalle_pedido(request, pedido_id):
-
-    pedido = get_object_or_404(Pedido, id=pedido_id, usuario=request.user)
-
-    datos = {
-        "id": pedido.id,
-        "estado": pedido.estado,
-        "fecha": pedido.fecha_creacion,
-        "total": pedido.total,
-        "items": [
-            {
-                "producto": item.producto.nombre,
-                "cantidad": item.cantidad,
-                "precio_unitario": item.precio_unitario,
-                "subtotal": item.subtotal
-            }
-            for item in pedido.items.all()
-        ]
-    }
-
-    return JsonResponse(datos)
-
+from tienda.models import Producto
+from .models import Pedido, ItemPedido, Pago
+from .services.mercadopago import crear_preferencia_pago
+from decimal import Decimal
+from carrito.models import Carrito, ItemCarrito
 
 @csrf_exempt
 def checkout_cliente_externo(request):
-
+    """
+    Cliente externo envía JSON con items y datos de contacto.
+    """
     if request.method != "POST":
         return JsonResponse({"error": "Método no permitido"}, status=405)
 
-    # Obtener datos enviados en JSON
-    data = json.loads(request.body.decode('utf-8'))
+    data = json.loads(request.body.decode("utf-8"))
 
     email = data.get("email")
     telefono = data.get("telefono")
-    carrito_items = data.get("items")  # el frontend enviará [{"producto_id":1,"cantidad":2}, ...]
+    items = data.get("items")
 
-    # Validación mínima
-    if not email and not telefono:
-        return JsonResponse({"error": "Debe proporcionar email o teléfono"}, status=400)
+    if not items:
+        return JsonResponse({"error": "No hay items"}, status=400)
 
-    if not carrito_items:
-        return JsonResponse({"error": "Debe enviar items para crear el pedido"}, status=400)
-
-    # Crear pedido sin usuario
     pedido = Pedido.objects.create(
-        usuario=None,
-        estado="pendiente",
-        email_cliente=email,
-        telefono_cliente=telefono
+        email=email,
+        telefono=telefono,
+        estado="pendiente"
     )
 
     total = 0
 
-    # Crear items del pedido
-    for item in carrito_items:
-        producto_id = item.get("producto_id")
-        cantidad = item.get("cantidad", 1)
+    for item in items:
+        producto = get_object_or_404(Producto, id=item.get("producto_id"))
+        cantidad = int(item.get("cantidad", 1))
 
-        producto = get_object_or_404(Producto, id=producto_id)
+        # ✅ VALIDACIONES CLAVE
+        if cantidad <= 0:
+            return JsonResponse(
+                {"error": "Cantidad inválida"},
+                status=400
+            )
+
+        if producto.stock < cantidad:
+            return JsonResponse(
+                {"error": f"Stock insuficiente para {producto.nombre}"},
+                status=400
+            )
 
         ItemPedido.objects.create(
             pedido=pedido,
             producto=producto,
-            cantidad=cantidad,
-            precio_unitario=producto.precio
+            nombre_producto=producto.nombre,
+            precio_unitario=producto.precio,
+            cantidad=cantidad
         )
 
         total += producto.precio * cantidad
 
     return JsonResponse({
-        "mensaje": "Pedido externo creado correctamente",
+        "mensaje": "Pedido creado",
         "pedido_id": pedido.id,
         "total": float(total)
     })
 
+@csrf_exempt
+def pagar_pedido(request, pedido_id):
+    """
+    Crea el pago y la preferencia de Mercado Pago.
+    """
+    if request.method != "POST":
+        return JsonResponse(
+            {"error": "Método no permitido"},
+            status=405
+        )
 
-def crear_pago_pendiente(pedido):
+    pedido = get_object_or_404(Pedido, id=pedido_id)
+
+    if pedido.estado != "pendiente":
+        return JsonResponse(
+            {"error": "Este pedido no puede pagarse"},
+            status=400
+        )
+
     pago = Pago.objects.create(
         pedido=pedido,
         monto=pedido.total,
-        estado='pendiente'
+        metodo="mercadopago",
+        estado="pendiente"
     )
-    return pago
 
-def confirmar_pago(pago_id, referencia_externa):
-    pago = Pago.objects.get(id=pago_id)
-
-    pago.estado = 'aprobado'
-    pago.referencia_externa = referencia_externa
-    pago.save()
-
-    pedido = pago.pedido
-    pedido.estado = 'pagado'
-    pedido.save()
-
-def confirmar_pedido(request, carrito_id):
-    carrito = get_object_or_404(Carrito, id=carrito_id)
-
-    email = request.POST.get('email')
-    telefono = request.POST.get('telefono')
-
-    pedido = crear_pedido_desde_carrito(
-        carrito=carrito,
-        email=email,
-        telefono=telefono
-    )
+    preferencia = crear_preferencia_pago(pedido)
 
     return JsonResponse({
-        'pedido_id': pedido.id,
-        'total': pedido.total,
-        'estado': pedido.estado
+        "pago_id": pago.id,
+        "init_point": preferencia["init_point"],
+        "sandbox_init_point": preferencia.get("sandbox_init_point")
+    })
+
+@csrf_exempt
+@transaction.atomic
+def confirmar_pago(request, pago_id):
+    """
+    Confirmación del pago (webhook o simulación).
+    """
+    if request.method != "POST":
+        return JsonResponse(
+            {"error": "Método no permitido"},
+            status=405)
+            
+            
+    pago = get_object_or_404(Pago, id=pago_id, estado="pendiente")
+    pedido = pago.pedido
+
+    # 1️⃣ Validar stock ANTES de tocar nada
+    for item in pedido.items.all():
+        if item.producto.stock < item.cantidad:
+            return JsonResponse(
+                {"error": f"Stock insuficiente para {item.producto.nombre}"},
+                status=400
+            )
+
+    # 2️⃣ Descontar stock
+    for item in pedido.items.all():
+        producto = item.producto
+        producto.stock -= item.cantidad
+        producto.save()
+
+    # 3️⃣ Marcar pago como aprobado
+    pago.estado = "aprobado"
+    pago.referencia_externa = f"PAGO-{pago.id}"
+    pago.save()
+
+    # 4️⃣ Marcar pedido como pagado
+    pedido.estado = "pagado"
+    pedido.save()
+
+    return JsonResponse({
+        "mensaje": "Pago confirmado correctamente",
+        "pedido_id": pedido.id,
+        "pago_id": pago.id,
+        "estado_pago": pago.estado
+    })
+
+
+@csrf_exempt
+def crear_pedido_desde_carrito(request):
+    if request.method != "POST":
+        return JsonResponse(
+            {"error": "Método no permitido"},
+            status=405
+        )
+
+    if not request.session.session_key:
+        return JsonResponse(
+            {"error": "No hay carrito activo"},
+            status=400
+        )
+
+    carrito = Carrito.objects.filter(
+        session_key=request.session.session_key
+    ).first()
+
+    if not carrito or not carrito.items.exists():
+        return JsonResponse(
+            {"error": "El carrito está vacío"},
+            status=400
+        )
+
+    # 🔒 Evitar pedidos duplicados
+    if hasattr(carrito, "pedido"):
+        return JsonResponse(
+            {"error": "Este carrito ya tiene un pedido"},
+            status=400
+        )
+
+    pedido = Pedido.objects.create(
+        carrito=carrito,
+        estado="pendiente"
+    )
+
+    for item in carrito.items.select_related("producto"):
+        producto = item.producto
+
+        if producto.stock < item.cantidad:
+            return JsonResponse(
+                {"error": f"Stock insuficiente para {producto.nombre}"},
+                status=400
+            )
+
+        ItemPedido.objects.create(
+            pedido=pedido,
+            producto=producto,
+            nombre_producto=producto.nombre,
+            precio_unitario=producto.precio,
+            cantidad=item.cantidad
+        )
+
+    return JsonResponse({
+        "mensaje": "Pedido creado desde carrito",
+        "pedido_id": pedido.id,
+        "total": float(pedido.total)
     })

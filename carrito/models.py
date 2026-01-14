@@ -1,11 +1,7 @@
 from django.db import models
-
-# Create your models here.
-from django.contrib.auth.models import User
 from tienda.models import Producto
 from django.db import models
 from tienda.models import Producto
-
 
 class Carrito(models.Model):
     session_key = models.CharField(max_length=40, unique=True)
@@ -14,6 +10,9 @@ class Carrito(models.Model):
 
     def __str__(self):
         return f"Carrito {self.session_key}"
+
+    def total(self):
+        return sum(item.subtotal() for item in self.items.all())
 
 
 class ItemCarrito(models.Model):
@@ -34,6 +33,6 @@ class ItemCarrito(models.Model):
     def __str__(self):
         return f"{self.cantidad} x {self.producto.nombre}"
 
-def total(self):
-    return sum(item.subtotal() for item in self.items.all())
+
+
 
