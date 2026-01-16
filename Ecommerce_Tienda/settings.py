@@ -50,8 +50,7 @@ INSTALLED_APPS = [
     'usuarios',         # autenticación interna y perfiles (Dueño/Empleado)
     'carrito',          # lógica del carrito de compras
     'pedidos_pagos',    # pedidos, checkout y pagos (Mercado Pago)
-    
-
+   
 ]
 
 MIDDLEWARE = [
@@ -69,7 +68,7 @@ ROOT_URLCONF = 'Ecommerce_Tienda.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates' , 'core/templates' ],
+        'DIRS': [BASE_DIR / 'templates' , 'core/templates'  , 'tienda/templates', 'carrito/templates' ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
