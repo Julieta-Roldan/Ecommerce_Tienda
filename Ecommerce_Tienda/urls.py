@@ -31,12 +31,9 @@ urlpatterns = [
     path('usuarios/', include('usuarios.urls')),# URLs para gestión interna (no cliente)
     path('carrito/', include('carrito.urls')),  # endpoints del carrito
     path('pedidos/', include('pedidos_pagos.urls')),  # checkout y pagos
-    path('carrito/', include('carrito.urls')),
-    path('pedidos/', include('pedidos_pagos.urls')),
-    path('usuarios/', include('usuarios.urls')),
-    path('tienda/', include('tienda.urls')),
-  
+    
     
 ]
+
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

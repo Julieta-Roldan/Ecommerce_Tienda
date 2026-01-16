@@ -3,63 +3,227 @@
 {% load static %}
 {% load humanize %}
 
+<style>
+    /* Estilos para los colores y efectos */
+    .color-dot {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: inline-block;
+        border: 2px solid #ddd;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+    }
+    .color-dot:hover {
+        transform: scale(1.1);
+        border-color: #000;
+    }
+    .thumbnail-img {
+        width: 80px;
+        height: 100px;
+        object-fit: cover;
+        cursor: pointer;
+        border: 1px solid #ddd;
+        transition: border-color 0.2s;
+    }
+    .thumbnail-img:hover {
+        border-color: #000;
+    }
+    .bi-heart, .bi-heart-fill {
+        font-size: 1.5rem;
+    }
+    .text-danger {
+        color: #ff4d4d !important;
+    }
+    /* Arreglo para que las imágenes de abajo no sean gigantes */
+    .img-relacionado {
+        height: 250px;
+        width: 100%;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+
+    /* Clase para el talle seleccionado */
+    .talle-seleccionado {
+        background-color: #212529 !important; /* Negro de Bootstrap */
+        color: white !important;
+        border-color: #212529 !important;
+    }
+</style>
+
 <div class="container my-5">
     <div class="row">
         <div class="col-md-6 mb-4">
             {% if producto.imagenes.all %}
-                <img src="{{ producto.imagenes.first.imagen.url }}" class="img-fluid rounded shadow-sm" alt="{{ producto.nombre }}">
+                <img src="{{ producto.imagenes.first.imagen.url }}" id="mainImage" class="img-fluid rounded shadow-sm mb-3" alt="{{ producto.nombre }}">
+                
+                <div class="d-flex gap-2">
+                    {% for img in producto.imagenes.all %}
+                        <img src="{{ img.imagen.url }}" class="thumbnail-img rounded" onclick="document.getElementById('mainImage').src=this.src">
+                    {% endfor %}
+                </div>
             {% else %}
-                <div class="bg-light d-flex align-items-center justify-content-center" style="height: 400px;">
+                <div class="bg-light d-flex align-items-center justify-content-center" style="height: 500px;">
                     <p class="text-muted">Sin imagen</p>
                 </div>
             {% endif %}
         </div>
 
         <div class="col-md-6">
-            <h2 class="product-title fw-bold text-uppercase">{{ producto.nombre }}</h2>
-            <p class="fs-3 fw-bold text-dark">$ {{ producto.precio|floatformat:"0"|intcomma }}</p>
-            <p class="text-muted my-4">{{ producto.descripcion }}</p>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'index' %}" class="text-dark">Inicio</a></li>
+                    <li class="breadcrumb-item active">{{ producto.categoria.nombre }}</li>
+                </ol>
+            </nav>
 
-            <div class="my-3">
-                <label class="fw-bold mb-2">Talle</label>
-                <select class="form-select w-50">
-                    {% for talle in producto.talles.all %}
-                        <option value="{{ talle.id }}">{{ talle.nombre }}</option>
-                    {% empty %}
-                        <option>Talle único</option>
-                    {% endfor %}
-                </select>
+            <h2 class="product-title fw-bold text-uppercase mt-2">{{ producto.nombre }}</h2>
+            <p class="fs-3 fw-bold text-dark">$ {{ producto.precio|floatformat:"0"|intcomma }}</p>
+            
+            <div class="my-4 trust-badge">
+               <p><i class="bi bi-credit-card info-icon"></i> <strong>3 cuotas sin interés</strong> de ${{ cuota|floatformat:"0"|intcomma }}</p>
+                <p><i class="bi bi-truck info-icon"></i> Envío gratis en CABA y GBA</p>
             </div>
 
-           <div class="my-3">
-    <label class="fw-bold mb-2">Color</label>
-    <div class="d-flex gap-2">
-        {% for color in producto.colores.all %}
-            <span class="color-dot" 
-                  data-hex="{{ color.codigo_hex }}"
-                  title="{{ color.nombre }}">
-            </span>
-        {% empty %}
-            <span class="text-muted small">No especificado</span>
-        {% endfor %}
+            <hr>
+
+            <div class="my-3">
+                <label class="fw-bold mb-2">TALLE</label>
+                <div class="d-flex gap-2">
+                    {% for talle in producto.talles.all %}
+                    <button class="btn btn-outline-dark btn-sm px-4 btn-talle">{{ talle.nombre }}</button>
+                    {% empty %}
+                    <span class="text-muted">Talle único</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="my-3">
+                <label class="fw-bold mb-2">COLOR</label>
+                <div class="d-flex gap-2">
+                    {% for color in producto.colores.all %}
+                        <span class="color-dot" 
+                              data-color="{{ color.codigo_hex }}" 
+                              title="{{ color.nombre }}">
+                        </span>
+                    {% empty %}
+                        <span class="text-muted small">Único</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="mt-5">
+                <div class="d-flex gap-2 mb-2">
+                    <button class="btn btn-dark w-100 py-3 fw-bold shadow-sm">COMPRAR AHORA</button>
+                    <button class="btn btn-outline-dark px-4 d-flex align-items-center justify-content-center btn-favorito" 
+                            data-id="{{ producto.id }}" 
+                            data-nombre="{{ producto.nombre }}"
+                            data-precio="{{ producto.precio }}"
+                            data-imagen="{{ producto.imagenes.first.imagen.url }}"
+                            type="button">
+                        <i class="bi bi-heart"></i>
+                    </button>
+                </div>
+                <button class="btn btn-outline-dark w-100 py-2">AGREGAR AL CARRITO</button>
+            </div>
+
+            <div class="mt-4">
+                <p class="text-muted">{{ producto.descripcion|linebreaks }}</p>
+            </div>
+        </div>
     </div>
+
+    {% if relacionados %}
+    <div class="mt-5 pt-5 border-top">
+        <h3 class="text-center mb-4 text-uppercase fw-bold">También te puede gustar</h3>
+        <div class="row g-4">
+            {% for rel in relacionados %}
+            <div class="col-6 col-md-3">
+                <div class="text-center">
+                    <a href="{% url 'producto_detalle' rel.id %}" class="text-decoration-none text-dark">
+                        {% if rel.imagenes.all %}
+                            <img src="{{ rel.imagenes.first.imagen.url }}" 
+                                 class="img-fluid rounded shadow-sm mb-2" 
+                                 style="width: 100%; height: auto; display: block;">
+                        {% else %}
+                            <div class="bg-light mb-2 d-flex align-items-center justify-content-center" style="aspect-ratio: 2/3;">
+                                <span class="text-muted small">Sin imagen</span>
+                            </div>
+                        {% endif %}
+                        <h6 class="text-uppercase mb-1" style="font-size: 0.85rem;">{{ rel.nombre }}</h6>
+                        <p class="fw-bold">$ {{ rel.precio|floatformat:"0" }}</p>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
 </div>
 
 <script>
+    // 1. Pinta los círculos con su color real
     document.querySelectorAll('.color-dot').forEach(dot => {
-        const color = dot.getAttribute('data-hex');
-        dot.style.backgroundColor = color;
+        const colorHex = dot.getAttribute('data-color');
+        if (colorHex) {
+            dot.style.backgroundColor = colorHex;
+        }
+    });
+
+    // 2. Lógica visual del corazón
+    const btnFav = document.querySelector('.btn-favorito');
+    
+    // Al cargar la página, chequeamos si este producto ya es favorito
+    const favoritosActuales = JSON.parse(localStorage.getItem('mis_favoritos')) || [];
+    const productoId = btnFav.getAttribute('data-id');
+    const icon = btnFav.querySelector('i');
+
+    if (favoritosActuales.some(p => p.id === productoId)) {
+        icon.classList.replace('bi-heart', 'bi-heart-fill');
+        btnFav.classList.add('text-danger');
+    }
+
+    btnFav.addEventListener('click', function() {
+        let favoritos = JSON.parse(localStorage.getItem('mis_favoritos')) || [];
+        const producto = {
+            id: this.getAttribute('data-id'),
+            nombre: this.getAttribute('data-nombre'),
+            precio: this.getAttribute('data-precio'),
+            imagen: this.getAttribute('data-imagen')
+        };
+
+        const index = favoritos.findIndex(p => p.id === producto.id);
+
+        if (index === -1) {
+            // No estaba, lo agregamos
+            favoritos.push(producto);
+            icon.classList.replace('bi-heart', 'bi-heart-fill');
+            this.classList.add('text-danger');
+            console.log("Agregado a favoritos local");
+        } else {
+            // Ya estaba, lo sacamos
+            favoritos.splice(index, 1);
+            icon.classList.replace('bi-heart-fill', 'bi-heart');
+            this.classList.remove('text-danger');
+            console.log("Sacado de favoritos local");
+        }
+
+        // Guardamos la lista actualizada en el navegador
+        localStorage.setItem('mis_favoritos', JSON.stringify(favoritos));
+    });
+
+    // 3. Lógica para seleccionar Talles
+    const botonesTalle = document.querySelectorAll('.btn-talle');
+    
+    botonesTalle.forEach(boton => {
+        boton.addEventListener('click', function() {
+            // Primero quitamos la marca de "seleccionado" a todos los otros botones
+            botonesTalle.forEach(b => b.classList.remove('talle-seleccionado'));
+            
+            // Le agregamos la marca al botón que tocamos
+            this.classList.add('talle-seleccionado');
+        });
     });
 </script>
-
-            <div class="mt-5">
-                <button class="btn btn-dark w-100 py-3 mb-2 fw-bold">COMPRAR AHORA</button>
-                <button class="btn btn-outline-dark w-100 py-2">AGREGAR AL CARRITO</button>
-            </div>
-        </div>
-
-    </div>
-</div>
-
 
 {% endblock %}

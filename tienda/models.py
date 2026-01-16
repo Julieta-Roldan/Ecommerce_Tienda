@@ -153,3 +153,19 @@ class ImagenProducto(models.Model):
     def __str__(self):
         return f"Imagen de {self.producto.nombre}"
     
+    
+    
+#yo
+
+from django.contrib.auth.models import User
+
+class Favorito(models.Model):
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name='favoritos')
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
+    fecha_agregado = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('usuario', 'producto') # Evita que el mismo producto se agregue dos veces
+
+    def __str__(self):
+        return f"{self.usuario.username} - {self.producto.nombre}"

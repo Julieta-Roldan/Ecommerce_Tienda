@@ -448,3 +448,44 @@ a {
 .color-dot:empty {
     background-color: #f8f8f8;
 }
+
+
+/* Agregá esto al final de tu styles.css */
+.fw-800 { font-weight: 800; }
+
+/* Mejora de suavizado de fuentes */
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Para que las imágenes no se vean pixeladas al agrandarse */
+img {
+    image-rendering: -webkit-optimize-contrast;
+}
+
+.badge-luxury {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: #000;
+    color: #fff;
+    padding: 5px 12px;
+    font-size: 0.6rem;
+    letter-spacing: 2px;
+    font-weight: bold;
+    z-index: 5;
+}
+
+.product-card-cool {
+    /* Agregamos un fondo muy tenue a la card para que se diferencie del fondo blanco de la página */
+    background-color: #fcfcfc; 
+    padding: 10px;
+    transition: all 0.3s ease;
+}
+
+.product-card-cool:hover {
+    background-color: #ffffff;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+
