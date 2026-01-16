@@ -23,3 +23,9 @@ urlpatterns = [
         name='confirmar_pago'
     ),
 ]
+
+path(
+    'crear-desde-carrito/',
+    views.crear_pedido_desde_carrito,
+    name='crear_pedido_desde_carrito'
+),

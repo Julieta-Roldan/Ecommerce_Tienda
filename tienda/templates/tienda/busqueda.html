@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="container my-5">
+    <center><h2 class="section-title text-center mb-5">RESULTADOS PARA: "{{ query }}"</h2></center> 
+    
+    {% if productos %}
+        <div class="row g-4">
+            {% for producto in productos %}
+            <div class="col-6 col-md-3">
+                <div class="product-card">
+                   <div class="product-image">
+                       {% with imagen_principal=producto.imagenes.all.first %}
+                           {% if imagen_principal %}
+                               <img src="{{ imagen_principal.imagen.url }}" alt="{{ producto.nombre }}">
+                           {% else %}
+                               <img src="{% static 'images/no-image.png' %}" alt="Sin imagen">
+                           {% endif %}
+                      {% endwith %}
+                   </div>
+                    <div class="product-info text-center">
+                        <h3 class="product-name">{{ producto.nombre|upper }}</h3>
+                        <p class="product-price">${{ producto.precio|floatformat:0 }}</p>
+                        
+                        <a href="{% url 'producto_detalle' producto.id %}" style="text-decoration: none;">
+                            <button class="btn-add-cart">VER DETALLE</button>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-search" style="font-size: 3rem; color: #ccc;"></i>
+            <h4 class="mt-3">No encontramos nada que coincida con "{{ query }}"</h4>
+            <p>Intentá con otra palabra o revisá la ortografía.</p>
+            <a href="{% url 'home' %}" class="btn-luxury" style="background: black;">VOLVER AL INICIO</a>
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}

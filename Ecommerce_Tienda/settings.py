@@ -50,7 +50,8 @@ INSTALLED_APPS = [
     'usuarios',         # autenticación interna y perfiles (Dueño/Empleado)
     'carrito',          # lógica del carrito de compras
     'pedidos_pagos',    # pedidos, checkout y pagos (Mercado Pago)
-   
+    'django.contrib.humanize', #yo
+
 ]
 
 MIDDLEWARE = [
@@ -129,13 +130,14 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'es-ar' #'en-us' este estaba, lo cambié
 
 TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
 USE_TZ = True
+
 
 
 # Static files (CSS, JavaScript, Images)
@@ -157,7 +159,8 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
     
 ]
+
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT =  BASE_DIR / 'media' 
 
 MERCADOPAGO_ACCESS_TOKEN = os.getenv("MERCADOPAGO_ACCESS_TOKEN")

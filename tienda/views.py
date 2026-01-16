@@ -86,30 +86,98 @@ def eliminar_producto(request, producto_id):
 
 
 
-def catalogo(request):
+# Busca tu función catalogo y reemplazala por esta:
+# def catalogo(request, nombre_categoria=None):
+#     productos = Producto.objects.filter(activo=True)
+    
+#     if nombre_categoria:
+#         # Filtramos por el nombre de la categoría (usamos __iexact para ignorar mayúsculas)
+#         productos = productos.filter(categoria__nombre__iexact=nombre_categoria)
+    
+#     return render(request, 'tienda/catalogo.html', {
+#         'productos': productos,
+#         'categoria_actual': nombre_categoria
+#     })
+
+# def producto_detalle(request, id):
+#     producto = get_object_or_404(Producto, id=id)
+#     return render(request, 'tienda/producto.html', {'producto': producto})
+
+# Agregamos 'nombre_categoria=None' para que sea opcional
+def catalogo(request, nombre_categoria=None): 
+    # 1. Traemos todos los productos inicialmente
     productos = Producto.objects.all()
-    return render(request, 'tienda/catalogo.html', {'productos': productos})
 
+    # 2. Si entramos por una categoría (ej: Pantalones), filtramos
+    if nombre_categoria:
+        productos = productos.filter(categoria__nombre=nombre_categoria)
 
+    # 3. Mantenemos la lógica de ordenado que ya tenías
+    ordenar_por = request.GET.get('orden')
+    if ordenar_por == 'menor':
+        productos = productos.order_by('precio')
+    elif ordenar_por == 'mayor':
+        productos = productos.order_by('-precio')
+    elif ordenar_por == 'relevantes':
+        productos = productos.order_by('-id')
+
+    return render(request, 'tienda/catalogo.html', {
+        'productos': productos,
+        'categoria_actual': nombre_categoria # Esto te sirve para poner un título dinámico
+    })
 
 def producto_detalle(request, id):
-    producto = get_object_or_404(Producto, id=id)
-    return render(request, 'tienda/producto.html', {'producto': producto})
-
+    producto = get_object_or_404(
+        Producto.objects.prefetch_related('imagenes', 'talles', 'colores'), 
+        id=id
+    )
+    
+    # Calculamos el valor de la cuota aquí en Python
+    cuota = producto.precio / 3
+    
+    relacionados = Producto.objects.filter(
+        categoria=producto.categoria, 
+        activo=True
+    ).exclude(id=producto.id)[:4]
+    
+    return render(request, 'tienda/producto.html', {
+        'producto': producto,
+        'relacionados': relacionados,
+        'cuota': cuota  # Mandamos el valor de la cuota al HTML
+    })
 
 def buscar_productos(request):
     query = request.GET.get('q', '')
+    if query:
+        productos = Producto.objects.filter(
+            Q(nombre__icontains=query) | 
+            Q(categoria__nombre__icontains=query),
+            activo=True
+        ).prefetch_related('imagenes').distinct() # Agregamos prefetch_related
+    else:
+        productos = Producto.objects.none()
 
-    productos = Producto.objects.filter(
-        Q(nombre__icontains=query) |
-        Q(categoria__nombre__icontains=query)
-    ).distinct()
-
-    return {
+    return render(request, 'tienda/busqueda.html', {
         'query': query,
         'productos': productos
-    }
+    })
     
-def vista_busqueda(request):
-    data = buscar_productos(request)
-    return render(request, 'tienda/busqueda.html', data)
+#yo
+
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from .models import Favorito
+
+@login_required # Solo usuarios logueados pueden guardar favoritos
+def toggle_favorito(request, id):
+    if request.method == "POST":
+        producto = get_object_or_404(Producto, id=id)
+        favorito, created = Favorito.objects.get_or_create(usuario=request.user, producto=producto)
+        
+        if not created:
+            favorito.delete()
+            status = "removed"
+        else:
+            status = "added"
+            
+        return JsonResponse({"status": status})
