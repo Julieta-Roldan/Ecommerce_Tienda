@@ -15,6 +15,9 @@ urlpatterns = [
     # NUEVA RUTA: Para filtrar por categoría (ej: catalogo/pantalones/)
     path('catalogo/<str:nombre_categoria>/', views.catalogo, name='catalogo_categoria'),
     
-    path('buscar/', views.vista_busqueda, name='buscar_productos'),
+   path('buscar/', views.buscar_productos, name='buscar_productos'),
     path('producto/<int:id>/', views.producto_detalle, name='producto_detalle'),
+   #yo
+   path('favorito/<int:id>/', views.toggle_favorito, name='toggle_favorito'),
+
 ]

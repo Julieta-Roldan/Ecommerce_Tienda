@@ -45,23 +45,42 @@ def agregar_producto(request, producto_id):
     })
 
 
+# def ver_carrito(request):
+#     items = []
+#     total = 0
+
+#     if request.session.session_key:
+#         carrito = Carrito.objects.filter(
+#             session_key=request.session.session_key
+#         ).first()
+
+#         if carrito:
+#             items = carrito.items.select_related("producto")
+#             total = carrito.total()
+
+#     return render(request, "carrito/carrito.html", {
+#         "items": items,
+#         "total": total
+#     })
+
+
+#yo
 def ver_carrito(request):
-    items = []
-    total = 0
-
-    if request.session.session_key:
-        carrito = Carrito.objects.filter(
-            session_key=request.session.session_key
-        ).first()
-
-        if carrito:
-            items = carrito.items.select_related("producto")
-            total = carrito.total()
-
-    return render(request, "carrito/carrito.html", {
-        "items": items,
-        "total": total
-    })
+    # Datos de prueba para que puedas ver el diseño sin errores de base de datos
+    items = [
+        {
+            'producto': {'nombre': 'Remera de prueba', 'precio': 1500, 'imagen': None},
+            'cantidad': 2,
+            'subtotal': 3000
+        },
+        {
+            'producto': {'nombre': 'Pantalón de prueba', 'precio': 5000, 'imagen': None},
+            'cantidad': 1,
+            'subtotal': 5000
+        }
+    ]
+    total = 8000
+    return render(request, 'carrito/carrito.html', {'items': items, 'total': total})
 
 
 def eliminar_producto(request, producto_id):

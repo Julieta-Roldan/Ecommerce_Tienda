@@ -2,29 +2,144 @@
 {% load static %}
 
 {% block content %}
-<div class="container my-5">
-    <h2 class="mb-4 fw-bold">Mis Favoritos</h2>
+<div class="container my-5 min-vh-100">
+    <div class="text-center mb-5">
+        <h2 class="text-uppercase fw-800 mb-2" style="letter-spacing: 8px; font-size: 2rem;">Mis Favoritos</h2>
+        <p class="text-muted text-uppercase" style="letter-spacing: 3px; font-size: 0.7rem;">Tu selección personalizada</p>
+        <hr class="mx-auto" style="width: 50px; border-top: 2px solid #000; opacity: 1;">
+    </div>
 
-    <div class="row g-4">
-        {% if favoritos %}
-            {% for producto in favoritos %}
-            <div class="col-6 col-md-3">
-                <div class="card border-0 shadow-sm h-100">
-                    <img src="{{ producto.imagen.url }}" class="card-img-top img-fluid" alt="{{ producto.nombre }}">
-                    <div class="card-body text-center">
-                        <h6 class="product-title mt-2">{{ producto.nombre }}</h6>
-                        <p class="fw-bold">${{ producto.precio }}</p>
+    <div class="row g-4" id="contenedor-favoritos">
+        </div>
+
+  <div id="mensaje-vacio" class="col-12 text-center py-5" style="display: none;">
+    <div class="mb-4">
+        <i class="bi bi-heart text-muted" style="font-size: 4rem; opacity: 0.2;"></i>
+    </div>
+    <h4 class="text-uppercase fw-bold" style="letter-spacing: 3px;">Tu lista está vacía</h4>
+    <p class="text-muted mb-4">Parece que aún no has guardado ningún producto como favorito.</p>
+    
+    <a href="{% url 'catalogo' %}" class="btn-luxury">VOLVER AL CATÁLOGO</a>
+</div>
+</div>
+
+<script>
+    function renderizarFavoritos() {
+        const contenedor = document.getElementById('contenedor-favoritos');
+        const mensajeVacio = document.getElementById('mensaje-vacio');
+        const favoritos = JSON.parse(localStorage.getItem('mis_favoritos')) || [];
+
+        if (favoritos.length === 0) {
+            mensajeVacio.style.display = 'block';
+            contenedor.innerHTML = '';
+            return;
+        }
+
+        mensajeVacio.style.display = 'none';
+        contenedor.innerHTML = ''; 
+
+        favoritos.forEach(prod => {
+            // Usamos las mismas clases de tu catálogo (product-card-cool, custom-img, etc.)
+            contenedor.innerHTML += `
+                <div class="col-6 col-md-4 col-lg-3" id="card-fav-${prod.id}">
+                    <div class="card border-0 h-100 product-card-cool">
+                        <div class="image-container position-relative overflow-hidden">
+                            
+                            <button onclick="quitarDeFavoritos('${prod.id}')" class="remove-fav-btn">
+                                <i class="bi bi-x"></i>
+                            </button>
+
+                            <img src="${prod.imagen}" class="custom-img" alt="${prod.nombre}">
+                            
+                            <div class="product-overlay">
+                                <a href="/tienda/producto/${prod.id}/" class="btn-view-more">VER DETALLE</a>
+                            </div>
+                        </div>
+
+                        <div class="card-body px-0 text-center">
+                            <h6 class="text-uppercase fw-bold mb-1 product-title">${prod.nombre}</h6>
+                            <p class="price-tag">$ ${parseFloat(prod.price || prod.precio).toLocaleString('es-AR', {minimumFractionDigits: 0})}</p>
+                        </div>
                     </div>
                 </div>
-            </div>
-            {% endfor %}
-        {% else %}
-            <div class="col-12 text-center py-5">
-                <i class="bi bi-heart text-muted" style="font-size: 3rem;"></i>
-                <p class="mt-3">Aún no tienes productos favoritos.</p>
-                <a href="{% url 'home' %}" class="btn btn-dark mt-2">Ir a la tienda</a>
-            </div>
-        {% endif %}
-    </div>
-</div>
+            `;
+        });
+    }
+
+    function quitarDeFavoritos(id) {
+        let favoritos = JSON.parse(localStorage.getItem('mis_favoritos')) || [];
+        favoritos = favoritos.filter(p => p.id !== id);
+        localStorage.setItem('mis_favoritos', JSON.stringify(favoritos));
+        renderizarFavoritos(); 
+    }
+
+    document.addEventListener('DOMContentLoaded', renderizarFavoritos);
+</script>
+
+<style>
+    /* Estilos para que coincida con el catálogo */
+    .product-card-cool { background: transparent; }
+    
+    .remove-fav-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 30px;
+        height: 30px;
+        background: white;
+        border: none;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+
+    .remove-fav-btn:hover {
+        background: black;
+        color: white;
+        transform: rotate(90deg);
+    }
+
+    /* Mantenemos las clases del catálogo que pusimos antes */
+    .custom-img {
+        aspect-ratio: 2/3;
+        object-fit: cover;
+        width: 100%;
+        transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    
+    .product-card-cool:hover .custom-img { transform: scale(1.1); }
+    
+    .product-overlay {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.1);
+        display: flex; align-items: center; justify-content: center;
+        opacity: 0; transition: 0.4s;
+    }
+
+    .product-card-cool:hover .product-overlay { opacity: 1; }
+.btn-luxury {
+    display: inline-block;
+    padding: 12px 40px;
+    border: 1px solid #000; /* Borde negro fino */
+    background: transparent;
+    color: #000 !important;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 3px;
+    text-decoration: none;
+    transition: all 0.4s ease;
+}
+
+.btn-luxury:hover {
+    background: #000; /* Se llena de negro */
+    color: #fff !important; /* Letras blancas */
+}
+
+</style>
 {% endblock %}

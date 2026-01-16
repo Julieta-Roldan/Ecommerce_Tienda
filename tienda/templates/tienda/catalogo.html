@@ -1,46 +1,77 @@
 {% extends 'base.html' %}
 {% block content %}
 {% load static %}
-{% load humanize %} 
+{% load humanize %}
 
 <div class="container my-5">
+    <div class="text-center mb-5">
+        <h2 class="text-uppercase fw-800 mb-2" style="letter-spacing: 8px; font-size: 2.5rem;">
+            {% if categoria_actual %}
+                {{ categoria_actual }}
+            {% else %}
+                Colección
+            {% endif %}
+        </h2>
+        <p class="text-muted text-uppercase" style="letter-spacing: 3px; font-size: 0.7rem;">Tienda Lore • 2026</p>
+        <hr class="mx-auto" style="width: 60px; border-top: 2px solid #000; opacity: 1;">
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+        <div class="filter-group">
+            <span class="text-uppercase small fw-bold me-3" style="letter-spacing: 1px;"><i class="bi bi-filter"></i> Filtrar</span>
+            <span class="text-uppercase small text-muted d-none d-md-inline" style="letter-spacing: 1px;">{{ productos.count }} Productos</span>
+        </div>
+        <div class="sort-group">
+           <select class="form-select form-select-sm border-0 bg-transparent text-uppercase small fw-bold" 
+               onchange="window.location.href = window.location.pathname + this.value;" 
+               style="box-shadow: none; cursor: pointer;">
+             <option value="?orden=todos">ORDENAR POR</option>
+             <option value="?orden=relevantes" {% if request.GET.orden == 'relevantes' %}selected{% endif %}>Más relevantes</option>
+             <option value="?orden=menor" {% if request.GET.orden == 'menor' %}selected{% endif %}>Precio: Menor a Mayor</option>
+             <option value="?orden=mayor" {% if request.GET.orden == 'mayor' %}selected{% endif %}>Precio: Mayor a Menor</option>
+           </select>
+        </div>
+    </div>
+
     <div class="row g-4">
         
         {% for producto in productos %}
         <div class="col-6 col-md-4 col-lg-3">
-            <a href="{% url 'producto_detalle' producto.id %}" class="text-decoration-none text-dark">
-                <div class="card border-0 h-100 shadow-hover">
+            <div class="card border-0 h-100 product-card-cool">
+                <div class="image-container position-relative overflow-hidden">
                     
-                    <div class="position-relative overflow-hidden">
-                        {% if producto.imagenes.all %}
-                            <img src="{{ producto.imagenes.first.imagen.url }}" class="card-img-top custom-img" alt="{{ producto.nombre }}">
-                        {% else %}
-                            <div class="bg-light d-flex align-items-center justify-content-center custom-img">
-                                <p class="text-muted small">Sin imagen</p>
-                            </div>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="card-body px-0 text-center">
-                        <h6 class="text-uppercase fw-bold mb-1" style="font-size: 0.85rem; letter-spacing: 1px;">
-                            {{ producto.nombre }}
-                        </h6>
-                        <p class="fw-bold mb-3 text-secondary">
-                            $ {{ producto.precio|floatformat:"0"|intcomma }}
-                        </p>
+                    {% if forloop.counter <= 2 %}
+                        <span class="badge-luxury">NUEVO</span>
+                    {% endif %}
 
-                        <div class="d-grid px-2">
-                            <span class="btn btn-dark btn-sm text-uppercase fw-bold py-2" style="font-size: 0.7rem;">
-                                Ver detalles
-                            </span>
+                    <button class="btn-fav-floating" 
+                        onclick="toggleFavorito('{{ producto.id }}', '{{ producto.nombre }}', '{{ producto.precio }}', '{% if producto.imagenes.all %}{{ producto.imagenes.first.imagen.url }}{% endif %}')">
+                        <i class="bi bi-heart" id="heart-{{ producto.id }}"></i>
+                    </button>
+
+                    {% if producto.imagenes.all %}
+                        <img src="{{ producto.imagenes.first.imagen.url }}" class="custom-img" alt="{{ producto.nombre }}">
+                    {% else %}
+                        <div class="bg-light d-flex align-items-center justify-content-center custom-img">
+                            <i class="bi bi-image text-muted"></i>
                         </div>
+                    {% endif %}
+                    
+                    <div class="product-overlay">
+                        <a href="{% url 'producto_detalle' producto.id %}" class="btn-view-more">VER DETALLE</a>
                     </div>
                 </div>
-            </a>
+                
+                <div class="card-body px-0 text-center">
+                    <h6 class="text-uppercase fw-bold mb-1 product-title">{{ producto.nombre }}</h6>
+                    <p class="price-tag">$ {{ producto.precio|floatformat:"0"|intcomma }}</p>
+                </div>
+            </div>
         </div>
         {% empty %}
-        <div class="col-12 text-center">
-            <p class="text-muted">No hay productos disponibles en este momento.</p>
+        <div class="col-12 text-center py-5">
+            <i class="bi bi-search text-muted" style="font-size: 3rem;"></i>
+            <p class="text-muted mt-3">No hay productos disponibles en este momento.</p>
         </div>
         {% endfor %}
 
@@ -48,32 +79,104 @@
 </div>
 
 <style>
-    /* Ajuste de las imágenes para que todas midan lo mismo */
+    /* Efectos Luxury */
+    .product-card-cool { background: transparent; }
+
+    .image-container { position: relative; background-color: #f9f9f9; }
+
     .custom-img {
         aspect-ratio: 2/3;
         object-fit: cover;
         width: 100%;
-        transition: transform 0.5s ease;
+        display: block;
+        transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    /* Efecto de zoom suave al pasar el mouse */
-    .card:hover .custom-img {
-        transform: scale(1.05);
+    /* Badge Nuevo */
+    .badge-luxury {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        background: #000;
+        color: #fff;
+        padding: 5px 12px;
+        font-size: 0.65rem;
+        font-weight: 800;
+        letter-spacing: 2px;
+        z-index: 10;
     }
 
-    /* Sombra suave al pasar el mouse por la tarjeta */
-    .shadow-hover {
+    /* Corazón Flotante */
+    .btn-fav-floating {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: rgba(255, 255, 255, 0.9);
+        border: none;
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 20;
         transition: all 0.3s ease;
-    }
-    
-    .shadow-hover:hover {
-        transform: translateY(-5px);
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
 
-    /* Ajuste para que el texto no se pegue */
-    .card-body {
-        padding-top: 15px !important;
+    .btn-fav-floating:hover { transform: scale(1.1); background: #fff; }
+    .btn-fav-floating i { color: #000; font-size: 1.1rem; }
+    .btn-fav-floating i.bi-heart-fill { color: #e63946; }
+
+    /* Overlay */
+    .product-overlay {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.1);
+        display: flex; align-items: center; justify-content: center;
+        opacity: 0; transition: all 0.4s ease;
     }
+
+    .btn-view-more {
+        background: #fff; color: #000; padding: 12px 25px;
+        font-size: 0.7rem; font-weight: 800; letter-spacing: 2px;
+        text-decoration: none; transform: translateY(20px);
+        transition: all 0.4s ease;
+    }
+
+    .product-card-cool:hover .custom-img { transform: scale(1.1); }
+    .product-card-cool:hover .product-overlay { opacity: 1; }
+    .product-card-cool:hover .btn-view-more { transform: translateY(0); }
+    .btn-view-more:hover { background: #000; color: #fff; }
+
+    .product-title { font-size: 0.8rem !important; letter-spacing: 1.5px; margin-top: 10px; color: #1a1a1a; }
+    .price-tag { font-size: 0.9rem; font-weight: 500; color: #666; }
 </style>
+
+<script>
+    function toggleFavorito(id, nombre, precio, imagen) {
+        let favoritos = JSON.parse(localStorage.getItem('mis_favoritos')) || [];
+        const index = favoritos.findIndex(p => p.id === id);
+        const icono = document.getElementById(`heart-${id}`);
+
+        if (index === -1) {
+            favoritos.push({ id, nombre, precio, imagen });
+            icono.classList.replace('bi-heart', 'bi-heart-fill');
+        } else {
+            favoritos.splice(index, 1);
+            icono.classList.replace('bi-heart-fill', 'bi-heart');
+        }
+        localStorage.setItem('mis_favoritos', JSON.stringify(favoritos));
+    }
+
+    // Al cargar la página, pintamos los corazones que ya son favoritos
+    document.addEventListener('DOMContentLoaded', () => {
+        let favoritos = JSON.parse(localStorage.getItem('mis_favoritos')) || [];
+        favoritos.forEach(p => {
+            const icono = document.getElementById(`heart-${p.id}`);
+            if (icono) icono.classList.replace('bi-heart', 'bi-heart-fill');
+        });
+    });
+</script>
 
 {% endblock %}

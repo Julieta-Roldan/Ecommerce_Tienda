@@ -21,7 +21,7 @@
             <li><a href="{% url 'home' %}">🏠 INICIO</a></li>
             <li><a href="{% url 'home' %}#categorias">📦 CATEGORÍAS</a></li>
             <li><a href="{% url 'favoritos' %}">💖 MIS FAVORITOS</a></li>
-            <li><a href="{% url 'carrito' %}">🛒 MI CARRITO</a></li>
+            <li><a href="{% url 'carrito_ver' %}">🛒 MI CARRITO</a></li>
             <li><a href="{% url 'ubicacion' %}">📍 UBICACIÓN</a></li>
             <hr class="sidebar-divider">
             <li><a href="#">👤 MI CUENTA</a></li>
@@ -54,8 +54,8 @@
                 <a href="{% url 'ubicacion' %}"><i class="bi bi-geo-alt"></i></a>
                 <a href="#"><i class="bi bi-person"></i></a> 
                 <a href="{% url 'favoritos' %}"><i class="bi bi-heart"></i></a> 
-                <a href="{% url 'carrito' %}"><i class="bi bi-bag"></i></a> </div>
-            
+                <a href="{% url 'carrito_ver' %}"><i class="bi bi-bag"></i></a>
+            </div>
         </div>
     </header>
 
