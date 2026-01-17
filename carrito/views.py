@@ -21,13 +21,11 @@ def obtener_carrito(request):
     return carrito
 
 
-def agregar_producto(request, producto_id):
-    """
-    Agrega un producto al carrito de la sesión.
-    Si el producto ya existe, incrementa la cantidad.
-    """
-    carrito = obtener_carrito(request)
+from django.shortcuts import redirect
+from django.shortcuts import redirect
 
+def agregar_producto(request, producto_id):
+    carrito = obtener_carrito(request)
     producto = get_object_or_404(Producto, id=producto_id)
 
     item, creado = ItemCarrito.objects.get_or_create(
@@ -39,11 +37,8 @@ def agregar_producto(request, producto_id):
         item.cantidad += 1
         item.save()
 
-    return JsonResponse({
-        "mensaje": f"{producto.nombre} agregado al carrito.",
-        "cantidad": item.cantidad
-    })
-
+    # 👉 ACÁ ESTÁ LA CLAVE
+    return redirect('carrito_ver')
 
 # def ver_carrito(request):
 #     items = []
@@ -64,23 +59,23 @@ def agregar_producto(request, producto_id):
 #     })
 
 
-#yo
 def ver_carrito(request):
-    # Datos de prueba para que puedas ver el diseño sin errores de base de datos
-    items = [
-        {
-            'producto': {'nombre': 'Remera de prueba', 'precio': 1500, 'imagen': None},
-            'cantidad': 2,
-            'subtotal': 3000
-        },
-        {
-            'producto': {'nombre': 'Pantalón de prueba', 'precio': 5000, 'imagen': None},
-            'cantidad': 1,
-            'subtotal': 5000
-        }
-    ]
-    total = 8000
-    return render(request, 'carrito/carrito.html', {'items': items, 'total': total})
+    items = []
+    total = 0
+
+    if request.session.session_key:
+        carrito = Carrito.objects.filter(
+            session_key=request.session.session_key
+        ).first()
+
+        if carrito:
+            items = carrito.items.select_related("producto")
+            total = carrito.total()
+
+    return render(request, "carrito/carrito.html", {
+        "items": items,
+        "total": total
+    })
 
 
 def eliminar_producto(request, producto_id):
