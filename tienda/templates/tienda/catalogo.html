@@ -62,10 +62,22 @@
                     </div>
                 </div>
                 
-                <div class="card-body px-0 text-center">
-                    <h6 class="text-uppercase fw-bold mb-1 product-title">{{ producto.nombre }}</h6>
-                    <p class="price-tag">$ {{ producto.precio|floatformat:"0"|intcomma }}</p>
-                </div>
+            <div class="card-body px-0 text-center">
+                <h6 class="text-uppercase fw-bold mb-1 product-title">
+                 {{ producto.nombre }}
+                 </h6>
+
+                <p class="price-tag">
+                 $ {{ producto.precio|floatformat:"0"|intcomma }}
+                </p>
+
+                <a 
+                href="{% url 'carrito_agregar' producto.id %}"
+                class="btn btn-dark btn-sm mt-2 text-uppercase fw-bold">
+                Agregar al carrito
+                </a>
+</div>
+
             </div>
         </div>
         {% empty %}
