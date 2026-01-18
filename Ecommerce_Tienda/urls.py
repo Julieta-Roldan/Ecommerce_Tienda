@@ -31,7 +31,9 @@ urlpatterns = [
     path('usuarios/', include('usuarios.urls')),# URLs para gestión interna (no cliente)
     path('carrito/', include('carrito.urls')),  # endpoints del carrito
     path('pedidos/', include('pedidos_pagos.urls')),  # checkout y pagos
-    
+    path('pedidos/', include('pedidos_pagos.urls')),
+    path('carrito/', include('carrito.urls')),
+
     
 ]
 
