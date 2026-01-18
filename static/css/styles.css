@@ -489,3 +489,33 @@ img {
     box-shadow: 0 10px 30px rgba(0,0,0,0.05);
 }
 
+.header-icons input::placeholder {
+    color: white !important;
+    opacity: 1 !important;
+}
+
+
+/* =========================================
+   EFECTO HOVER EN CATEGORÍAS
+   ========================================= */
+
+/* Hacemos que la transición sea suave */
+.category-content {
+    transition: all 0.3s ease !important;
+}
+
+/* El efecto cuando pasás el mouse (Blanco con texto negro) */
+.category-card:hover .category-content {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    cursor: pointer;
+}
+
+/* Efecto opcional: que la imagen de fondo se agrande un poquito */
+.category-card {
+    transition: transform 0.3s ease;
+}
+
+.category-card:hover {
+    transform: scale(1.02);
+}
