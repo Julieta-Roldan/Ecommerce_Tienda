@@ -24,7 +24,8 @@
             <li><a href="{% url 'carrito_ver' %}">🛒 MI CARRITO</a></li>
             <li><a href="{% url 'ubicacion' %}">📍 UBICACIÓN</a></li>
             <hr class="sidebar-divider">
-            <li><a href="#">👤 MI CUENTA</a></li>
+            <li><a href="/admin/login/">👤 MI CUENTA</a></li>
+    
             <li><a href="https://wa.me/541135928717" target="_blank">💬 WHATSAPP</a></li>
         </ul>
     </div>
@@ -54,7 +55,7 @@
                   </button>
               </form>
                 <a href="{% url 'ubicacion' %}"><i class="bi bi-geo-alt"></i></a>
-                <a href="{% url 'login' %}"><i class="bi bi-person"></i></a>
+               <a href="/admin/login/" title="Iniciar sesión"><i class="bi bi-person"></i></a>
                 <a href="{% url 'favoritos' %}"><i class="bi bi-heart"></i></a> 
                 <a href="{% url 'carrito_ver' %}"><i class="bi bi-bag"></i></a>
             </div>
