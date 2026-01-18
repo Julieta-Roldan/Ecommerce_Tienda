@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container text-center my-5">
+    <h2 class="fw-bold text-uppercase">¡Pedido realizado!</h2>
+    <p class="text-muted mt-3">
+        Tu pedido fue creado correctamente.
+    </p>
+    <a href="{% url 'catalogo' %}" class="btn btn-dark mt-4">
+        Volver al catálogo
+    </a>
+</div>
+{% endblock %}

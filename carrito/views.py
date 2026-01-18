@@ -3,6 +3,7 @@ from django.shortcuts import get_object_or_404
 from tienda.models import Producto
 from .models import Carrito, ItemCarrito
 from django.shortcuts import render 
+from django.shortcuts import redirect
 
 def obtener_carrito(request):
     """
@@ -21,8 +22,8 @@ def obtener_carrito(request):
     return carrito
 
 
-from django.shortcuts import redirect
-from django.shortcuts import redirect
+
+
 
 def agregar_producto(request, producto_id):
     carrito = obtener_carrito(request)
@@ -91,6 +92,43 @@ def eliminar_producto(request, producto_id):
 
     if item:
         item.delete()
-        return JsonResponse({"mensaje": "Producto eliminado del carrito."})
+    return redirect('carrito_ver')
 
-    return JsonResponse({"mensaje": "El producto no estaba en el carrito."})
+    return redirect('carrito_ver')
+
+
+
+def sumar_producto(request, producto_id):
+    carrito = obtener_carrito(request)
+
+    item = get_object_or_404(
+        ItemCarrito,
+        carrito=carrito,
+        producto_id=producto_id
+    )
+
+    # no pasar stock
+    if item.producto.stock > item.cantidad:
+        item.cantidad += 1
+        item.save()
+
+    return redirect("carrito_ver")
+
+
+def restar_producto(request, producto_id):
+    carrito = obtener_carrito(request)
+
+    item = get_object_or_404(
+        ItemCarrito,
+        carrito=carrito,
+        producto_id=producto_id
+    )
+
+    item.cantidad -= 1
+
+    if item.cantidad <= 0:
+        item.delete()
+    else:
+        item.save()
+
+    return redirect("carrito_ver")

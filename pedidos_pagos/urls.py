@@ -29,3 +29,6 @@ path(
     views.crear_pedido_desde_carrito,
     name='crear_pedido_desde_carrito'
 ),
+
+path('crear/', views.crear_pedido_desde_carrito, name='crear_pedido_desde_carrito'),
+path('exito/', views.pedido_exito, name='pedido_exito'),

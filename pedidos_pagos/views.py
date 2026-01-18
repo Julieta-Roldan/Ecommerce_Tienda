@@ -10,6 +10,11 @@ from .services.mercadopago import crear_preferencia_pago
 from decimal import Decimal
 from carrito.models import Carrito, ItemCarrito
 
+from django.shortcuts import redirect
+
+from django.shortcuts import render
+
+
 @csrf_exempt
 def checkout_cliente_externo(request):
     """
@@ -206,3 +211,37 @@ def crear_pedido_desde_carrito(request):
         "pedido_id": pedido.id,
         "total": float(pedido.total)
     })
+
+
+def crear_pedido_desde_carrito(request):
+    # 1. Obtener carrito por sesión
+    session_key = request.session.session_key
+    if not session_key:
+        return redirect('catalogo')
+
+    carrito = Carrito.objects.filter(session_key=session_key).first()
+    if not carrito or not carrito.items.exists():
+        return redirect('carrito_ver')
+
+    # 2. Crear pedido
+    pedido = Pedido.objects.create(
+        total=carrito.total()
+    )
+
+    # 3. Pasar items del carrito al pedido
+    for item in carrito.items.all():
+        ItemPedido.objects.create(
+            pedido=pedido,
+            producto=item.producto,
+            cantidad=item.cantidad,
+            precio=item.producto.precio
+        )
+
+    # 4. Vaciar carrito
+    carrito.items.all().delete()
+
+    return redirect('pedido_exito')
+
+
+def pedido_exito(request):
+    return render(request, 'pedidos_pagos/pedido_exito.html')
