@@ -1,20 +1,21 @@
 {% extends 'base.html' %}
 {% load static %}
-
-{% block content %}
+{% load humanize %} {% block content %}
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
 <div class="container my-5" style="min-height: 60vh;">
-    <h2 class="mb-5 text-center text-uppercase fw-bold" style="letter-spacing: 2px;">
-        Tu Carrito de Compras
-    </h2>
+    <div class="text-center mb-5">
+        <h2 class="text-uppercase fw-800 mb-2" style="letter-spacing: 8px; font-size: 2rem;">Tu Carrito</h2>
+        <p class="text-muted text-uppercase" style="letter-spacing: 3px; font-size: 0.7rem;">Tu selección para la colección</p>
+        <hr class="mx-auto" style="width: 50px; border-top: 2px solid #000; opacity: 1;">
+    </div>
 
     <div class="row">
 
         {% if items %}
 
-        <!-- ================== LISTA DE PRODUCTOS ================== -->
+        
         <div class="col-lg-8">
             <div class="table-responsive">
                 <table class="table table-hover align-middle">
@@ -22,7 +23,7 @@
                         <tr>
                             <th>Producto</th>
                             <th>Precio</th>
-                            <th>Cantidad</th>
+                            <th class="text-center">Cantidad</th>
                             <th>Subtotal</th>
                             <th></th>
                         </tr>
@@ -50,34 +51,17 @@
                                     </span>
                                 </div>
                             </td>
-
+                            <td>${{ item.producto.precio|floatformat:0|intcomma }}</td>
                             <td>
-                                ${{ item.producto.precio }}
-                            </td>
-
-                            <td>
-                                <div class="d-flex align-items-center border rounded-pill px-2"
-                                     style="max-width: 110px;">
-
-                                    <a href="{% url 'carrito_restar' item.producto.id %}"
-                                       class="btn btn-sm text-dark p-0 px-2">−</a>
-
-                                    <span class="mx-auto fw-bold">
-                                        {{ item.cantidad }}
-                                    </span>
-
-                                    <a href="{% url 'carrito_sumar' item.producto.id %}"
-                                       class="btn btn-sm text-dark p-0 px-2">+</a>
+                                <div class="d-flex align-items-center border rounded-pill px-2 mx-auto" style="max-width: 110px;">
+                                    <a href="{% url 'carrito_restar' item.producto.id %}" class="btn btn-sm text-dark p-0 px-2">−</a>
+                                    <span class="mx-auto fw-bold">{{ item.cantidad }}</span>
+                                    <a href="{% url 'carrito_sumar' item.producto.id %}" class="btn btn-sm text-dark p-0 px-2">+</a>
                                 </div>
                             </td>
-
-                            <td class="fw-bold">
-                                ${{ item.subtotal|floatformat:0 }}
-                            </td>
-
+                            <td class="fw-bold">${{ item.subtotal|floatformat:0|intcomma }}</td>
                             <td>
-                                <a href="{% url 'carrito_eliminar' item.producto.id %}"
-                                   class="btn btn-sm text-danger border-0 bg-transparent">
+                                <a href="{% url 'carrito_eliminar' item.producto.id %}" class="btn btn-sm text-danger border-0 bg-transparent">
                                     <i class="bi bi-trash"></i>
                                 </a>
                             </td>
@@ -89,14 +73,11 @@
             </div>
         </div>
 
-        <!-- ================== RESUMEN ================== -->
+
         <div class="col-lg-4">
             <div class="card shadow-sm border-0 p-3" style="background-color: #fcfcfc;">
                 <div class="card-body">
-                    <h5 class="card-title fw-bold text-uppercase mb-4" style="font-size: 1rem;">
-                        Resumen del pedido
-                    </h5>
-
+                    <h5 class="card-title fw-bold text-uppercase mb-4" style="font-size: 1rem;">Resumen del pedido</h5>
                     <div class="d-flex justify-content-between mb-3">
                         <span class="text-muted">Envío</span>
                         <span class="text-success fw-bold">Gratis</span>
@@ -106,19 +87,12 @@
 
                     <div class="d-flex justify-content-between mb-4 mt-4">
                         <span class="h5 fw-bold">TOTAL</span>
-                        <span class="h5 fw-bold">${{ total|floatformat:0 }}</span>
+                        <span class="h5 fw-bold">${{ total|floatformat:0|intcomma }}</span>
                     </div>
-
-                    <!-- BOTÓN CONECTADO -->
-                    <a href="{% url 'checkout_externo' %}"
-
-                       class="btn btn-dark w-100 py-3 fw-bold text-uppercase mb-3"
-                       style="letter-spacing: 1px;">
+                    <a href="{% url 'checkout_externo' %}" class="btn btn-dark w-100 py-3 fw-bold text-uppercase mb-3" style="letter-spacing: 1px;">
                         Finalizar Compra
                     </a>
-
-                    <a href="{% url 'catalogo' %}"
-                       class="btn btn-link w-100 text-dark text-decoration-none small">
+                    <a href="{% url 'catalogo' %}" class="btn btn-link w-100 text-dark text-decoration-none small text-center d-block">
                         <i class="bi bi-arrow-left me-2"></i>Continuar comprando
                     </a>
                 </div>
@@ -127,19 +101,15 @@
 
         {% else %}
 
-        <!-- ================== CARRITO VACÍO ================== -->
+
         <div class="col-12 text-center py-5">
             <div class="mb-4">
-                <i class="bi bi-bag-heart" style="font-size: 5rem; color: #eaeaea;"></i>
+                <i class="bi bi-bag text-muted" style="font-size: 4rem; opacity: 0.2;"></i>
             </div>
-            <h3 class="fw-bold text-uppercase">Tu carrito está vacío</h3>
-            <p class="text-muted mb-4">
-                ¡Parece que aún no elegiste nada para tu colección!
-            </p>
-            <a href="{% url 'catalogo' %}"
-               class="btn btn-dark px-5 py-3 fw-bold text-uppercase">
-                Ver Catálogo
-            </a>
+            <h4 class="text-uppercase fw-bold" style="letter-spacing: 3px;">Tu carrito está vacío</h4>
+            <p class="text-muted mb-4">¡Parece que aún no elegiste nada para tu colección!</p>
+            
+            <a href="{% url 'catalogo' %}" class="btn-luxury">VOLVER AL CATÁLOGO</a>
         </div>
 
         {% endif %}
@@ -147,5 +117,27 @@
     </div>
 </div>
 
+<style>
+    .fw-800 { font-weight: 800; }
+
+    .btn-luxury {
+        display: inline-block;
+        padding: 12px 40px;
+        border: 1px solid #000;
+        background: transparent;
+        color: #000 !important;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        font-weight: 800;
+        letter-spacing: 3px;
+        text-decoration: none;
+        transition: all 0.4s ease;
+    }
+
+    .btn-luxury:hover {
+        background: #000;
+        color: #fff !important;
+    }
+</style>
 {% endblock %}
 

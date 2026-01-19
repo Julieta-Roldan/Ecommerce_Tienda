@@ -100,15 +100,25 @@
 </footer>
 
     <script>
-        
-        const openBtn = document.getElementById('open-sidebar');
-        const closeBtn = document.getElementById('close-sidebar');
-        const sidebar = document.getElementById('sidebar');
-        const overlay = document.getElementById('overlay');
+    const openBtn = document.getElementById('open-sidebar');
+    const closeBtn = document.getElementById('close-sidebar');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
 
-        openBtn.onclick = () => { sidebar.classList.add('active'); overlay.classList.add('active'); };
-        closeBtn.onclick = () => { sidebar.classList.remove('active'); overlay.classList.remove('active'); };
-        overlay.onclick = () => { sidebar.classList.remove('active'); overlay.classList.remove('active'); };
-    </script>
+    // Función para cerrar todo
+    const cerrarMenu = () => {
+        sidebar.classList.remove('active');
+        overlay.classList.remove('active');
+    };
+
+    openBtn.onclick = () => { sidebar.classList.add('active'); overlay.classList.add('active'); };
+    closeBtn.onclick = cerrarMenu;
+    overlay.onclick = cerrarMenu;
+
+    // ESTO ES LO QUE TE FALTA: Al tocar cualquier link del menú, se cierra la hamburguesa
+    document.querySelectorAll('.sidebar-menu a').forEach(link => {
+        link.onclick = cerrarMenu;
+    });
+   </script>
 </body>
 </html>

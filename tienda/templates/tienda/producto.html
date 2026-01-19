@@ -29,9 +29,11 @@
     .thumbnail-img:hover {
         border-color: #000;
     }
-    .bi-heart, .bi-heart-fill {
-        font-size: 1.5rem;
-    }
+    /* Reemplazá el anterior por este */
+    .btn-favorito .bi-heart, 
+    .btn-favorito .bi-heart-fill {
+    font-size: 1.5rem;
+    } 
     .text-danger {
         color: #ff4d4d !important;
     }
@@ -112,20 +114,27 @@
                 </div>
             </div>
 
-            <div class="mt-5">
-                <div class="d-flex gap-2 mb-2">
-                    <button class="btn btn-dark w-100 py-3 fw-bold shadow-sm">COMPRAR AHORA</button>
-                    <button class="btn btn-outline-dark px-4 d-flex align-items-center justify-content-center btn-favorito" 
-                            data-id="{{ producto.id }}" 
-                            data-nombre="{{ producto.nombre }}"
-                            data-precio="{{ producto.precio }}"
-                            data-imagen="{{ producto.imagenes.first.imagen.url }}"
-                            type="button">
-                        <i class="bi bi-heart"></i>
-                    </button>
-                </div>
-                <button class="btn btn-outline-dark w-100 py-2">AGREGAR AL CARRITO</button>
-            </div>
+           <div class="mt-5">
+    <div class="d-flex gap-2 mb-2">
+        <button class="btn btn-dark w-100 py-3 fw-bold shadow-sm text-uppercase">
+            COMPRAR AHORA
+        </button>
+        
+        <button class="btn btn-outline-dark px-4 d-flex align-items-center justify-content-center btn-favorito" 
+                data-id="{{ producto.id }}" 
+                data-nombre="{{ producto.nombre }}"
+                data-precio="{{ producto.precio }}"
+                data-imagen="{{ producto.imagenes.first.imagen.url }}"
+                type="button">
+            <i class="bi bi-heart"></i>
+        </button>
+    </div>
+
+    <a href="{% url 'carrito_agregar' producto.id %}" 
+       class="btn btn-dark w-100 py-3 fw-bold shadow-sm text-uppercase">
+        AGREGAR AL CARRITO
+    </a>
+</div>
 
             <div class="mt-4">
                 <p class="text-muted">{{ producto.descripcion|linebreaks }}</p>
