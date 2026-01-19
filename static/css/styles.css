@@ -519,3 +519,104 @@ img {
 .category-card:hover {
     transform: scale(1.02);
 }
+
+/* EFECTO VER DETALLES INDEX */
+/* Estilos iguales al Catálogo */
+.product-link {
+    position: relative;
+    display: block;
+    overflow: hidden;
+}
+
+.overlay-ver-detalles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.overlay-ver-detalles span {
+    background: #000;
+    color: #fff;
+    padding: 10px 20px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.product-link:hover .overlay-ver-detalles {
+    opacity: 1;
+}
+
+
+/* Estilos Luxury */
+.product-card-cool { background: transparent; }
+.image-container { position: relative; background-color: #f9f9f9; overflow: hidden; }
+
+.custom-img {
+    aspect-ratio: 2/3;
+    object-fit: cover;
+    width: 100%;
+    display: block;
+    transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.badge-luxury {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: #000;
+    color: #fff;
+    padding: 5px 12px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    z-index: 10;
+}
+
+.btn-fav-floating {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.product-overlay {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.1);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; transition: all 0.4s ease;
+}
+
+.btn-view-more {
+    background: #fff; color: #000; padding: 12px 25px;
+    font-size: 0.7rem; font-weight: 800; letter-spacing: 2px;
+    text-decoration: none; transform: translateY(20px);
+    transition: all 0.4s ease;
+}
+
+.product-card-cool:hover .custom-img { transform: scale(1.1); }
+.product-card-cool:hover .product-overlay { opacity: 1; }
+.product-card-cool:hover .btn-view-more { transform: translateY(0); }
+.btn-view-more:hover { background: #000 !important; color: #fff !important; }
+
+.product-title { font-size: 0.8rem !important; letter-spacing: 1.5px; margin-top: 10px; color: #1a1a1a; }
+.price-tag { font-size: 0.9rem; font-weight: 500; color: #666; }
