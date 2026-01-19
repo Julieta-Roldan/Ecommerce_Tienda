@@ -110,12 +110,15 @@
                     </div>
 
                     <!-- BOTÓN CONECTADO -->
-                    <a href="{% url 'checkout_externo' %}"
-
-                       class="btn btn-dark w-100 py-3 fw-bold text-uppercase mb-3"
-                       style="letter-spacing: 1px;">
-                        Finalizar Compra
-                    </a>
+                   <form method="post" action="{% url 'crear_pedido_desde_carrito' %}">
+                    {% csrf_token %}
+                    <button
+                        type="submit"
+                        class="btn btn-dark w-100 py-3 fw-bold text-uppercase mb-3"
+                        style="letter-spacing: 1px;">
+                         Finalizar Compra
+                    </button>
+                </form>
 
                     <a href="{% url 'catalogo' %}"
                        class="btn btn-link w-100 text-dark text-decoration-none small">

@@ -3,17 +3,15 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import get_object_or_404
 from django.db import transaction
-
 from tienda.models import Producto
 from .models import Pedido, ItemPedido, Pago
 from .services.mercadopago import crear_preferencia_pago
 from decimal import Decimal
 from carrito.models import Carrito, ItemCarrito
-
 from django.shortcuts import redirect
-
 from django.shortcuts import render
-
+from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required
 
 @csrf_exempt
 def checkout_cliente_externo(request):
@@ -73,39 +71,38 @@ def checkout_cliente_externo(request):
         "total": float(total)
     })
 
-@csrf_exempt
-def pagar_pedido(request, pedido_id):
-    """
-    Crea el pago y la preferencia de Mercado Pago.
-    """
-    if request.method != "POST":
-        return JsonResponse(
-            {"error": "Método no permitido"},
-            status=405
-        )
+from django.shortcuts import render
 
+def pagar_pedido(request, pedido_id):
     pedido = get_object_or_404(Pedido, id=pedido_id)
 
     if pedido.estado != "pendiente":
-        return JsonResponse(
-            {"error": "Este pedido no puede pagarse"},
-            status=400
+        return redirect('pedido_exito')
+
+    # GET → mostrar página de pago
+    if request.method == "GET":
+        return render(
+            request,
+            "pedidos_pagos/pagar_pedido.html",
+            {"pedido": pedido}
         )
 
-    pago = Pago.objects.create(
-        pedido=pedido,
-        monto=pedido.total,
-        metodo="mercadopago",
-        estado="pendiente"
-    )
+    # POST → crear pago
+    if request.method == "POST":
+        pago = Pago.objects.create(
+            pedido=pedido,
+            monto=pedido.total,
+            metodo="mercadopago",
+            estado="pendiente"
+        )
 
-    preferencia = crear_preferencia_pago(pedido)
+        preferencia = crear_preferencia_pago(pedido)
 
-    return JsonResponse({
-        "pago_id": pago.id,
-        "init_point": preferencia["init_point"],
-        "sandbox_init_point": preferencia.get("sandbox_init_point")
-    })
+        return JsonResponse({
+            "pago_id": pago.id,
+            "init_point": preferencia["init_point"],
+            "sandbox_init_point": preferencia.get("sandbox_init_point")
+        })
 
 @csrf_exempt
 @transaction.atomic
@@ -152,96 +149,46 @@ def confirmar_pago(request, pago_id):
         "estado_pago": pago.estado
     })
 
-
-@csrf_exempt
+@require_POST
 def crear_pedido_desde_carrito(request):
-    if request.method != "POST":
-        return JsonResponse(
-            {"error": "Método no permitido"},
-            status=405
-        )
 
+    # 1️⃣ Verificar sesión
     if not request.session.session_key:
-        return JsonResponse(
-            {"error": "No hay carrito activo"},
-            status=400
-        )
+        return redirect('catalogo')
 
     carrito = Carrito.objects.filter(
         session_key=request.session.session_key
     ).first()
 
     if not carrito or not carrito.items.exists():
-        return JsonResponse(
-            {"error": "El carrito está vacío"},
-            status=400
-        )
-
-    # 🔒 Evitar pedidos duplicados
-    if hasattr(carrito, "pedido"):
-        return JsonResponse(
-            {"error": "Este carrito ya tiene un pedido"},
-            status=400
-        )
-
-    pedido = Pedido.objects.create(
-        carrito=carrito,
-        estado="pendiente"
-    )
-
-    for item in carrito.items.select_related("producto"):
-        producto = item.producto
-
-        if producto.stock < item.cantidad:
-            return JsonResponse(
-                {"error": f"Stock insuficiente para {producto.nombre}"},
-                status=400
-            )
-
-        ItemPedido.objects.create(
-            pedido=pedido,
-            producto=producto,
-            nombre_producto=producto.nombre,
-            precio_unitario=producto.precio,
-            cantidad=item.cantidad
-        )
-
-    return JsonResponse({
-        "mensaje": "Pedido creado desde carrito",
-        "pedido_id": pedido.id,
-        "total": float(pedido.total)
-    })
-
-
-def crear_pedido_desde_carrito(request):
-    # 1. Obtener carrito por sesión
-    session_key = request.session.session_key
-    if not session_key:
-        return redirect('catalogo')
-
-    carrito = Carrito.objects.filter(session_key=session_key).first()
-    if not carrito or not carrito.items.exists():
         return redirect('carrito_ver')
 
-    # 2. Crear pedido
-    pedido = Pedido.objects.create(
-        total=carrito.total()
-    )
-
-    # 3. Pasar items del carrito al pedido
-    for item in carrito.items.all():
-        ItemPedido.objects.create(
-            pedido=pedido,
-            producto=item.producto,
-            cantidad=item.cantidad,
-            precio=item.producto.precio
+    # 2️⃣ Evitar pedidos duplicados
+    if hasattr(carrito, 'pedido'):
+        pedido = carrito.pedido
+    else:
+        pedido = Pedido.objects.create(
+            carrito=carrito,
+            estado='pendiente'
         )
 
-    # 4. Vaciar carrito
-    carrito.items.all().delete()
+        # 3️⃣ Pasar items del carrito al pedido
+        for item in carrito.items.select_related('producto'):
+            producto = item.producto
 
-    return redirect('pedido_exito')
+            if producto.stock < item.cantidad:
+                return redirect('carrito_ver')
 
+            ItemPedido.objects.create(
+                pedido=pedido,
+                producto=producto,
+                nombre_producto=producto.nombre,
+                precio_unitario=producto.precio,
+                cantidad=item.cantidad
+            )
+
+    # 4️⃣ Redirigir al pago
+    return redirect('pagar_pedido', pedido_id=pedido.id)
 
 def pedido_exito(request):
     return render(request, 'pedidos_pagos/pedido_exito.html')
