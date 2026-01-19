@@ -51,7 +51,7 @@ INSTALLED_APPS = [
     'carrito',          # lógica del carrito de compras
     'pedidos_pagos',    # pedidos, checkout y pagos (Mercado Pago)
     'django.contrib.humanize', #yo
-
+    "django_extensions",
 ]
 
 MIDDLEWARE = [

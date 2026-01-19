@@ -1,34 +1,37 @@
 from django.urls import path
 from . import views
+from pedidos_pagos.views import crear_pedido_desde_carrito
 
+
+    # Crear pedido desde carrito (BOTÓN FINALIZAR COMPRA)
 urlpatterns = [
-    # Cliente externo: crea pedido con JSON
     path(
-        'checkout/',
-        views.checkout_cliente_externo,
-        name='checkout_externo'
+        "crear-desde-carrito/",
+        crear_pedido_desde_carrito,
+        name="crear_pedido_desde_carrito"
     ),
-
-    # Crear preferencia de pago Mercado Pago
+    # Mercado Pago
     path(
         'pagar/<int:pedido_id>/',
         views.pagar_pedido,
         name='pagar_pedido'
     ),
 
-    # Confirmar pago (webhook o simulación)
     path(
         'confirmar-pago/<int:pago_id>/',
         views.confirmar_pago,
         name='confirmar_pago'
     ),
+
+    path(
+        'checkout/',
+        views.checkout_cliente_externo,
+        name='checkout_externo'
+    ),
+
+    path(
+        'exito/',
+        views.pedido_exito,
+        name='pedido_exito'
+    ),
 ]
-
-path(
-    'crear-desde-carrito/',
-    views.crear_pedido_desde_carrito,
-    name='crear_pedido_desde_carrito'
-),
-
-path('crear/', views.crear_pedido_desde_carrito, name='crear_pedido_desde_carrito'),
-path('exito/', views.pedido_exito, name='pedido_exito'),
