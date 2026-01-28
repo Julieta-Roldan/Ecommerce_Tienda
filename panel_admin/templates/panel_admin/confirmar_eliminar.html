@@ -1,0 +1,47 @@
+{% extends 'panel_admin/base_panel.html' %}
+
+{% block page_title %}Confirmar Eliminación{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card card-panel">
+                <div class="card-header">
+                    <h5 class="mb-0 text-danger">
+                        <i class="bi bi-exclamation-triangle me-2"></i> Confirmar Eliminación
+                    </h5>
+                </div>
+                <div class="card-body text-center">
+                    <div class="mb-4">
+                        <i class="bi bi-trash text-danger" style="font-size: 4rem;"></i>
+                    </div>
+                    
+                    <h4>¿Estás seguro?</h4>
+                    <p class="text-muted">
+                        Vas a desactivar el producto <strong>"{{ producto.nombre }}"</strong>.
+                    </p>
+                    
+                    <div class="alert alert-warning">
+                        <i class="bi bi-info-circle me-2"></i>
+                        El producto se marcará como inactivo y no aparecerá en la tienda,
+                        pero los datos se conservarán en el sistema.
+                    </div>
+                    
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-danger me-2">
+                                <i class="bi bi-check-circle me-1"></i> Sí, desactivar
+                            </button>
+                            <a href="{% url 'panel_productos' %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle me-1"></i> Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

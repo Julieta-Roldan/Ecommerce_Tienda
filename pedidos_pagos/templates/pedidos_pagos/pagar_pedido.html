@@ -1,15 +1,18 @@
 {% extends "base.html" %}
 
+
 {% block content %}
-<div class="container my-5">
+<div class="container my-5 text-center">
 
-    <h2 class="mb-4">Pagar pedido #{{ pedido.id }}</h2>
+    <h2 class="mb-3">Pedido #{{ pedido.id }}</h2>
 
-    <p><strong>Total:</strong> ${{ pedido.total }}</p>
+    <p class="lead">
+        Total a pagar: <strong>${{ pedido.total }}</strong>
+    </p>
 
     <form method="POST">
         {% csrf_token %}
-        <button class="btn btn-success">
+        <button class="btn btn-primary btn-lg">
             Pagar con Mercado Pago
         </button>
     </form>

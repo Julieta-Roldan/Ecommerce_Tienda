@@ -1,0 +1,255 @@
+{% extends 'panel_admin/base_panel.html' %}
+
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Estadísticas rápidas -->
+    <div class="row mb-4">
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card card-panel h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Productos</h6>
+                            <h3 class="mb-0">{{ total_productos }}</h3>
+                            <small class="text-success">
+                                <i class="bi bi-check-circle me-1"></i> Activos
+                            </small>
+                        </div>
+                        <div class="card-icon bg-primary-light">
+                            <i class="bi bi-box"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card card-panel h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Pedidos Totales</h6>
+                            <h3 class="mb-0">{{ total_pedidos }}</h3>
+                            <small class="text-warning">
+                                <i class="bi bi-clock me-1"></i> {{ pedidos_pendientes }} pendientes
+                            </small>
+                        </div>
+                        <div class="card-icon bg-success-light">
+                            <i class="bi bi-receipt"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card card-panel h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Ventas del Mes</h6>
+                            <h3 class="mb-0">${{ ventas_mes|floatformat:0 }}</h3>
+                            <small class="text-success">
+                                <i class="bi bi-arrow-up me-1"></i> {{ pedidos_pagados }} pagados
+                            </small>
+                        </div>
+                        <div class="card-icon bg-warning-light">
+                            <i class="bi bi-currency-dollar"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card card-panel h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Stock Bajo</h6>
+                            <h3 class="mb-0">{{ productos_stock_bajo.count|add:productos_sin_stock.count }}</h3>
+                            <small class="text-danger">
+                                <i class="bi bi-exclamation-triangle me-1"></i> Revisar
+                            </small>
+                        </div>
+                        <div class="card-icon bg-danger-light">
+                            <i class="bi bi-exclamation-octagon"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Pedidos Recientes -->
+        <div class="col-lg-8 mb-4">
+            <div class="card card-panel h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Pedidos Recientes</h5>
+                    <a href="{% url 'panel_admin:pedidos' %}" class="btn btn-sm btn-outline-primary">
+                        Ver todos <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if pedidos_recientes %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Fecha</th>
+                                    <th>Estado</th>
+                                    <th>Total</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for pedido in pedidos_recientes %}
+                                <tr>
+                                    <td><strong>#{{ pedido.id }}</strong></td>
+                                    <td>{{ pedido.fecha_creacion|date:"d/m/Y H:i" }}</td>
+                                    <td>
+                                        {% if pedido.estado == 'pendiente' %}
+                                            <span class="badge-estado badge-pendiente">Pendiente</span>
+                                        {% elif pedido.estado == 'pagado' %}
+                                            <span class="badge-estado badge-pagado">Pagado</span>
+                                        {% elif pedido.estado == 'enviado' %}
+                                            <span class="badge-estado badge-enviado">Enviado</span>
+                                        {% elif pedido.estado == 'entregado' %}
+                                            <span class="badge-estado badge-entregado">Entregado</span>
+                                        {% else %}
+                                            <span class="badge-estado badge-cancelado">Cancelado</span>
+                                        {% endif %}
+                                    </td>
+                                   <td>${{ pedido.get_total_db|floatformat:0 }}</td>
+                                    <td class="table-actions">
+                                        <a href="{% url 'panel_admin:pedido_detalle' pedido.id %}" 
+                                           data-bs-toggle="tooltip" title="Ver detalle">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a href="{% url 'pagar_pedido' pedido.id %}" 
+                                           data-bs-toggle="tooltip" title="Procesar pago" target="_blank">
+                                            <i class="bi bi-credit-card"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="bi bi-receipt text-muted" style="font-size: 3rem;"></i>
+                        <p class="text-muted mt-2">No hay pedidos recientes</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Alertas de Stock -->
+        <div class="col-lg-4 mb-4">
+            <div class="card card-panel h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">Alertas de Stock</h5>
+                </div>
+                <div class="card-body">
+                    {% if productos_stock_bajo or productos_sin_stock %}
+                        {% if productos_sin_stock %}
+                        <div class="alert alert-danger">
+                            <h6><i class="bi bi-exclamation-triangle-fill me-2"></i> Sin Stock</h6>
+                            <ul class="mb-0 mt-2">
+                                {% for producto in productos_sin_stock %}
+                                <li>
+                                    <a href="{% url 'panel_admin:producto_editar' producto.id %}" 
+                                       class="text-danger">
+                                        {{ producto.nombre }}
+                                    </a>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+                        
+                        {% if productos_stock_bajo %}
+                        <div class="alert alert-warning">
+                            <h6><i class="bi bi-exclamation-circle me-2"></i> Stock Bajo (< 10)</h6>
+                            <ul class="mb-0 mt-2">
+                                {% for producto in productos_stock_bajo %}
+                                <li>
+                                    <a href="{% url 'panel_admin:producto_editar' producto.id %}" 
+                                       class="text-warning">
+                                        {{ producto.nombre }} ({{ producto.stock }})
+                                    </a>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="bi bi-check-circle text-success" style="font-size: 3rem;"></i>
+                        <p class="text-success mt-2">Stock en niveles óptimos</p>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="mt-3">
+                        <a href="{% url 'panel_admin:productos' %}?estado=activos" 
+                           class="btn btn-outline-primary w-100">
+                            <i class="bi bi-box-arrow-up-right me-2"></i> Gestionar Productos
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Acciones Rápidas -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card card-panel">
+                <div class="card-header">
+                    <h5 class="mb-0">Acciones Rápidas</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-3 col-6">
+                            <a href="{% url 'panel_admin:producto_nuevo' %}" class="btn btn-outline-primary w-100">
+                                <i class="bi bi-plus-circle me-2"></i> Nuevo Producto
+                            </a>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <a href="{% url 'panel_admin:pedidos' %}?estado=pendiente" class="btn btn-outline-warning w-100">
+                                <i class="bi bi-clock me-2"></i> Pedidos Pendientes
+                            </a>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <a href="{% url 'panel_admin:estadisticas' %}" class="btn btn-outline-success w-100">
+                                <i class="bi bi-bar-chart me-2"></i> Ver Estadísticas
+                            </a>
+                        </div>
+                       
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Gráfico simple de ventas (puedes mejorarlo después)
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.createElement('canvas');
+    ctx.id = 'salesChart';
+    document.querySelector('.row:first-child').insertAdjacentElement('afterend', 
+        '<div class="row mb-4"><div class="col-12"><div class="card card-panel"><div class="card-header"><h5 class="mb-0">Ventas Últimos 7 Días</h5></div><div class="card-body"><canvas id="salesChart" height="100"></canvas></div></div></div></div>'
+    );
+    
+    // Aquí podrías agregar un gráfico con Chart.js
+    // Por ahora lo dejamos como placeholder
+});
+</script>
+{% endblock %}

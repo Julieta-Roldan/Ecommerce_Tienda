@@ -24,7 +24,7 @@
             <li><a href="{% url 'carrito_ver' %}">🛒 MI CARRITO</a></li>
             <li><a href="{% url 'ubicacion' %}">📍 UBICACIÓN</a></li>
             <hr class="sidebar-divider">
-            <li><a href="/admin/login/">👤 MI CUENTA</a></li>
+            <li><a href="/panel_admin/login/">👤 PANEL ADMIN</a></li>
     
             <li><a href="https://wa.me/541135928717" target="_blank">💬 WHATSAPP</a></li>
         </ul>
@@ -55,7 +55,7 @@
                   </button>
               </form>
                 <a href="{% url 'ubicacion' %}"><i class="bi bi-geo-alt"></i></a>
-               <a href="/admin/login/" title="Iniciar sesión"><i class="bi bi-person"></i></a>
+            <<a href="/panel_admin/login/" title="Panel Admin"><i class="bi bi-person-gear"></i></a>
                 <a href="{% url 'favoritos' %}"><i class="bi bi-heart"></i></a> 
                 <a href="{% url 'carrito_ver' %}"><i class="bi bi-bag"></i></a>
             </div>
@@ -63,9 +63,22 @@
     </header>
 
     <main id="main-content">
-        {% block content %}
-        {% endblock %}
-    </main>
+    <!-- AGREGAR ESTE BLOQUE PARA MENSAJES -->
+    <div class="container mt-3">
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+    <!-- FIN DEL BLOQUE PARA MENSAJES -->
+    
+    {% block content %}
+    {% endblock %}
+</main>
 
 <footer class="footer-mini">
     <div class="container">

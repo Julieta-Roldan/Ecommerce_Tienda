@@ -1,0 +1,169 @@
+{% extends 'panel_admin/base_panel.html' %}
+
+{% block page_title %}Estadísticas{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card card-panel">
+                <div class="card-header">
+                    <h5 class="mb-0">Estadísticas Generales</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-3 mb-3">
+                            <div class="p-3 border rounded">
+                                <h3 class="text-primary">{{ hoy|date:"d/m/Y" }}</h3>
+                                <small class="text-muted">Fecha actual</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="p-3 border rounded">
+                                <h3 class="text-success">{{ hace_30_dias|date:"d/m/Y" }}</h3>
+                                <small class="text-muted">Hace 30 días</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Gráfico de Ventas -->
+        <div class="col-lg-8 mb-4">
+            <div class="card card-panel">
+                <div class="card-header">
+                    <h5 class="mb-0">Ventas Últimos 30 Días</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="ventasChart" height="100"></canvas>
+                    <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const ctx = document.getElementById('ventasChart').getContext('2d');
+                        
+                        // Datos de ejemplo (reemplazar con datos reales)
+                        const fechas = [
+                            {% for venta in ventas_por_dia %}
+                            "{{ venta.fecha|date:'d/m' }}",
+                            {% endfor %}
+                        ];
+                        
+                        const totales = [
+                            {% for venta in ventas_por_dia %}
+                            {{ venta.total|default:0 }},
+                            {% endfor %}
+                        ];
+                        
+                        new Chart(ctx, {
+                            type: 'line',
+                            data: {
+                                labels: fechas,
+                                datasets: [{
+                                    label: 'Ventas ($)',
+                                    data: totales,
+                                    borderColor: '#3498db',
+                                    backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                                    tension: 0.3,
+                                    fill: true
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                plugins: {
+                                    legend: {
+                                        position: 'top',
+                                    }
+                                },
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        ticks: {
+                                            callback: function(value) {
+                                                return '$' + value.toLocaleString();
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    });
+                    </script>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Productos Más Vendidos -->
+        <div class="col-lg-4 mb-4">
+            <div class="card card-panel">
+                <div class="card-header">
+                    <h5 class="mb-0">Productos Más Vendidos</h5>
+                </div>
+                <div class="card-body">
+                    {% if productos_mas_vendidos %}
+                    <div class="list-group">
+                        {% for producto in productos_mas_vendidos %}
+                        <div class="list-group-item border-0">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>{{ producto.producto__nombre|truncatechars:25 }}</strong><br>
+                                    <small class="text-muted">{{ producto.total_vendido }} unidades</small>
+                                </div>
+                                <div class="text-end">
+                                    <strong>${{ producto.total_ingresos|floatformat:0 }}</strong><br>
+                                    <small class="text-success">${{ producto.producto__precio|floatformat:0 }} c/u</small>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="bi bi-bar-chart text-muted" style="font-size: 3rem;"></i>
+                        <p class="text-muted mt-2">No hay datos de ventas</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Categorías Populares -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card card-panel">
+                <div class="card-header">
+                    <h5 class="mb-0">Categorías Más Populares</h5>
+                </div>
+                <div class="card-body">
+                    {% if categorias_populares %}
+                    <div class="row">
+                        {% for categoria in categorias_populares %}
+                        <div class="col-md-3 col-6 mb-3">
+                            <div class="p-3 border rounded text-center">
+                                <h5>{{ categoria.categoria__nombre|default:"Sin categoría" }}</h5>
+                                <div class="mt-2">
+                                    <span class="badge bg-primary me-2">{{ categoria.total_productos }} productos</span>
+                                    <span class="badge bg-success">{{ categoria.total_vendidos|default:0 }} vendidos</span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="bi bi-tags text-muted" style="font-size: 3rem;"></i>
+                        <p class="text-muted mt-2">No hay datos de categorías</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
