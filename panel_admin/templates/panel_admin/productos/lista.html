@@ -1,0 +1,191 @@
+{% extends 'panel_admin/base_panel.html' %}
+
+{% block page_title %}Productos{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Filtros y Búsqueda -->
+    <div class="card card-panel mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-3">
+                <div class="col-md-4">
+                    <input type="text" name="q" class="form-control" placeholder="Buscar productos..." 
+                           value="{{ busqueda|default:'' }}">
+                </div>
+                <div class="col-md-3">
+                    <select name="categoria" class="form-select">
+                        <option value="">Todas las categorías</option>
+                        {% for categoria in categorias %}
+                        <option value="{{ categoria.id }}" 
+                                {% if filtro_categoria|stringformat:"s" == categoria.id|stringformat:"s" %}selected{% endif %}>
+                            {{ categoria.nombre }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select name="estado" class="form-select">
+                        <option value="">Todos los estados</option>
+                        <option value="activos" {% if filtro_estado == 'activos' %}selected{% endif %}>Activos</option>
+                        <option value="inactivos" {% if filtro_estado == 'inactivos' %}selected{% endif %}>Inactivos</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-filter"></i> Filtrar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Lista de Productos -->
+    <div class="card card-panel">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                Productos ({{ page_obj.paginator.count }})
+            </h5>
+            <a href="{% url 'panel_admin:producto_nuevo' %}" class="btn btn-success">
+                <i class="bi bi-plus-circle me-1"></i> Nuevo Producto
+            </a>
+        </div>
+        
+        <div class="card-body">
+            {% if page_obj %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Imagen</th>
+                            <th>Nombre</th>
+                            <th>Categoría</th>
+                            <th>Precio</th>
+                            <th>Stock</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for producto in page_obj %}
+                        <tr>
+                            <td><strong>#{{ producto.id }}</strong></td>
+                            <td>
+                                {% if producto.imagenes.all %}
+                                <img src="{{ producto.imagenes.first.imagen.url }}" 
+                                     alt="{{ producto.nombre }}" 
+                                     style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;">
+                                {% else %}
+                                <div class="bg-light rounded d-flex align-items-center justify-content-center" 
+                                     style="width: 50px; height: 50px;">
+                                    <i class="bi bi-image text-muted"></i>
+                                </div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <strong>{{ producto.nombre }}</strong><br>
+                                <small class="text-muted">{{ producto.descripcion|truncatechars:50 }}</small>
+                            </td>
+                            <td>{{ producto.categoria.nombre }}</td>
+                            <td>
+                                <strong>${{ producto.precio|floatformat:0 }}</strong>
+                            </td>
+                            <td>
+                                {% if producto.stock > 10 %}
+                                <span class="badge bg-success">{{ producto.stock }}</span>
+                                {% elif producto.stock > 0 %}
+                                <span class="badge bg-warning">{{ producto.stock }}</span>
+                                {% else %}
+                                <span class="badge bg-danger">0</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if producto.activo %}
+                                <span class="badge bg-success">Activo</span>
+                                {% else %}
+                                <span class="badge bg-secondary">Inactivo</span>
+                                {% endif %}
+                            </td>
+                            <td class="table-actions">
+                                <a href="{% url 'panel_admin:producto_editar' producto.id %}" 
+                                   class="btn btn-sm btn-outline-primary" 
+                                   data-bs-toggle="tooltip" title="Editar">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="{% url 'panel_admin:producto_eliminar' producto.id %}" 
+                                   class="btn btn-sm btn-outline-danger"
+                                   data-bs-toggle="tooltip" title="Desactivar">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                                <a href="{% url 'producto_detalle' producto.id %}" 
+                                   class="btn btn-sm btn-outline-info"
+                                   target="_blank"
+                                   data-bs-toggle="tooltip" title="Ver en tienda">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Paginación -->
+            {% if page_obj.has_other_pages %}
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% if busqueda %}&q={{ busqueda }}{% endif %}{% if filtro_categoria %}&categoria={{ filtro_categoria }}{% endif %}{% if filtro_estado %}&estado={{ filtro_estado }}{% endif %}">
+                            <i class="bi bi-chevron-double-left"></i>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if busqueda %}&q={{ busqueda }}{% endif %}{% if filtro_categoria %}&categoria={{ filtro_categoria }}{% endif %}{% if filtro_estado %}&estado={{ filtro_estado }}{% endif %}">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ num }}</span>
+                        </li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}{% if busqueda %}&q={{ busqueda }}{% endif %}{% if filtro_categoria %}&categoria={{ filtro_categoria }}{% endif %}{% if filtro_estado %}&estado={{ filtro_estado }}{% endif %}">{{ num }}</a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if busqueda %}&q={{ busqueda }}{% endif %}{% if filtro_categoria %}&categoria={{ filtro_categoria }}{% endif %}{% if filtro_estado %}&estado={{ filtro_estado }}{% endif %}">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if busqueda %}&q={{ busqueda }}{% endif %}{% if filtro_categoria %}&categoria={{ filtro_categoria }}{% endif %}{% if filtro_estado %}&estado={{ filtro_estado }}{% endif %}">
+                            <i class="bi bi-chevron-double-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+            
+            {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-box text-muted" style="font-size: 4rem;"></i>
+                <h5 class="mt-3">No se encontraron productos</h5>
+                <p class="text-muted">Intenta con otros filtros de búsqueda</p>
+                <a href="{% url 'panel_admin:producto_nuevo' %}" class="btn btn-primary mt-2">
+                    <i class="bi bi-plus-circle me-2"></i> Crear primer producto
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

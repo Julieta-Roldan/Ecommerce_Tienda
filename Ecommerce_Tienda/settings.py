@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'pedidos_pagos',    # pedidos, checkout y pagos (Mercado Pago)
     'django.contrib.humanize', #yo
     "django_extensions",
+    'panel_admin',
 ]
 
 MIDDLEWARE = [
@@ -62,6 +63,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # 'panel_admin.middleware.PedidosPendientesMiddleware', 
 ]
 
 ROOT_URLCONF = 'Ecommerce_Tienda.urls'

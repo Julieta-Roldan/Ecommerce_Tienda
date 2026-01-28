@@ -1,9 +1,16 @@
+# pedidos_pagos/models.py
 from django.db import models
+from django.db.models import Sum, F
 from tienda.models import Producto
 from carrito.models import Carrito
 
 
 class Pedido(models.Model):
+    
+    @classmethod
+    def get_estados(cls):
+        """Devuelve las opciones de estado para usar en templates"""
+        return cls.ESTADOS
 
     ESTADOS = [
         ('pendiente', 'Pendiente de pago'),
@@ -14,12 +21,12 @@ class Pedido(models.Model):
     ]
     
     carrito = models.OneToOneField(
-    Carrito,
-    on_delete=models.PROTECT,
-    related_name='pedido',
-    null=True,
-    blank=True
-)
+        Carrito,
+        on_delete=models.PROTECT,
+        related_name='pedido',
+        null=True,
+        blank=True
+    )
 
     email = models.EmailField(blank=True, null=True)
     telefono = models.CharField(max_length=30, blank=True, null=True)
@@ -37,8 +44,18 @@ class Pedido(models.Model):
 
     @property
     def total(self):
+        """Calcula el total sumando los subtotales de los items"""
         return sum(item.subtotal for item in self.items.all())
     
+    def get_total_db(self):
+        """Versión que funciona en consultas de base de datos"""
+        from django.db.models import Sum, F
+        total = self.items.aggregate(
+            total=Sum(F('precio_unitario') * F('cantidad'))
+        )['total'] or 0
+        return total
+
+
 class ItemPedido(models.Model):
 
     pedido = models.ForeignKey(
@@ -56,12 +73,21 @@ class ItemPedido(models.Model):
     precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
     cantidad = models.PositiveIntegerField(default=1)
 
+    class Meta:
+        verbose_name = 'Item del pedido'
+        verbose_name_plural = 'Items del pedido'
+
     def __str__(self):
         return f"{self.cantidad} x {self.nombre_producto}"
 
     @property
     def subtotal(self):
+        """Propiedad Python para calcular subtotal"""
         return self.cantidad * self.precio_unitario
+    
+    def get_subtotal_db(self):
+        """Versión para usar en consultas de base de datos"""
+        return self.precio_unitario * self.cantidad
 
 
 class Pago(models.Model):

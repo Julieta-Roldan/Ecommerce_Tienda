@@ -12,6 +12,8 @@ from django.shortcuts import redirect
 from django.shortcuts import render
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
+from django.db import transaction
+from django.contrib import messages
 
 @csrf_exempt
 def checkout_cliente_externo(request):
@@ -71,38 +73,44 @@ def checkout_cliente_externo(request):
         "total": float(total)
     })
 
-from django.shortcuts import render
+
+
 
 def pagar_pedido(request, pedido_id):
     pedido = get_object_or_404(Pedido, id=pedido_id)
 
     if pedido.estado != "pendiente":
-        return redirect('pedido_exito')
+        return redirect("pedido_exito")
 
-    # GET → mostrar página de pago
+    # 1️⃣ GET → mostrar página de pago
     if request.method == "GET":
         return render(
             request,
             "pedidos_pagos/pagar_pedido.html",
             {"pedido": pedido}
         )
-
-    # POST → crear pago
     if request.method == "POST":
-        pago = Pago.objects.create(
-            pedido=pedido,
-            monto=pedido.total,
-            metodo="mercadopago",
-            estado="pendiente"
-        )
+     preferencia = crear_preferencia_pago(pedido)
 
-        preferencia = crear_preferencia_pago(pedido)
+    if preferencia is None:
+        return JsonResponse(
+        {
+            "error": "Mercado Pago rechazó la preferencia (sandbox / políticas)",
+        },
+        status=400,
+    )
 
-        return JsonResponse({
-            "pago_id": pago.id,
-            "init_point": preferencia["init_point"],
-            "sandbox_init_point": preferencia.get("sandbox_init_point")
-        })
+    if "init_point" not in preferencia:
+        return JsonResponse(
+        {
+            "error": "Respuesta inválida de Mercado Pago",
+            "respuesta_mp": preferencia,
+        },
+        status=400,
+    )
+
+    return redirect(preferencia["init_point"])
+
 
 @csrf_exempt
 @transaction.atomic
@@ -149,36 +157,61 @@ def confirmar_pago(request, pago_id):
         "estado_pago": pago.estado
     })
 
-@require_POST
-def crear_pedido_desde_carrito(request):
 
+
+@require_POST
+@transaction.atomic
+def crear_pedido_desde_carrito(request):
+    """
+    Crea un pedido a partir del carrito actual.
+    """
     # 1️⃣ Verificar sesión
     if not request.session.session_key:
+        messages.error(request, "No hay sesión activa")
         return redirect('catalogo')
 
+    # 2️⃣ Obtener carrito
     carrito = Carrito.objects.filter(
         session_key=request.session.session_key
     ).first()
 
     if not carrito or not carrito.items.exists():
+        messages.error(request, "Tu carrito está vacío")
         return redirect('carrito_ver')
 
-    # 2️⃣ Evitar pedidos duplicados
+    # 3️⃣ Verificar si ya tiene un pedido pendiente
     if hasattr(carrito, 'pedido'):
-        pedido = carrito.pedido
-    else:
+        pedido_existente = carrito.pedido
+        if pedido_existente.estado == 'pendiente':
+            messages.info(request, "Ya tienes un pedido pendiente")
+            return redirect('pagar_pedido', pedido_id=pedido_existente.id)
+        # Si el pedido anterior no está pendiente, podemos crear uno nuevo
+        # (continuamos con el flujo normal)
+
+    # 4️⃣ Validar stock ANTES de crear nada
+    items_con_problemas = []
+    for item in carrito.items.select_related('producto'):
+        if item.producto.stock < item.cantidad:
+            items_con_problemas.append(f"{item.producto.nombre} (stock: {item.producto.stock})")
+
+    if items_con_problemas:
+        messages.error(
+            request, 
+            f"Stock insuficiente: {', '.join(items_con_problemas)}"
+        )
+        return redirect('carrito_ver')
+
+    try:
+        # 5️⃣ Crear pedido
         pedido = Pedido.objects.create(
             carrito=carrito,
             estado='pendiente'
         )
 
-        # 3️⃣ Pasar items del carrito al pedido
+        # 6️⃣ Crear items del pedido
         for item in carrito.items.select_related('producto'):
             producto = item.producto
-
-            if producto.stock < item.cantidad:
-                return redirect('carrito_ver')
-
+            
             ItemPedido.objects.create(
                 pedido=pedido,
                 producto=producto,
@@ -187,8 +220,14 @@ def crear_pedido_desde_carrito(request):
                 cantidad=item.cantidad
             )
 
-    # 4️⃣ Redirigir al pago
-    return redirect('pagar_pedido', pedido_id=pedido.id)
+        messages.success(request, f"Pedido #{pedido.id} creado correctamente")
+        
+        # 7️⃣ Redirigir al pago
+        return redirect('pagar_pedido', pedido_id=pedido.id)
+
+    except Exception as e:
+        messages.error(request, f"Error al crear el pedido: {str(e)}")
+        return redirect('carrito_ver')
 
 def pedido_exito(request):
     return render(request, 'pedidos_pagos/pedido_exito.html')

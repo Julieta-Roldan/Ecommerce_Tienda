@@ -1,0 +1,152 @@
+{% extends 'panel_admin/base_panel.html' %}
+
+{% block page_title %}{{ titulo }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card card-panel">
+                <div class="card-header">
+                    <h5 class="mb-0">{{ titulo }}</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Reemplaza las secciones del formulario con esto: -->
+
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+    <div class="row g-3">
+        <!-- Campo: Nombre -->
+        <div class="col-md-12">
+            <label for="nombre" class="form-label">Nombre del Producto *</label>
+            <input type="text" name="nombre" class="form-control" 
+                   id="nombre" value="{{ producto.nombre|default:'' }}" required>
+        </div>
+        
+        <!-- Campo: Descripción -->
+        <div class="col-md-12">
+            <label for="descripcion" class="form-label">Descripción</label>
+            <textarea name="descripcion" class="form-control" 
+                      id="descripcion" rows="3">{{ producto.descripcion|default:'' }}</textarea>
+        </div>
+        
+        <!-- Campos: Precio y Stock -->
+        <div class="col-md-6">
+            <label for="precio" class="form-label">Precio *</label>
+            <div class="input-group">
+                <span class="input-group-text">$</span>
+                <input type="number" step="0.01" name="precio" 
+                       class="form-control" 
+                       id="precio" 
+                       value="{{ producto.precio|default:'0' }}" 
+                       min="0" required>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <label for="stock" class="form-label">Stock *</label>
+            <input type="number" name="stock" 
+                   class="form-control" 
+                   id="stock" 
+                   value="{{ producto.stock|default:'0' }}" 
+                   min="0" required>
+        </div>
+        
+        <!-- Campo: Categoría -->
+        <div class="col-md-6">
+            <label for="categoria" class="form-label">Categoría *</label>
+            <select name="categoria" class="form-select" id="categoria" required>
+                <option value="">Seleccionar categoría...</option>
+                {% for categoria in categorias %}
+                <option value="{{ categoria.id }}" 
+                        {% if producto.categoria.id == categoria.id %}selected{% endif %}>
+                    {{ categoria.nombre }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <!-- Campo: Activo -->
+        <div class="col-md-6">
+            <label class="form-label">Estado</label>
+            <div class="form-check form-switch mt-2">
+                <input class="form-check-input" type="checkbox" name="activo" 
+                       id="activo" {% if producto.activo or not producto %}checked{% endif %}>
+                <label class="form-check-label" for="activo">
+                    Producto activo
+                </label>
+            </div>
+        </div>
+        
+        <!-- Campo: Imagen Principal -->
+        <div class="col-md-12">
+            <label class="form-label">Imagen Principal (Opcional)</label>
+            <input type="file" name="imagen_principal" class="form-control" accept="image/*">
+            <small class="text-muted">Formatos: JPG, PNG, GIF. Máx. 5MB</small>
+            {% if producto and producto.imagenes.all %}
+            <div class="mt-2">
+                <small>Imagen actual:</small><br>
+                <img src="{{ producto.imagenes.first.imagen.url }}" 
+                     alt="{{ producto.nombre }}" 
+                     style="width: 100px; height: 100px; object-fit: cover; border-radius: 5px;"
+                     class="mt-1">
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Botones -->
+    <div class="mt-4 pt-3 border-top">
+        <div class="d-flex justify-content-between">
+            <a href="{% url 'panel_admin:productos' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i> Cancelar
+            </a>
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check-circle me-1"></i> {{ accion }} Producto
+            </button>
+        </div>
+    </div>
+</form>
+            
+            <!-- Si estamos editando, mostrar estadísticas -->
+            {% if producto %}
+            <div class="card card-panel mt-4">
+                <div class="card-header">
+                    <h6 class="mb-0">Estadísticas del Producto</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 text-center">
+                            <h4>{{ producto.itempedido_set.count|default:0 }}</h4>
+                            <small class="text-muted">Veces vendido</small>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <h4>{{ producto.stock }}</h4>
+                            <small class="text-muted">Stock actual</small>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <h4>${{ producto.precio|floatformat:0 }}</h4>
+                            <small class="text-muted">Precio actual</small>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <h4>{{ producto.creado|date:"d/m/Y" }}</h4>
+                            <small class="text-muted">Creado</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -4,32 +4,26 @@ from django.conf import settings
 from django.conf.urls.static import static
 from core import views  # vistas de la app core
 
-
 urlpatterns = [
     # ADMIN
-    path('admin/', admin.site.urls),
-
+   path('panel_admin/', include('panel_admin.urls', namespace='panel_admin')),
     # HOME PRINCIPAL
-    path('', views.index, name='index'),        # página principal (index en core)
-    path('health/', views.health_check),        # test / salud
+    path('', views.index, name='index'),
+    path('health/', views.health_check),
 
-    # AUTH (login / logout / password reset)
+    # AUTH
     path('accounts/', include('django.contrib.auth.urls')),
 
     # APPS
-    path('tienda/', include('tienda.urls')),            # catálogo / productos
-    path('', include('core.urls')),              # home / comprobación básica
-    path('carrito/', include('carrito.urls')),          # carrito
-    path('pedidos/', include('pedidos_pagos.urls')),    # checkout / pagos
-    path('usuarios/', include('usuarios.urls')),        # gestión interna
+    path('tienda/', include('tienda.urls')),
+    path('', include('core.urls')),
+    path('carrito/', include('carrito.urls')),
+    path('pedidos/', include('pedidos_pagos.urls')),
+    path('usuarios/', include('usuarios.urls')),
 ]
 
 # ARCHIVOS MEDIA
-
-
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
-urlpatterns = [
-    
-    path('accounts/', include('django.contrib.auth.urls')),
-]
+urlpatterns += static(
+    settings.MEDIA_URL,
+    document_root=settings.MEDIA_ROOT
+)

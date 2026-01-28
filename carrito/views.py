@@ -41,23 +41,6 @@ def agregar_producto(request, producto_id):
     # 👉 ACÁ ESTÁ LA CLAVE
     return redirect('carrito_ver')
 
-# def ver_carrito(request):
-#     items = []
-#     total = 0
-
-#     if request.session.session_key:
-#         carrito = Carrito.objects.filter(
-#             session_key=request.session.session_key
-#         ).first()
-
-#         if carrito:
-#             items = carrito.items.select_related("producto")
-#             total = carrito.total()
-
-#     return render(request, "carrito/carrito.html", {
-#         "items": items,
-#         "total": total
-#     })
 
 
 def ver_carrito(request):
