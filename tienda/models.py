@@ -5,6 +5,9 @@ class Categoria(models.Model):
     nombre = models.CharField(max_length=100, unique=True)
     descripcion = models.TextField(blank=True, null=True)
     activo = models.BooleanField(default=True)
+    # AGREGAR ESTOS CAMPOS:
+    creado = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    actualizado = models.DateTimeField(auto_now=True, null=True, blank=True)
 
     class Meta:
         verbose_name = 'Categoría'
@@ -13,7 +16,6 @@ class Categoria(models.Model):
 
     def __str__(self):
         return self.nombre
-
 
 class Talle(models.Model):
     nombre = models.CharField(max_length=10)

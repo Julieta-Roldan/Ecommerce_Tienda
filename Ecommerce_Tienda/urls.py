@@ -7,6 +7,7 @@ from core import views  # vistas de la app core
 urlpatterns = [
     # ADMIN
    path('panel_admin/', include('panel_admin.urls', namespace='panel_admin')),
+   path('admin/', admin.site.urls), 
     # HOME PRINCIPAL
     path('', views.index, name='index'),
     path('health/', views.health_check),

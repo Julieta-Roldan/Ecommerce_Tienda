@@ -48,17 +48,17 @@
                         const ctx = document.getElementById('ventasChart').getContext('2d');
                         
                         // Datos de ejemplo (reemplazar con datos reales)
-                        const fechas = [
-                            {% for venta in ventas_por_dia %}
-                            "{{ venta.fecha|date:'d/m' }}",
-                            {% endfor %}
-                        ];
+                        // const fechas = [
+                        //     {% for venta in ventas_por_dia %}
+                        //     "{{ venta.fecha|date:'d/m' }}",
+                        //     {% endfor %}
+                        // ];
                         
-                        const totales = [
-                            {% for venta in ventas_por_dia %}
-                            {{ venta.total|default:0 }},
-                            {% endfor %}
-                        ];
+                        // const totales = [
+                        //     {% for venta in ventas_por_dia %}
+                        //     {{ venta.total|default:0 }},
+                        //     {% endfor %}
+                        // ];
                         
                         new Chart(ctx, {
                             type: 'line',

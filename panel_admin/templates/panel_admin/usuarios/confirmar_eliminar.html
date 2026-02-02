@@ -1,0 +1,111 @@
+{% extends 'panel_admin/base_panel.html' %}
+
+{% block page_title %}Confirmar eliminación{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card card-panel">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-exclamation-triangle me-2"></i>Confirmar eliminación
+                    </h5>
+                </div>
+                
+                <div class="card-body text-center">
+                    <div class="mb-4">
+                        <i class="bi bi-person-x text-danger" style="font-size: 4rem;"></i>
+                    </div>
+                    
+                    <h4 class="mb-3">¿Estás seguro?</h4>
+                    
+                    <div class="alert alert-warning mb-4">
+                        <p class="mb-2">
+                            Estás a punto de eliminar al usuario:
+                        </p>
+                        <h5 class="mb-0">{{ usuario.username }}</h5>
+                        {% if usuario.first_name or usuario.last_name %}
+                        <p class="mb-0 mt-1">
+                            {{ usuario.first_name }} {{ usuario.last_name }}
+                        </p>
+                        {% endif %}
+                        <p class="mb-0 mt-1">
+                            <small>{{ usuario.email|default:"Sin email" }}</small>
+                        </p>
+                    </div>
+                    
+                    <div class="alert alert-danger">
+                        <h6><i class="bi bi-exclamation-octagon me-1"></i> Esta acción NO se puede deshacer</h6>
+                        <ul class="mb-0 small">
+                            <li>Se eliminarán todos los datos del usuario del sistema</li>
+                            <li>No podrá recuperar la cuenta después de la eliminación</li>
+                            <li>Cualquier pedido o actividad asociada perderá la referencia al usuario</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Información del usuario -->
+                    <div class="card mb-4">
+                        <div class="card-body text-start">
+                            <h6>Información del usuario:</h6>
+                            <div class="row small">
+                                <div class="col-md-6">
+                                    <strong>ID:</strong> #{{ usuario.id }}<br>
+                                    <strong>Registrado:</strong> {{ usuario.date_joined|date:"d/m/Y" }}<br>
+                                    <strong>Último acceso:</strong> 
+                                    {% if usuario.last_login %}
+                                    {{ usuario.last_login|date:"d/m/Y H:i" }}
+                                    {% else %}
+                                    <span class="fst-italic">Nunca</span>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>Estado:</strong> 
+                                    {% if usuario.is_active %}
+                                    <span class="badge bg-success">Activo</span>
+                                    {% else %}
+                                    <span class="badge bg-danger">Inactivo</span>
+                                    {% endif %}<br>
+                                    <strong>Staff:</strong> 
+                                    {% if usuario.is_staff %}
+                                    <span class="badge bg-primary">Sí</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">No</span>
+                                    {% endif %}<br>
+                                    <strong>Superusuario:</strong> 
+                                    {% if usuario.is_superuser %}
+                                    <span class="badge bg-danger">Sí</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">No</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Alternativas -->
+                    <div class="alert alert-info">
+                        <h6><i class="bi bi-lightbulb me-1"></i> ¿Consideraste estas alternativas?</h6>
+                        <ul class="mb-0 small">
+                            <li><strong>Desactivar:</strong> El usuario no podrá acceder pero se mantendrán sus datos</li>
+                            <li><strong>Quitar permisos:</strong> Remover permisos de staff/superusuario si es necesario</li>
+                        </ul>
+                    </div>
+                    
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="d-flex justify-content-center mt-4">
+                            <a href="{% url 'panel_admin:usuarios' %}" class="btn btn-outline-secondary me-3">
+                                <i class="bi bi-x-circle me-1"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash me-1"></i> Sí, eliminar usuario
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

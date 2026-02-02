@@ -1,0 +1,339 @@
+{% extends 'panel_admin/base_panel.html' %}
+
+{% block page_title %}Usuarios y Empleados{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Encabezado con estadísticas -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card card-panel bg-primary-light">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Total Usuarios</h6>
+                            <h3 class="mb-0">{{ page_obj.paginator.count }}</h3>
+                        </div>
+                        <div class="card-icon bg-primary">
+                            <i class="bi bi-people"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card card-panel bg-success-light">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Staff Activo</h6>
+                            <h3 class="mb-0">{{ staff_count }}</h3>
+                        </div>
+                        <div class="card-icon bg-success">
+                            <i class="bi bi-person-check"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card card-panel bg-warning-light">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Superusuarios</h6>
+                            <h3 class="mb-0">{{ superusers_count }}</h3>
+                        </div>
+                        <div class="card-icon bg-warning">
+                            <i class="bi bi-shield-check"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card card-panel bg-info-light">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Activos</h6>
+                            <h3 class="mb-0">{{ active_count }}</h3>
+                        </div>
+                        <div class="card-icon bg-info">
+                            <i class="bi bi-person-circle"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Barra de acciones -->
+    <div class="card card-panel mb-4">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h5 class="mb-0">Gestión de Usuarios y Empleados</h5>
+                    <p class="text-muted mb-0">Administra los usuarios del sistema y asigna permisos</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div class="btn-group" style="position: relative; z-index: 1000;">
+                    <button type="button" class="btn btn-outline-secondary dropdown-toggle" 
+                            data-bs-toggle="dropdown" aria-expanded="false"
+                            style="z-index: 1001;">
+                        <i class="bi bi-funnel"></i> Filtros
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" style="position: absolute; z-index: 1002;">
+                        <li><a class="dropdown-item" href="{% url 'panel_admin:usuarios' %}">
+                            <i class="bi bi-people me-2"></i>Todos los usuarios
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="?tipo=staff">
+                            <i class="bi bi-person-check text-primary me-2"></i>Solo Staff
+                        </a></li>
+                        <li><a class="dropdown-item" href="?tipo=superusers">
+                            <i class="bi bi-shield-check text-danger me-2"></i>Superusuarios
+                        </a></li>
+                        <li><a class="dropdown-item" href="?tipo=activos">
+                            <i class="bi bi-person-check text-success me-2"></i>Solo activos
+                        </a></li>
+                        <li><a class="dropdown-item" href="?tipo=inactivos">
+                            <i class="bi bi-person-x text-secondary me-2"></i>Solo inactivos
+                        </a></li>
+                    </ul>
+                </div>
+                    <a href="{% url 'panel_admin:usuario_nuevo' %}" class="btn btn-success ms-2">
+                        <i class="bi bi-person-plus me-1"></i> Nuevo Usuario
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Búsqueda -->
+    <div class="card card-panel mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-3">
+                <div class="col-md-10">
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input type="text" name="q" class="form-control" 
+                               placeholder="Buscar usuarios por nombre, email o username..." 
+                               value="{{ busqueda|default:'' }}">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        Buscar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Lista de Usuarios -->
+    <div class="card card-panel">
+        <div class="card-body">
+            {% if page_obj %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Usuario</th>
+                            <th>Nombre</th>
+                            <th>Email</th>
+                            <th>Roles</th>
+                            <th>Estado</th>
+                            <th>Último acceso</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for usuario in page_obj %}
+                        <tr>
+                            <td><strong>#{{ usuario.id }}</strong></td>
+                            <td>
+                                <strong>{{ usuario.username }}</strong><br>
+                                <small class="text-muted">Registrado: {{ usuario.date_joined|date:"d/m/Y" }}</small>
+                            </td>
+                            <td>
+                                {% if usuario.first_name or usuario.last_name %}
+                                {{ usuario.first_name }} {{ usuario.last_name }}
+                                {% else %}
+                                <span class="text-muted fst-italic">No especificado</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if usuario.email %}
+                                <a href="mailto:{{ usuario.email }}" class="text-decoration-none">
+                                    {{ usuario.email }}
+                                </a>
+                                {% else %}
+                                <span class="text-muted fst-italic">No tiene</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if usuario.is_superuser %}
+                                <span class="badge bg-danger">Superusuario</span>
+                                {% endif %}
+                                {% if usuario.is_staff %}
+                                <span class="badge bg-primary">Staff</span>
+                                {% endif %}
+                                {% if not usuario.is_staff and not usuario.is_superuser %}
+                                <span class="badge bg-secondary">Usuario</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if usuario.is_active %}
+                                <span class="badge bg-success">Activo</span>
+                                {% else %}
+                                <span class="badge bg-danger">Inactivo</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if usuario.last_login %}
+                                <small class="text-muted">{{ usuario.last_login|date:"d/m/Y H:i" }}</small>
+                                {% else %}
+                                <small class="text-muted fst-italic">Nunca</small>
+                                {% endif %}
+                            </td>
+                            <td class="table-actions">
+                                <a href="{% url 'panel_admin:usuario_editar' usuario.id %}" 
+                                   class="btn btn-sm btn-outline-primary" 
+                                   data-bs-toggle="tooltip" title="Editar">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                {% if usuario.is_active %}
+                                <button class="btn btn-sm btn-outline-warning toggle-usuario" 
+                                        data-id="{{ usuario.id }}" 
+                                        data-username="{{ usuario.username }}"
+                                        data-bs-toggle="tooltip" title="Desactivar">
+                                    <i class="bi bi-person-x"></i>
+                                </button>
+                                {% else %}
+                                <button class="btn btn-sm btn-outline-success toggle-usuario" 
+                                        data-id="{{ usuario.id }}" 
+                                        data-username="{{ usuario.username }}"
+                                        data-bs-toggle="tooltip" title="Activar">
+                                    <i class="bi bi-person-check"></i>
+                                </button>
+                                {% endif %}
+                                {% if usuario != request.user %}
+                                <a href="{% url 'panel_admin:usuario_eliminar' usuario.id %}" 
+                                    class="btn btn-sm btn-outline-danger"
+                                    data-bs-toggle="tooltip" title="Eliminar">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Paginación -->
+            {% if page_obj.has_other_pages %}
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% if busqueda %}&q={{ busqueda }}{% endif %}{% if filtro_tipo %}&tipo={{ filtro_tipo }}{% endif %}">
+                            <i class="bi bi-chevron-double-left"></i>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if busqueda %}&q={{ busqueda }}{% endif %}{% if filtro_tipo %}&tipo={{ filtro_tipo }}{% endif %}">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ num }}</span>
+                        </li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}{% if busqueda %}&q={{ busqueda }}{% endif %}{% if filtro_tipo %}&tipo={{ filtro_tipo }}{% endif %}">{{ num }}</a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if busqueda %}&q={{ busqueda }}{% endif %}{% if filtro_tipo %}&tipo={{ filtro_tipo }}{% endif %}">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if busqueda %}&q={{ busqueda }}{% endif %}{% if filtro_tipo %}&tipo={{ filtro_tipo }}{% endif %}">
+                            <i class="bi bi-chevron-double-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+            
+            {% else %}
+            <div class="text-center py-5">
+                <div class="mb-4">
+                    <i class="bi bi-people text-muted" style="font-size: 4rem;"></i>
+                </div>
+                <h4>No hay usuarios</h4>
+                <p class="text-muted mb-4">
+                    Añade usuarios para que puedan acceder al sistema.
+                </p>
+                <a href="{% url 'panel_admin:usuario_nuevo' %}" class="btn btn-primary btn-lg">
+                    <i class="bi bi-person-plus me-2"></i> Crear primer usuario
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript para activar/desactivar usuarios -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Activar/desactivar usuarios con AJAX
+    document.querySelectorAll('.toggle-usuario').forEach(button => {
+        button.addEventListener('click', function() {
+            const userId = this.getAttribute('data-id');
+            const username = this.getAttribute('data-username');
+            const isCurrentlyActive = this.classList.contains('btn-outline-warning');
+            const nuevoEstado = !isCurrentlyActive;
+            
+            if (confirm(`¿Estás seguro de querer ${nuevoEstado ? 'activar' : 'desactivar'} al usuario "${username}"?`)) {
+                fetch(`/panel_admin/usuarios/cambiar-estado/${userId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({ estado: nuevoEstado })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Recargar la página para ver los cambios
+                        location.reload();
+                    } else {
+                        alert(data.error || 'Error al cambiar estado del usuario');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error de conexión');
+                });
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

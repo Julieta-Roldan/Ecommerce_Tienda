@@ -13,10 +13,106 @@ from django.core.paginator import Paginator
 from django.http import JsonResponse
 from tienda.forms import ProductoForm
 from django.db import models
+from django.contrib.auth.models import User  # Importar aquí para usar en toda la vista
+from django.core.exceptions import PermissionDenied
+from functools import wraps
+from django.contrib.auth.models import Group, Permission
 
-# Verificador de staff
+# ==================== DECORADORES PERSONALIZADOS ====================
+
+def requiere_permiso(permiso_codename):
+    """Decorador para verificar permisos específicos"""
+    def decorator(view_func):
+        @wraps(view_func)
+        def _wrapped_view(request, *args, **kwargs):
+            if not request.user.has_perm(permiso_codename):
+                if request.user.is_authenticated:
+                    raise PermissionDenied
+                else:
+                    return redirect('panel_admin:login')
+            return view_func(request, *args, **kwargs)
+        return _wrapped_view
+    return decorator
+
 def es_staff(user):
-    return user.is_staff or user.is_superuser
+    """Verifica si el usuario tiene acceso al panel admin"""
+    # Superusuarios y staff siempre tienen acceso
+    if user.is_superuser or user.is_staff:
+        return True
+    
+    # Verificar si está en algún grupo con permisos
+    grupos_con_acceso = ['Administradores', 'Empleados', 'Vendedores']
+    return user.groups.filter(name__in=grupos_con_acceso).exists()
+
+def admin_required(view_func):
+    """Decorador para vistas solo de administradores"""
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        if not request.user.is_superuser:
+            if request.user.is_authenticated:
+                messages.error(request, 'No tienes permisos de administrador')
+                return redirect('panel_admin:dashboard')
+            else:
+                return redirect('panel_admin:login')
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view
+
+def puede_ver_dashboard(user):
+    """Verifica si el usuario puede ver el dashboard"""
+    if user.is_superuser:
+        return True
+    # Empleados pueden ver dashboard si tienen permisos
+    return user.groups.filter(name__in=['Administradores', 'Empleados']).exists()
+
+def puede_gestionar_usuarios(user):
+    """Verifica si el usuario puede gestionar usuarios"""
+    return user.is_superuser or user.groups.filter(name='Administradores').exists()
+
+# ==================== DECORADORES ESPECÍFICOS POR SECCIÓN ====================
+
+def requiere_ver_productos(view_func):
+    """Decorador para vistas de productos (solo Admin y Empleados)"""
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        if not (request.user.is_superuser or 
+                request.user.groups.filter(name__in=['Administradores', 'Empleados']).exists()):
+            messages.error(request, 'No tienes permisos para acceder a la sección de Productos')
+            return redirect('panel_admin:dashboard')
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view
+
+def requiere_ver_categorias(view_func):
+    """Decorador para vistas de categorías (solo Admin y Empleados)"""
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        if not (request.user.is_superuser or 
+                request.user.groups.filter(name__in=['Administradores', 'Empleados']).exists()):
+            messages.error(request, 'No tienes permisos para acceder a la sección de Categorías')
+            return redirect('panel_admin:dashboard')
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view
+
+def requiere_ver_pedidos(view_func):
+    """Decorador para vistas de pedidos (Admin, Empleados y Vendedores)"""
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        if not (request.user.is_superuser or 
+                request.user.groups.filter(name__in=['Administradores', 'Empleados', 'Vendedores']).exists()):
+            messages.error(request, 'No tienes permisos para acceder a la sección de Pedidos')
+            return redirect('panel_admin:dashboard')
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view
+
+def requiere_ver_estadisticas(view_func):
+    """Decorador para vistas de estadísticas (solo Admin y Empleados)"""
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        if not (request.user.is_superuser or 
+                request.user.groups.filter(name__in=['Administradores', 'Empleados']).exists()):
+            messages.error(request, 'No tienes permisos para acceder a Estadísticas')
+            return redirect('panel_admin:dashboard')
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view
 
 # ==================== AUTENTICACIÓN ====================
 def login_panel(request):
@@ -46,7 +142,7 @@ def logout_panel(request):
 
 # ==================== DASHBOARD ====================
 @login_required
-@user_passes_test(es_staff)
+@user_passes_test(puede_ver_dashboard)
 def dashboard(request):
     """Dashboard principal del panel"""
     
@@ -55,6 +151,7 @@ def dashboard(request):
     total_pedidos = Pedido.objects.count()
     pedidos_pendientes = Pedido.objects.filter(estado='pendiente').count()
     pedidos_pagados = Pedido.objects.filter(estado='pagado').count()
+   
     
     # Ventas del mes actual - USANDO F() expressions
     hoy = timezone.now()
@@ -74,6 +171,9 @@ def dashboard(request):
     productos_stock_bajo = Producto.objects.filter(stock__lt=10, stock__gt=0)[:5]
     productos_sin_stock = Producto.objects.filter(stock=0)[:5]
     
+    
+    usuarios_inactivos = User.objects.filter(is_active=False).count()
+    
     context = {
         'total_productos': total_productos,
         'total_pedidos': total_pedidos,
@@ -83,6 +183,7 @@ def dashboard(request):
         'pedidos_recientes': pedidos_recientes,
         'productos_stock_bajo': productos_stock_bajo,
         'productos_sin_stock': productos_sin_stock,
+        'usuarios_inactivos': usuarios_inactivos,
     }
     
     return render(request, 'panel_admin/dashboard.html', context)
@@ -90,6 +191,7 @@ def dashboard(request):
 # ==================== PRODUCTOS ====================
 @login_required
 @user_passes_test(es_staff)
+@requiere_ver_productos
 def productos_lista(request):
     """Lista de productos con filtros y paginación"""
     productos = Producto.objects.all().order_by('-creado')
@@ -132,6 +234,7 @@ def productos_lista(request):
 
 @login_required
 @user_passes_test(es_staff)
+@requiere_ver_productos  
 def producto_nuevo(request):
     """Crear nuevo producto (versión simplificada sin forms.py)"""
     
@@ -196,6 +299,7 @@ def producto_nuevo(request):
 
 @login_required
 @user_passes_test(es_staff)
+@requiere_ver_productos  
 def producto_editar(request, id):
     """Editar producto existente (versión simplificada)"""
     producto = get_object_or_404(Producto, id=id)
@@ -266,6 +370,7 @@ def producto_editar(request, id):
 
 @login_required
 @user_passes_test(es_staff)
+@requiere_ver_productos  
 def producto_eliminar(request, id):
     """Eliminar producto (soft delete)"""
     producto = get_object_or_404(Producto, id=id)
@@ -284,6 +389,7 @@ def producto_eliminar(request, id):
 # ==================== PEDIDOS ====================
 @login_required
 @user_passes_test(es_staff)
+@requiere_ver_pedidos 
 def pedidos_lista(request):
     """Lista de pedidos con filtros"""
     pedidos = Pedido.objects.all().order_by('-fecha_creacion')
@@ -323,6 +429,7 @@ def pedidos_lista(request):
 
 @login_required
 @user_passes_test(es_staff)
+@requiere_ver_pedidos 
 def pedido_detalle(request, id):
     """Detalle completo de un pedido"""
     pedido = get_object_or_404(Pedido, id=id)
@@ -358,6 +465,7 @@ def pedido_detalle(request, id):
 
 @login_required
 @user_passes_test(es_staff)
+@requiere_ver_pedidos 
 def cambiar_estado_pedido(request, id):
     """Cambiar estado de pedido (para AJAX)"""
     if request.method == 'POST' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -374,6 +482,7 @@ def cambiar_estado_pedido(request, id):
 # ==================== ESTADÍSTICAS ====================
 @login_required
 @user_passes_test(es_staff)
+@requiere_ver_estadisticas  # <-- CORREGIR: estaba @requiere_ver_pedidos
 def estadisticas(request):
     """Página de estadísticas avanzadas"""
     hoy = timezone.now()
@@ -430,28 +539,50 @@ def estadisticas(request):
     
     return render(request, 'panel_admin/estadisticas.html', context)
 
-
 # ==================== CATEGORÍAS ====================
 @login_required
 @user_passes_test(es_staff)
+@requiere_ver_categorias 
 def categorias_lista(request):
-    """Lista de categorías"""
-    categorias = Categoria.objects.all().order_by('nombre')
+    """Lista de categorías con estadísticas"""
+    categorias = Categoria.objects.all().order_by('-creado', 'nombre')  # Ordenar por fecha de creación primero
     
     # Búsqueda
     busqueda = request.GET.get('q')
     if busqueda:
         categorias = categorias.filter(nombre__icontains=busqueda)
     
+    # Filtros adicionales
+    estado = request.GET.get('estado')
+    if estado == 'activas':
+        categorias = categorias.filter(activo=True)
+    elif estado == 'inactivas':
+        categorias = categorias.filter(activo=False)
+    elif estado == 'con_productos':
+        categorias = categorias.annotate(num_productos=Count('producto')).filter(num_productos__gt=0)
+    elif estado == 'sin_productos':
+        categorias = categorias.annotate(num_productos=Count('producto')).filter(num_productos=0)
+    
+    # Calcular estadísticas para las tarjetas
+    categorias_activas = Categoria.objects.filter(activo=True).count()
+    categorias_con_productos = Categoria.objects.annotate(
+        num_productos=Count('producto')
+    ).filter(num_productos__gt=0).count()
+    total_productos = Producto.objects.count()
+    
     context = {
         'categorias': categorias,
         'busqueda': busqueda,
+        'categorias_activas': categorias_activas,
+        'categorias_con_productos': categorias_con_productos,
+        'total_productos': total_productos,
     }
     
     return render(request, 'panel_admin/categorias/lista.html', context)
 
 @login_required
 @user_passes_test(es_staff)
+@requiere_ver_categorias 
 def categoria_nueva(request):
     """Crear nueva categoría"""
     if request.method == 'POST':
@@ -476,6 +607,7 @@ def categoria_nueva(request):
 
 @login_required
 @user_passes_test(es_staff)
+@requiere_ver_categorias 
 def categoria_editar(request, id):
     """Editar categoría existente"""
     categoria = get_object_or_404(Categoria, id=id)
@@ -504,6 +636,7 @@ def categoria_editar(request, id):
 
 @login_required
 @user_passes_test(es_staff)
+@requiere_ver_categorias 
 def categoria_eliminar(request, id):
     """Eliminar categoría (soft delete)"""
     categoria = get_object_or_404(Categoria, id=id)
@@ -526,14 +659,12 @@ def categoria_eliminar(request, id):
     return render(request, 'panel_admin/categorias/confirmar_eliminar.html', {
         'categoria': categoria
     })
-    
-    # ==================== USUARIOS/EMPLEADOS ====================
+
+# ==================== USUARIOS/EMPLEADOS ====================
 @login_required
-@user_passes_test(es_staff)
+@user_passes_test(puede_gestionar_usuarios)
 def usuarios_lista(request):
-    """Lista de usuarios (empleados)"""
-    from django.contrib.auth.models import User
-    
+    """Lista de usuarios (empleados) con estadísticas"""
     usuarios = User.objects.all().order_by('-date_joined')
     
     # Filtros
@@ -562,19 +693,27 @@ def usuarios_lista(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
+    # Estadísticas
+    staff_count = User.objects.filter(is_staff=True).count()
+    superusers_count = User.objects.filter(is_superuser=True).count()
+    active_count = User.objects.filter(is_active=True).count()
+    
     context = {
         'page_obj': page_obj,
         'busqueda': busqueda,
         'filtro_tipo': tipo,
+        'staff_count': staff_count,
+        'superusers_count': superusers_count,
+        'active_count': active_count,
+        'puede_editar_usuarios': request.user.is_superuser,
     }
     
     return render(request, 'panel_admin/usuarios/lista.html', context)
 
 @login_required
-@user_passes_test(es_staff)
+@user_passes_test(puede_gestionar_usuarios)
 def usuario_nuevo(request):
     """Crear nuevo usuario (empleado)"""
-    from django.contrib.auth.models import User
     
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -585,40 +724,72 @@ def usuario_nuevo(request):
         is_staff = request.POST.get('is_staff') == 'on'
         is_active = request.POST.get('is_active') == 'on'
         
+        # Obtener grupos seleccionados
+        grupos_ids = request.POST.getlist('groups')
+        grupos = Group.objects.filter(id__in=grupos_ids)
+        
+        # Obtener permisos individuales (solo superuser)
+        permisos_ids = []
+        if request.user.is_superuser:
+            permisos_ids = request.POST.getlist('user_permissions')
+        permisos = Permission.objects.filter(id__in=permisos_ids)
+        
         if username and password:
-            # Verificar si el usuario ya existe
             if User.objects.filter(username=username).exists():
                 messages.error(request, 'El nombre de usuario ya existe')
             else:
-                user = User.objects.create_user(
-                    username=username,
-                    email=email,
-                    password=password,
-                    first_name=first_name,
-                    last_name=last_name,
-                    is_staff=is_staff,
-                    is_active=is_active
-                )
-                messages.success(request, f'Usuario "{user.username}" creado correctamente')
-                return redirect('panel_admin:usuarios')
+                try:
+                    user = User.objects.create_user(
+                        username=username,
+                        email=email,
+                        password=password,
+                        first_name=first_name,
+                        last_name=last_name,
+                        is_staff=is_staff,
+                        is_active=is_active
+                    )
+                    
+                    # Asignar grupos
+                    user.groups.set(grupos)
+                    
+                    # Asignar permisos individuales (solo superuser)
+                    if request.user.is_superuser:
+                        user.user_permissions.set(permisos)
+                    
+                    messages.success(request, f'Usuario "{user.username}" creado correctamente')
+                    return redirect('panel_admin:usuarios')
+                    
+                except Exception as e:
+                    messages.error(request, f'Error al crear usuario: {str(e)}')
         else:
             messages.error(request, 'Nombre de usuario y contraseña son requeridos')
     
+    # Obtener grupos y permisos para el formulario
+    grupos = Group.objects.all().order_by('name')
+    permisos = Permission.objects.all().order_by('name') if request.user.is_superuser else []
+    
     return render(request, 'panel_admin/usuarios/form.html', {
         'titulo': 'Nuevo Usuario/Empleado',
-        'accion': 'Crear'
+        'accion': 'Crear',
+        'grupos': grupos,
+        'permisos': permisos,
+        'es_superuser': request.user.is_superuser,
     })
-
+    
 @login_required
-@user_passes_test(es_staff)
+@user_passes_test(puede_gestionar_usuarios)
 def usuario_editar(request, id):
     """Editar usuario existente"""
-    from django.contrib.auth.models import User
     usuario = get_object_or_404(User, id=id)
     
     # No permitir editar superusuarios a menos que seas superuser
     if usuario.is_superuser and not request.user.is_superuser:
         messages.error(request, 'No tienes permisos para editar superusuarios')
+        return redirect('panel_admin:usuarios')
+    
+    # No permitir que empleados editen administradores
+    if not request.user.is_superuser and usuario.groups.filter(name='Administradores').exists():
+        messages.error(request, 'No puedes editar a otros administradores')
         return redirect('panel_admin:usuarios')
     
     if request.method == 'POST':
@@ -627,6 +798,16 @@ def usuario_editar(request, id):
         last_name = request.POST.get('last_name', '')
         is_staff = request.POST.get('is_staff') == 'on'
         is_active = request.POST.get('is_active') == 'on'
+        
+        # Obtener grupos seleccionados
+        grupos_ids = request.POST.getlist('groups')
+        grupos = Group.objects.filter(id__in=grupos_ids)
+        
+        # Obtener permisos individuales (solo superuser)
+        permisos_ids = []
+        if request.user.is_superuser:
+            permisos_ids = request.POST.getlist('user_permissions')
+        permisos = Permission.objects.filter(id__in=permisos_ids)
         
         usuario.email = email
         usuario.first_name = first_name
@@ -641,12 +822,51 @@ def usuario_editar(request, id):
         
         usuario.save()
         
+        # Actualizar grupos
+        usuario.groups.set(grupos)
+        
+        # Actualizar permisos individuales (solo superuser)
+        if request.user.is_superuser:
+            usuario.user_permissions.set(permisos)
+        
         messages.success(request, f'Usuario "{usuario.username}" actualizado correctamente')
         return redirect('panel_admin:usuarios')
+    
+    # Obtener grupos y permisos para el formulario
+    grupos = Group.objects.all().order_by('name')
+    permisos = Permission.objects.all().order_by('name') if request.user.is_superuser else []
     
     return render(request, 'panel_admin/usuarios/form.html', {
         'titulo': f'Editar: {usuario.username}',
         'accion': 'Actualizar',
+        'usuario': usuario,
+        'grupos': grupos,
+        'permisos': permisos,
+        'es_superuser': request.user.is_superuser,
+    })
+
+@login_required
+@user_passes_test(es_staff)
+def usuario_eliminar(request, id):
+    """Eliminar usuario permanentemente"""
+    usuario = get_object_or_404(User, id=id)
+    
+    # Verificaciones de seguridad
+    if usuario == request.user:
+        messages.error(request, 'No puedes eliminar tu propia cuenta')
+        return redirect('panel_admin:usuarios')
+    
+    if usuario.is_superuser and not request.user.is_superuser:
+        messages.error(request, 'No tienes permisos para eliminar superusuarios')
+        return redirect('panel_admin:usuarios')
+    
+    if request.method == 'POST':
+        username = usuario.username
+        usuario.delete()
+        messages.success(request, f'Usuario "{username}" eliminado correctamente')
+        return redirect('panel_admin:usuarios')
+    
+    return render(request, 'panel_admin/usuarios/confirmar_eliminar.html', {
         'usuario': usuario
     })
 
@@ -654,8 +874,6 @@ def usuario_editar(request, id):
 @user_passes_test(es_staff)
 def cambiar_estado_usuario(request, id):
     """Activar/desactivar usuario"""
-    from django.contrib.auth.models import User
-    
     if request.method == 'POST':
         usuario = get_object_or_404(User, id=id)
         
