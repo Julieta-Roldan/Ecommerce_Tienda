@@ -12,23 +12,25 @@
 </head>
 <body>
 
-    <div id="sidebar" class="sidebar">
-        <div class="sidebar-header">
-            <h3 class="logo-sidebar">Tienda Lore</h3>
-            <i class="bi bi-x-lg close-menu" id="close-sidebar"></i>
-        </div>
-        <ul class="sidebar-menu">
-            <li><a href="{% url 'home' %}">🏠 INICIO</a></li>
-            <li><a href="{% url 'home' %}#categorias">📦 CATEGORÍAS</a></li>
-            <li><a href="{% url 'favoritos' %}">💖 MIS FAVORITOS</a></li>
-            <li><a href="{% url 'carrito_ver' %}">🛒 MI CARRITO</a></li>
-            <li><a href="{% url 'ubicacion' %}">📍 UBICACIÓN</a></li>
-            <hr class="sidebar-divider">
-            <li><a href="/panel_admin/login/">👤 PANEL ADMIN</a></li>
-    
-            <li><a href="https://wa.me/541135928717" target="_blank">💬 WHATSAPP</a></li>
-        </ul>
+   <div id="sidebar" class="sidebar">
+    <div class="sidebar-header">
+        <h3 class="logo-sidebar">Tienda Lore</h3>
+        <i class="bi bi-x-lg close-menu" id="close-sidebar"></i>
     </div>
+    
+    <ul class="sidebar-menu">
+        <li><a href="{% url 'home' %}"><i class="bi bi-house"></i> Inicio</a></li>
+        <li><a href="{% url 'home' %}#categorias"><i class="bi bi-grid"></i> Categorías</a></li>
+        <li><a href="{% url 'favoritos' %}"><i class="bi bi-heart"></i> Favoritos</a></li>
+        <li><a href="{% url 'carrito_ver' %}"><i class="bi bi-bag"></i> Carrito</a></li>
+        <li><a href="{% url 'ubicacion' %}"><i class="bi bi-geo-alt"></i> Ubicación</a></li>
+        
+        <hr class="sidebar-divider">
+        
+        <li><a href="/panel_admin/login/"><i class="bi bi-person-lock"></i> Admin</a></li>
+        <li><a href="https://wa.me/541135928717" target="_blank"><i class="bi bi-whatsapp"></i> WhatsApp</a></li>
+    </ul>
+</div>
 
     <div id="overlay" class="overlay"></div>
 
@@ -46,35 +48,34 @@
             </div>
 
             <div class="header-icons">
-               <form action="{% url 'buscar_productos' %}" method="GET" class="d-flex align-items-center ms-2">
-                 <input type="text" name="q" placeholder="Buscar..." 
-                      class="form-control form-control-sm border-0 border-bottom bg-transparent" 
-                      style="width: 150px; border-radius: 0; color: white !important; border-color: white !important;">
-                  <button type="submit" style="background:none; border:none; padding-left: 5px">
-                     <i class="bi bi-search"></i>
-                  </button>
-              </form>
+                <div class="search-wrapper d-flex align-items-center">
+                    <form action="{% url 'buscar_productos' %}" method="GET" id="search-form-header" class="search-form-hide">
+                        <input type="text" name="q" placeholder="Buscar..." id="search-input-header">
+                    </form>
+                    <button type="button" id="btn-search-trigger" style="background:none; border:none; color: white;">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+
                 <a href="{% url 'ubicacion' %}"><i class="bi bi-geo-alt"></i></a>
-            <<a href="/panel_admin/login/" title="Panel Admin"><i class="bi bi-person-gear"></i></a>
+                <a href="/panel_admin/login/" title="Panel Admin"><i class="bi bi-person"></i></a>
                 <a href="{% url 'favoritos' %}"><i class="bi bi-heart"></i></a> 
                 <a href="{% url 'carrito_ver' %}"><i class="bi bi-bag"></i></a>
             </div>
         </div>
     </header>
 
-    <main id="main-content">
-    <!-- AGREGAR ESTE BLOQUE PARA MENSAJES -->
+<main id="main-content">
+    {% if messages %}
     <div class="container mt-3">
-        {% if messages %}
-            {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-            {% endfor %}
-        {% endif %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
     </div>
-    <!-- FIN DEL BLOQUE PARA MENSAJES -->
+    {% endif %}
     
     {% block content %}
     {% endblock %}
@@ -112,13 +113,110 @@
     </div>
 </footer>
 
-    <script>
+<style>
+    /* SIDEBAR NEGRO TOTAL */
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: -280px; 
+        height: 100vh;
+        width: 280px;
+        background: #000000 !important; /* Negro absoluto */
+        color: white;
+        z-index: 1100;
+        transition: all 0.4s cubic-bezier(0.77, 0, 0.175, 1);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .sidebar.active { left: 0; }
+
+    /* CABECERA SIN CUADRADOS */
+    .sidebar-header {
+        padding: 40px 30px;
+        background: transparent !important; /* Sin fondo negro separado */
+        border-bottom: 1px solid #1a1a1a; /* Línea muy sutil */
+        position: relative;
+    }
+
+    .logo-sidebar {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.4rem;
+        color: white !important;
+        text-decoration: none;
+        text-transform: uppercase;
+        letter-spacing: 5px;
+        font-weight: 700;
+        margin: 0;
+        background: none !important; /* Asegura que no haya fondo */
+        padding: 0 !important;
+    }
+
+    .close-menu {
+        position: absolute;
+        right: 20px;
+        top: 20px;
+        color: #555;
+        cursor: pointer;
+        font-size: 1.2rem;
+    }
+
+    /* MENÚ */
+    .sidebar-menu {
+        list-style: none;
+        padding: 20px 0;
+        margin: 0;
+    }
+
+    .sidebar-menu li a {
+        color: #888;
+        padding: 18px 30px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        transition: 0.3s;
+    }
+
+    .sidebar-menu li a:hover {
+        color: white;
+        background: #111; /* Un gris casi negro solo para el hover */
+        box-shadow: inset 4px 0 0 white;
+    }
+
+    .sidebar-menu i {
+        margin-right: 15px;
+        font-size: 1.1rem;
+    }
+
+    .sidebar-divider {
+        border-top: 1px solid #1a1a1a;
+        margin: 15px 30px;
+        opacity: 1;
+    }
+
+    .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0,0,0,0.8);
+        display: none;
+        z-index: 1050;
+    }
+    .overlay.active { display: block; }
+</style>
+
+<script>
     const openBtn = document.getElementById('open-sidebar');
     const closeBtn = document.getElementById('close-sidebar');
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('overlay');
 
-    // Función para cerrar todo
     const cerrarMenu = () => {
         sidebar.classList.remove('active');
         overlay.classList.remove('active');
@@ -128,10 +226,27 @@
     closeBtn.onclick = cerrarMenu;
     overlay.onclick = cerrarMenu;
 
-    // ESTO ES LO QUE TE FALTA: Al tocar cualquier link del menú, se cierra la hamburguesa
     document.querySelectorAll('.sidebar-menu a').forEach(link => {
         link.onclick = cerrarMenu;
     });
-   </script>
+
+    const searchBtn = document.getElementById('btn-search-trigger');
+    const searchForm = document.getElementById('search-form-header');
+    const searchInput = document.getElementById('search-input-header');
+
+    searchBtn.onclick = (e) => {
+        e.preventDefault();
+        searchForm.classList.toggle('active');
+        if (searchForm.classList.contains('active')) {
+            searchInput.focus();
+        }
+    };
+
+    document.addEventListener('click', (e) => {
+        if (!searchForm.contains(e.target) && !searchBtn.contains(e.target)) {
+            searchForm.classList.remove('active');
+        }
+    });
+</script>
 </body>
 </html>

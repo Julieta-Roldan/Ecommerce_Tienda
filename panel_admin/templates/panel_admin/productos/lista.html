@@ -1,188 +1,270 @@
 {% extends 'panel_admin/base_panel.html' %}
 
-{% block page_title %}Productos{% endblock %}
+{% block page_title %}Catálogo de Productos{% endblock %}
 
 {% block content %}
+<style>
+    /* Capa de estilo Black & White */
+    .card-panel {
+        background: #000000 !important;
+        border: 1px solid #000 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+    }
+    
+    /* BARRA DEL TOTAL: Fondo Negro, Letras Blancas */
+    .card-header {
+        background: #000000 !important;
+        color: #ffffff !important;
+        border-radius: 0 !important;
+        border-bottom: 1px solid #fff !important;
+        text-transform: uppercase;
+    }
+
+    /* Estilo para las etiquetas (Labels) en Blanco */
+    .label-white {
+        color: #ffffff !important;
+        font-weight: 800 !important;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+        display: block;
+        letter-spacing: 1px;
+        font-size: 0.8rem;
+    }
+
+    /* Formularios e Inputs */
+    .form-control, .form-select {
+        border-radius: 0 !important;
+        border: 1px solid #fff !important;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 0.8rem;
+        padding: 12px;
+        background-color: #fff !important;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .form-control:hover, .form-select:hover {
+        background-color: #eee !important;
+        cursor: pointer;
+    }
+
+    /* BOTÓN FILTRAR */
+    .btn-filtrar-custom {
+        background: #ffffff !important;
+        color: #000000 !important;
+        border-radius: 0 !important;
+        border: 1px solid #ffffff !important;
+        font-weight: 800;
+        font-size: 0.8rem;
+        letter-spacing: 1px;
+        transition: 0.3s;
+        padding: 12px !important;
+        text-transform: uppercase;
+    }
+    .btn-filtrar-custom:hover {
+        background: #000000 !important;
+        color: #ffffff !important;
+        border-color: #ffffff !important;
+    }
+
+    /* Tablas */
+    .table { background: #fff !important; }
+    
+    /* ENCABEZADO DE TABLA: FONDO BLANCO, LETRAS NEGRAS */
+    .table thead th {
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        text-transform: uppercase;
+        font-size: 0.7rem;
+        padding: 15px !important;
+        letter-spacing: 1px;
+        border-bottom: 2px solid #000 !important; /* Línea divisoria negra */
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa !important;
+        transition: background-color 0.2s ease;
+    }
+
+    .table > :not(caption) > * > * {
+        box-shadow: none !important;
+    }
+
+    .table tbody tr td {
+        vertical-align: middle;
+        padding: 15px !important;
+        border-bottom: 1px solid #eee;
+        background-color: transparent !important;
+    }
+
+    .img-product-admin {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border: 1px solid #000 !important;
+    }
+
+    .badge-status {
+        border-radius: 0 !important;
+        text-transform: uppercase;
+        font-size: 0.6rem !important;
+        padding: 6px 12px !important;
+        font-weight: 800 !important;
+        border: 1px solid #000 !important;
+        display: inline-block;
+        min-width: 110px;
+        text-align: center;
+    }
+    
+    .bg-black { background: #000 !important; color: #fff !important; }
+    .bg-warning { background: #ffc107 !important; color: #000 !important; }
+    .bg-danger { background: #ff0000 !important; color: #fff !important; }
+    
+    .bg-gris-inactivo { 
+        background: #888888 !important; 
+        color: #ffffff !important; 
+        border-color: #888888 !important; 
+    }
+
+    .btn-action {
+        border-radius: 0 !important;
+        border: 1px solid #000 !important;
+        background: transparent;
+        color: #000 !important;
+        display: inline-flex;
+        padding: 5px 10px;
+    }
+    .btn-action:hover {
+        background: #000 !important;
+        color: #fff !important;
+    }
+
+    /* BOTÓN AGREGAR NUEVO */
+    .btn-agregar-interactivo {
+        background: #fff !important; 
+        color: #000 !important; 
+        border: 1px solid #fff !important; 
+        font-weight: 800; 
+        border-radius: 0 !important; 
+        padding: 5px 15px;
+        text-decoration: none;
+        transition: 0.3s;
+    }
+    .btn-agregar-interactivo:hover {
+        background: #000 !important;
+        color: #fff !important;
+        border: 1px solid #fff !important;
+    }
+</style>
+
 <div class="container-fluid">
-    <!-- Filtros y Búsqueda -->
-    <div class="card card-panel mb-4">
-        <div class="card-body">
-            <form method="GET" class="row g-3">
+    <div class="card-panel mb-4">
+        <div class="card-body p-4">
+            <form method="GET" class="row g-3 align-items-end">
                 <div class="col-md-4">
-                    <input type="text" name="q" class="form-control" placeholder="Buscar productos..." 
+                    <label class="label-white">Buscar</label>
+                    <input type="text" name="q" class="form-control" placeholder="NOMBRE, ID O REFERENCIA..." 
                            value="{{ busqueda|default:'' }}">
                 </div>
                 <div class="col-md-3">
-                    <select name="categoria" class="form-select">
-                        <option value="">Todas las categorías</option>
+                    <label class="label-white">Categoría</label>
+                    <select name="categoria" class="form-select text-uppercase">
+                        <option value="">TODAS LAS CATEGORÍAS</option>
                         {% for categoria in categorias %}
                         <option value="{{ categoria.id }}" 
                                 {% if filtro_categoria|stringformat:"s" == categoria.id|stringformat:"s" %}selected{% endif %}>
-                            {{ categoria.nombre }}
+                            {{ categoria.nombre|upper }}
                         </option>
                         {% endfor %}
                     </select>
                 </div>
                 <div class="col-md-3">
-                    <select name="estado" class="form-select">
-                        <option value="">Todos los estados</option>
-                        <option value="activos" {% if filtro_estado == 'activos' %}selected{% endif %}>Activos</option>
-                        <option value="inactivos" {% if filtro_estado == 'inactivos' %}selected{% endif %}>Inactivos</option>
+                    <label class="label-white">Estado</label>
+                    <select name="estado" class="form-select text-uppercase">
+                        <option value="">TODOS</option>
+                        <option value="activos" {% if filtro_estado == 'activos' %}selected{% endif %}>ACTIVOS</option>
+                        <option value="inactivos" {% if filtro_estado == 'inactivos' %}selected{% endif %}>INACTIVOS</option>
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <button type="submit" class="btn btn-primary w-100">
-                        <i class="bi bi-filter"></i> Filtrar
+                    <button type="submit" class="btn btn-filtrar-custom w-100">
+                        FILTRAR
                     </button>
                 </div>
             </form>
         </div>
     </div>
     
-    <!-- Lista de Productos -->
-    <div class="card card-panel">
+    <div class="card-panel">
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">
-                Productos ({{ page_obj.paginator.count }})
+            <h5 class="mb-0 fw-800" style="letter-spacing: 1px;">
+                TOTAL: {{ page_obj.paginator.count }} PRODUCTOS
             </h5>
-            <a href="{% url 'panel_admin:producto_nuevo' %}" class="btn btn-success">
-                <i class="bi bi-plus-circle me-1"></i> Nuevo Producto
+            <a href="{% url 'panel_admin:producto_nuevo' %}" class="btn btn-sm btn-agregar-interactivo">
+                <i class="bi bi-plus-lg me-1"></i> AGREGAR NUEVO
             </a>
         </div>
         
-        <div class="card-body">
+        <div class="card-body p-0 bg-white">
             {% if page_obj %}
             <div class="table-responsive">
-                <table class="table table-hover">
+                <table class="table table-hover mb-0">
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Imagen</th>
-                            <th>Nombre</th>
+                            <th class="ps-4">Imagen</th>
+                            <th>Nombre del Producto</th>
                             <th>Categoría</th>
                             <th>Precio</th>
                             <th>Stock</th>
                             <th>Estado</th>
-                            <th>Acciones</th>
+                            <th class="text-center pe-4">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for producto in page_obj %}
                         <tr>
-                            <td><strong>#{{ producto.id }}</strong></td>
-                            <td>
+                            <td class="ps-4">
                                 {% if producto.imagenes.all %}
-                                <img src="{{ producto.imagenes.first.imagen.url }}" 
-                                     alt="{{ producto.nombre }}" 
-                                     style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;">
+                                <img src="{{ producto.imagenes.first.imagen.url }}" class="img-product-admin">
                                 {% else %}
-                                <div class="bg-light rounded d-flex align-items-center justify-content-center" 
-                                     style="width: 50px; height: 50px;">
-                                    <i class="bi bi-image text-muted"></i>
+                                <div class="bg-light d-flex align-items-center justify-content-center img-product-admin">
+                                    <i class="bi bi-image"></i>
                                 </div>
                                 {% endif %}
                             </td>
                             <td>
-                                <strong>{{ producto.nombre }}</strong><br>
-                                <small class="text-muted">{{ producto.descripcion|truncatechars:50 }}</small>
+                                <span class="fw-800 text-uppercase d-block">{{ producto.nombre }}</span>
+                                <small class="text-muted">ID: #{{ producto.id }}</small>
                             </td>
-                            <td>{{ producto.categoria.nombre }}</td>
-                            <td>
-                                <strong>${{ producto.precio|floatformat:0 }}</strong>
-                            </td>
+                            <td><span class="small fw-700 text-uppercase">{{ producto.categoria.nombre|upper }}</span></td>
+                            <td><span class="fw-800">${{ producto.precio|floatformat:0 }}</span></td>
                             <td>
                                 {% if producto.stock > 10 %}
-                                <span class="badge bg-success">{{ producto.stock }}</span>
+                                <span class="badge-status bg-white text-dark">{{ producto.stock }} UNIDADES</span>
                                 {% elif producto.stock > 0 %}
-                                <span class="badge bg-warning">{{ producto.stock }}</span>
+                                <span class="badge-status bg-warning">{{ producto.stock }} UNIDADES</span>
                                 {% else %}
-                                <span class="badge bg-danger">0</span>
+                                <span class="badge-status bg-danger text-white">AGOTADO</span>
                                 {% endif %}
                             </td>
                             <td>
                                 {% if producto.activo %}
-                                <span class="badge bg-success">Activo</span>
+                                <span class="badge-status bg-black">ACTIVO</span>
                                 {% else %}
-                                <span class="badge bg-secondary">Inactivo</span>
+                                <span class="badge-status bg-gris-inactivo">INACTIVO</span>
                                 {% endif %}
                             </td>
-                            <td class="table-actions">
-                                <a href="{% url 'panel_admin:producto_editar' producto.id %}" 
-                                   class="btn btn-sm btn-outline-primary" 
-                                   data-bs-toggle="tooltip" title="Editar">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
-                                <a href="{% url 'panel_admin:producto_eliminar' producto.id %}" 
-                                   class="btn btn-sm btn-outline-danger"
-                                   data-bs-toggle="tooltip" title="Desactivar">
-                                    <i class="bi bi-trash"></i>
-                                </a>
-                                <a href="{% url 'producto_detalle' producto.id %}" 
-                                   class="btn btn-sm btn-outline-info"
-                                   target="_blank"
-                                   data-bs-toggle="tooltip" title="Ver en tienda">
-                                    <i class="bi bi-eye"></i>
-                                </a>
+                            <td class="text-center pe-4">
+                                <div class="d-flex justify-content-center gap-2">
+                                    <a href="{% url 'panel_admin:producto_editar' producto.id %}" class="btn-action"><i class="bi bi-pencil-square"></i></a>
+                                    <a href="{% url 'producto_detalle' producto.id %}" target="_blank" class="btn-action"><i class="bi bi-eye"></i></a>
+                                    <a href="{% url 'panel_admin:producto_eliminar' producto.id %}" class="btn-action"><i class="bi bi-trash3"></i></a>
+                                </div>
                             </td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
-            </div>
-            
-            <!-- Paginación -->
-            {% if page_obj.has_other_pages %}
-            <nav aria-label="Page navigation" class="mt-4">
-                <ul class="pagination justify-content-center">
-                    {% if page_obj.has_previous %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page=1{% if busqueda %}&q={{ busqueda }}{% endif %}{% if filtro_categoria %}&categoria={{ filtro_categoria }}{% endif %}{% if filtro_estado %}&estado={{ filtro_estado }}{% endif %}">
-                            <i class="bi bi-chevron-double-left"></i>
-                        </a>
-                    </li>
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if busqueda %}&q={{ busqueda }}{% endif %}{% if filtro_categoria %}&categoria={{ filtro_categoria }}{% endif %}{% if filtro_estado %}&estado={{ filtro_estado }}{% endif %}">
-                            <i class="bi bi-chevron-left"></i>
-                        </a>
-                    </li>
-                    {% endif %}
-                    
-                    {% for num in page_obj.paginator.page_range %}
-                        {% if page_obj.number == num %}
-                        <li class="page-item active">
-                            <span class="page-link">{{ num }}</span>
-                        </li>
-                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ num }}{% if busqueda %}&q={{ busqueda }}{% endif %}{% if filtro_categoria %}&categoria={{ filtro_categoria }}{% endif %}{% if filtro_estado %}&estado={{ filtro_estado }}{% endif %}">{{ num }}</a>
-                        </li>
-                        {% endif %}
-                    {% endfor %}
-                    
-                    {% if page_obj.has_next %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if busqueda %}&q={{ busqueda }}{% endif %}{% if filtro_categoria %}&categoria={{ filtro_categoria }}{% endif %}{% if filtro_estado %}&estado={{ filtro_estado }}{% endif %}">
-                            <i class="bi bi-chevron-right"></i>
-                        </a>
-                    </li>
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if busqueda %}&q={{ busqueda }}{% endif %}{% if filtro_categoria %}&categoria={{ filtro_categoria }}{% endif %}{% if filtro_estado %}&estado={{ filtro_estado }}{% endif %}">
-                            <i class="bi bi-chevron-double-right"></i>
-                        </a>
-                    </li>
-                    {% endif %}
-                </ul>
-            </nav>
-            {% endif %}
-            
-            {% else %}
-            <div class="text-center py-5">
-                <i class="bi bi-box text-muted" style="font-size: 4rem;"></i>
-                <h5 class="mt-3">No se encontraron productos</h5>
-                <p class="text-muted">Intenta con otros filtros de búsqueda</p>
-                <a href="{% url 'panel_admin:producto_nuevo' %}" class="btn btn-primary mt-2">
-                    <i class="bi bi-plus-circle me-2"></i> Crear primer producto
-                </a>
             </div>
             {% endif %}
         </div>

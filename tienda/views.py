@@ -181,3 +181,6 @@ def toggle_favorito(request, id):
             status = "added"
             
         return JsonResponse({"status": status})
+    
+    
+    
