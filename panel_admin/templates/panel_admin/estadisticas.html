@@ -153,60 +153,59 @@
                     <h5 class="mb-0 small fw-800">Ventas Últimos 30 Días</h5>
                 </div>
                 <div class="card-body">
-    <canvas id="ventasChart" 
-        style="max-height: 350px;"
-        data-fechas='[{% for venta in ventas_por_dia %}"{{ venta.fecha|date:"d/m" }}"{% if not forloop.last %},{% endif %}{% endfor %}]'
-        data-totales='[{% for venta in ventas_por_dia %}{{ venta.total|default:0|safe }}{% if not forloop.last %},{% endif %}{% endfor %}]'>
-    </canvas>
-
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const canvas = document.getElementById('ventasChart');
-        const ctx = canvas.getContext('2d');
-
-        // 2. Leemos los datos desde el HTML. JS no ve ninguna etiqueta de Django aquí.
-        const fechas = JSON.parse(canvas.getAttribute('data-fechas'));
-        const totales = JSON.parse(canvas.getAttribute('data-totales'));
-
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: fechas,
-                datasets: [{
-                    label: 'VENTAS ($)',
-                    data: totales,
-                    borderColor: '#000',
-                    backgroundColor: 'rgba(0, 0, 0, 0.05)',
-                    borderWidth: 3,
-                    pointBackgroundColor: '#000',
-                    pointRadius: 4,
-                    tension: 0.2,
-                    fill: true
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: { color: '#eee' },
-                        ticks: {
-                            font: { weight: 'bold' },
-                            callback: value => '$' + value.toLocaleString()
-                        }
-                    },
-                    x: {
-                        grid: { display: false },
-                        ticks: { font: { weight: 'bold' } }
-                    }
-                }
-            }
-        });
-    });
-    </script>
-</div>
+                    <canvas id="ventasChart" height="100"></canvas>
+                    <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const ctx = document.getElementById('ventasChart').getContext('2d');
+                        
+                        // Datos de ejemplo (reemplazar con datos reales)
+                        // const fechas = [
+                        //     {% for venta in ventas_por_dia %}
+                        //     "{{ venta.fecha|date:'d/m' }}",
+                        //     {% endfor %}
+                        // ];
+                        
+                        // const totales = [
+                        //     {% for venta in ventas_por_dia %}
+                        //     {{ venta.total|default:0 }},
+                        //     {% endfor %}
+                        // ];
+                        
+                        new Chart(ctx, {
+                            type: 'line',
+                            data: {
+                                labels: fechas,
+                                datasets: [{
+                                    label: 'Ventas ($)',
+                                    data: totales,
+                                    borderColor: '#3498db',
+                                    backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                                    tension: 0.3,
+                                    fill: true
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                plugins: {
+                                    legend: {
+                                        position: 'top',
+                                    }
+                                },
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        ticks: {
+                                            callback: function(value) {
+                                                return '$' + value.toLocaleString();
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    });
+                    </script>
+                </div>
             </div>
         </div>
         

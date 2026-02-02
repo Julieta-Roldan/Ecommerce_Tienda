@@ -168,46 +168,108 @@
     </style>
 </head>
 <body>
-    <div class="sidebar">
-        <div class="sidebar-header text-center">
-            <a href="{% url 'panel_admin:dashboard' %}" class="logo-panel">
-                Tienda Lore <span style="font-size: 0.6rem; display: block; letter-spacing: 3px; font-family: 'Montserrat'; color: #666; margin-top: 5px;">STUDIO</span>
-            </a>
-        </div>
-        
-        <nav class="nav flex-column mt-3">
-            <a class="nav-link {% if 'dashboard' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'panel_admin:dashboard' %}">
-                <i class="bi bi-house-door"></i> <span>Dashboard</span>
-            </a>
-            
-            <a class="nav-link {% if 'productos' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'panel_admin:productos' %}">
-                <i class="bi bi-box-seam"></i> <span>Productos</span>
-            </a>
-            
-            <a class="nav-link {% if 'pedidos' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'panel_admin:pedidos' %}">
-                <i class="bi bi-receipt"></i> <span>Pedidos</span>
-                {% with pendientes=request.session.pedidos_pendientes|default:0 %}
-                    {% if pendientes > 0 %}
-                    <span class="ms-auto badge bg-white text-black">{{ pendientes }}</span>
-                    {% endif %}
-                {% endwith %}
-            </a>
-            
-            <a class="nav-link {% if 'estadisticas' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'panel_admin:estadisticas' %}">
-                <i class="bi bi-bar-chart-line"></i> <span>Estadísticas</span>
-            </a>
-
-            <div class="mt-auto pb-4">
-                <a class="nav-link" href="/" target="_blank">
-                    <i class="bi bi-shop"></i> <span>Ver Tienda</span>
-                </a>
-                <a class="nav-link" href="{% url 'panel_admin:logout' %}">
-                    <i class="bi bi-box-arrow-left"></i> <span>Cerrar Sesión</span>
-                </a>
-            </div>
-        </nav>
+ <!-- Sidebar -->
+<div class="sidebar">
+    <div class="sidebar-header">
+        <a href="{% url 'panel_admin:dashboard' %}" class="logo-panel">
+            <i class="bi bi-speedometer2"></i>
+            <span>Panel Admin</span>
+        </a>
+        <small class="text-white-50 d-block mt-1">
+            {% if request.user.is_superuser %}
+            <i class="bi bi-shield-check"></i> Superusuario
+            {% elif 'Administradores' in user_groups %}
+            <i class="bi bi-star-fill"></i> Administrador
+            {% elif 'Empleados' in user_groups %}
+            <i class="bi bi-person-badge"></i> Empleado
+            {% elif 'Vendedores' in user_groups %}
+            <i class="bi bi-cart-check"></i> Vendedor
+            {% else %}
+            <i class="bi bi-person"></i> Usuario
+            {% endif %}
+        </small>
     </div>
     
+    <nav class="nav flex-column">
+        <!-- Dashboard (solo para admin/empleados) -->
+        {% if request.user.is_superuser or 'Administradores' in user_groups or 'Empleados' in user_groups %}
+        <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" 
+           href="{% url 'panel_admin:dashboard' %}">
+            <i class="bi bi-speedometer2"></i>
+            <span>Dashboard</span>
+        </a>
+        {% endif %}
+        
+        <!-- Productos (solo para admin/empleados) -->
+        {% if request.user.is_superuser or 'Administradores' in user_groups or 'Empleados' in user_groups %}
+        <a class="nav-link {% if 'productos' in request.resolver_match.url_name %}active{% endif %}" 
+           href="{% url 'panel_admin:productos' %}">
+            <i class="bi bi-box-seam"></i>
+            <span>Productos</span>
+        </a>
+        {% endif %}
+        
+        <!-- Categorías (solo para admin/empleados) -->
+        {% if request.user.is_superuser or 'Administradores' in user_groups or 'Empleados' in user_groups %}
+        <a class="nav-link {% if 'categorias' in request.resolver_match.url_name %}active{% endif %}" 
+           href="{% url 'panel_admin:categorias' %}">
+            <i class="bi bi-tags"></i>
+            <span>Categorías</span>
+        </a>
+        {% endif %}
+        
+        <!-- Pedidos (todos los grupos pueden ver) -->
+        <a class="nav-link {% if 'pedidos' in request.resolver_match.url_name %}active{% endif %}" 
+           href="{% url 'panel_admin:pedidos' %}">
+            <i class="bi bi-receipt"></i>
+            <span>Pedidos</span>
+            {% with pendientes=request.session.pedidos_pendientes|default:0 %}
+                {% if pendientes > 0 %}
+                <span class="badge bg-danger float-end">{{ pendientes }}</span>
+                {% endif %}
+            {% endwith %}
+        </a>
+        
+        <!-- Estadísticas (solo para admin/empleados) -->
+        {% if request.user.is_superuser or 'Administradores' in user_groups or 'Empleados' in user_groups %}
+        <a class="nav-link {% if request.resolver_match.url_name == 'estadisticas' %}active{% endif %}" 
+           href="{% url 'panel_admin:estadisticas' %}">
+            <i class="bi bi-bar-chart"></i>
+            <span>Estadísticas</span>
+        </a>
+        {% endif %}
+        
+        <!-- Usuarios (SOLO para superusuarios y administradores) -->
+        {% if request.user.is_superuser or 'Administradores' in user_groups %}
+        <a class="nav-link {% if 'usuarios' in request.resolver_match.url_name %}active{% endif %}" 
+           href="{% url 'panel_admin:usuarios' %}">
+            <i class="bi bi-people"></i>
+            <span>Usuarios</span>
+            {% with inactivos=request.session.usuarios_inactivos|default:0 %}
+                {% if inactivos > 0 and request.user.is_superuser %}
+                <span class="badge bg-warning float-end">{{ inactivos }}</span>
+                {% endif %}
+            {% endwith %}
+        </a>
+        {% endif %}
+        
+        <hr style="color: rgba(255,255,255,0.1); margin: 20px;">
+        
+        <!-- Enlace a la tienda pública -->
+        <a class="nav-link" href="/" target="_blank">
+            <i class="bi bi-shop"></i>
+            <span>Ver Tienda</span>
+        </a>
+        
+        <!-- Cerrar sesión -->
+        <a class="nav-link" href="{% url 'panel_admin:logout' %}">
+            <i class="bi bi-box-arrow-right"></i>
+            <span>Cerrar Sesión</span>
+        </a>
+    </nav>
+</div>
+    
+    <!-- Main Content -->
     <div class="main-content">
         <div class="topbar">
             <h4 class="mb-0">{% block page_title %}Overview{% endblock %}</h4>

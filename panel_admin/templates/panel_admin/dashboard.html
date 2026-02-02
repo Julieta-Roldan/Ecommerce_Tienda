@@ -186,6 +186,101 @@
     </div>
     
     <div class="row">
+
+
+        <!-- Información de permisos del usuario -->
+<div class="card card-panel mt-4">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="bi bi-shield-check me-2"></i>Información de permisos
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <h6>Tu perfil:</h6>
+                <ul class="list-unstyled">
+                    <li>
+                        <strong>Usuario:</strong> {{ request.user.username }}
+                        {% if request.user.is_superuser %}
+                        <span class="badge bg-danger ms-2">Superusuario</span>
+                        {% endif %}
+                    </li>
+                    <li>
+                        <strong>Nombre:</strong> 
+                        {% if request.user.first_name or request.user.last_name %}
+                        {{ request.user.first_name }} {{ request.user.last_name }}
+                        {% else %}
+                        <span class="text-muted fst-italic">No especificado</span>
+                        {% endif %}
+                    </li>
+                    <li>
+                        <strong>Email:</strong> 
+                        {% if request.user.email %}
+                        {{ request.user.email }}
+                        {% else %}
+                        <span class="text-muted fst-italic">No especificado</span>
+                        {% endif %}
+                    </li>
+                </ul>
+            </div>
+            <div class="col-md-6">
+                <h6>Tus grupos y permisos:</h6>
+                {% if user_groups %}
+                <div class="d-flex flex-wrap gap-2">
+                    {% for group in user_groups %}
+                    {% if group == 'Administradores' %}
+                    <span class="badge bg-danger">
+                        <i class="bi bi-star-fill me-1"></i>{{ group }}
+                    </span>
+                    {% elif group == 'Empleados' %}
+                    <span class="badge bg-primary">
+                        <i class="bi bi-person-badge me-1"></i>{{ group }}
+                    </span>
+                    {% elif group == 'Vendedores' %}
+                    <span class="badge bg-warning text-dark">
+                        <i class="bi bi-cart-check me-1"></i>{{ group }}
+                    </span>
+                    {% else %}
+                    <span class="badge bg-secondary">{{ group }}</span>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted fst-italic">No estás asignado a ningún grupo</p>
+                {% endif %}
+                
+                <div class="mt-3">
+                    <h6>Accesos permitidos:</h6>
+                    <ul class="small mb-0">
+                        {% if request.user.is_superuser or 'Administradores' in user_groups %}
+                        <li><i class="bi bi-check-circle text-success me-1"></i>Acceso completo a todas las secciones</li>
+                        {% endif %}
+                        
+                        {% if 'Empleados' in user_groups %}
+                        <li><i class="bi bi-check-circle text-success me-1"></i>Gestión de productos, categorías y pedidos</li>
+                        <li><i class="bi bi-x-circle text-secondary me-1"></i>No puede gestionar usuarios</li>
+                        {% endif %}
+                        
+                        {% if 'Vendedores' in user_groups %}
+                        <li><i class="bi bi-check-circle text-success me-1"></i>Solo puede ver y gestionar pedidos</li>
+                        <li><i class="bi bi-x-circle text-secondary me-1"></i>No puede ver productos ni categorías</li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        {% if not user_groups and not request.user.is_superuser %}
+        <div class="alert alert-warning mt-3">
+            <i class="bi bi-exclamation-triangle me-1"></i>
+            <strong>Atención:</strong> No tienes grupos asignados. Contacta con un administrador para asignarte permisos.
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+        <!-- Pedidos Recientes -->
         <div class="col-lg-8 mb-4">
             <div class="card card-panel h-100">
                 <div class="card-header d-flex justify-content-between align-items-center">

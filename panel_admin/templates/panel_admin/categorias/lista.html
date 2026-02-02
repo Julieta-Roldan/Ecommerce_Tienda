@@ -1,0 +1,206 @@
+{% extends 'panel_admin/base_panel.html' %}
+
+{% block page_title %}Categorías{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Encabezado con estadísticas -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card card-panel bg-primary-light">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Total</h6>
+                            <h3 class="mb-0">{{ categorias.count }}</h3>
+                        </div>
+                        <div class="card-icon bg-primary">
+                            <i class="bi bi-tags"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card card-panel bg-success-light">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Activas</h6>
+                            <h3 class="mb-0">{{ categorias_activas }}</h3>
+                        </div>
+                        <div class="card-icon bg-success">
+                            <i class="bi bi-check-circle"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card card-panel bg-warning-light">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Con productos</h6>
+                            <h3 class="mb-0">{{ categorias_con_productos }}</h3>
+                        </div>
+                        <div class="card-icon bg-warning">
+                            <i class="bi bi-box"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card card-panel bg-info-light">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-1">Total productos</h6>
+                            <h3 class="mb-0">{{ total_productos }}</h3>
+                        </div>
+                        <div class="card-icon bg-info">
+                            <i class="bi bi-box-seam"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Barra de acciones -->
+    <div class="card card-panel mb-4">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h5 class="mb-0">Gestión de Categorías</h5>
+                    <p class="text-muted mb-0">Organiza tus productos por categorías</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div class="btn-group" style="z-index: 1000;">
+                        <button type="button" class="btn btn-outline-secondary dropdown-toggle" 
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-funnel"></i> Filtros
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" style="z-index: 1001;">
+                            <li><a class="dropdown-item" href="{% url 'panel_admin:categorias' %}">Todas</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="?estado=activas">Solo activas</a></li>
+                            <li><a class="dropdown-item" href="?estado=inactivas">Solo inactivas</a></li>
+                            <li><a class="dropdown-item" href="?estado=con_productos">Con productos</a></li>
+                            <li><a class="dropdown-item" href="?estado=sin_productos">Sin productos</a></li>
+                        </ul>
+                    </div>
+                    <a href="{% url 'panel_admin:categoria_nueva' %}" class="btn btn-success ms-2">
+                        <i class="bi bi-plus-circle me-1"></i> Nueva Categoría
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Búsqueda -->
+    <div class="card card-panel mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-3">
+                <div class="col-md-10">
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input type="text" name="q" class="form-control" 
+                               placeholder="Buscar categorías por nombre..." value="{{ busqueda|default:'' }}">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        Buscar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Lista de Categorías -->
+    <div class="card card-panel">
+        <div class="card-body">
+            {% if categorias %}
+            <div class="row">
+                {% for categoria in categorias %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div>
+                                    <h5 class="card-title mb-1">
+                                        {{ categoria.nombre }}
+                                        {% if not categoria.activo %}
+                                        <span class="badge bg-secondary ms-1">Inactiva</span>
+                                        {% endif %}
+                                    </h5>
+                                    <small class="text-muted">ID: #{{ categoria.id }}</small>
+                                </div>
+                                <span class="badge bg-info">{{ categoria.producto_set.count }} productos</span>
+                            </div>
+                            
+                            {% if categoria.descripcion %}
+                            <p class="card-text text-muted small mb-3">
+                                {{ categoria.descripcion|truncatechars:120 }}
+                            </p>
+                            {% else %}
+                            <p class="card-text text-muted small mb-3 fst-italic">
+                                Sin descripción
+                            </p>
+                            {% endif %}
+                            
+                            <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            <i class="bi bi-calendar me-1"></i>
+                            {% if categoria.creado %}
+                                {{ categoria.creado|date:"d/m/Y" }}
+                            {% else %}
+                                Sin fecha
+                            {% endif %}
+                        </small>
+                                <div class="btn-group">
+                                    <a href="{% url 'panel_admin:categoria_editar' categoria.id %}" 
+                                       class="btn btn-sm btn-outline-primary" 
+                                       data-bs-toggle="tooltip" title="Editar">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a href="{% url 'panel_admin:categoria_eliminar' categoria.id %}" 
+                                       class="btn btn-sm btn-outline-danger"
+                                       data-bs-toggle="tooltip" title="Eliminar">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                    <a href="{% url 'panel_admin:productos' %}?categoria={{ categoria.id }}" 
+                                       class="btn btn-sm btn-outline-info"
+                                       data-bs-toggle="tooltip" title="Ver productos">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            {% else %}
+            <div class="text-center py-5">
+                <div class="mb-4">
+                    <i class="bi bi-tags text-muted" style="font-size: 4rem;"></i>
+                </div>
+                <h4>No hay categorías</h4>
+                <p class="text-muted mb-4">
+                    Las categorías te ayudan a organizar tus productos de manera eficiente.
+                </p>
+                <a href="{% url 'panel_admin:categoria_nueva' %}" class="btn btn-primary btn-lg">
+                    <i class="bi bi-plus-circle me-2"></i> Crear primera categoría
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
