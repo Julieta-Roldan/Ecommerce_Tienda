@@ -1,0 +1,128 @@
+{% extends 'panel_admin/base_panel.html' %}
+
+{% block page_title %}{{ titulo }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card card-panel">
+                <div class="card-header">
+                    <h5 class="mb-0">{{ titulo }}</h5>
+                </div>
+                
+                <div class="card-body">
+                    <form method="POST">
+                        {% csrf_token %}
+                        
+                        <!-- Nombre -->
+                        <div class="mb-3">
+                            <label for="nombre" class="form-label">
+                                <i class="bi bi-tag me-1"></i>Nombre de la categoría *
+                            </label>
+                            <input type="text" class="form-control" id="nombre" name="nombre" 
+                                   value="{% if categoria %}{{ categoria.nombre }}{% endif %}" 
+                                   required maxlength="100" placeholder="Ej: Ropa, Electrónica, Hogar">
+                            <div class="form-text">Nombre único para identificar la categoría (máx. 100 caracteres).</div>
+                        </div>
+                        
+                        <!-- Descripción -->
+                        <div class="mb-3">
+                            <label for="descripcion" class="form-label">
+                                <i class="bi bi-card-text me-1"></i>Descripción
+                            </label>
+                            <textarea class="form-control" id="descripcion" name="descripcion" 
+                                      rows="4" placeholder="Describe brevemente esta categoría...">{% if categoria %}{{ categoria.descripcion }}{% endif %}</textarea>
+                            <div class="form-text">Descripción opcional que se mostrará en la tienda.</div>
+                        </div>
+                        
+                        <!-- Estado -->
+                        <div class="mb-4">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="activo" name="activo" 
+                                       {% if not categoria or categoria.activo %}checked{% endif %}>
+                                <label class="form-check-label" for="activo">
+                                    <i class="bi bi-toggle-on me-1"></i>Categoría activa
+                                </label>
+                                <div class="form-text">
+                                    Las categorías inactivas no se mostrarán en la tienda.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Información adicional (solo para edición) -->
+                        {% if categoria %}
+                        <div class="alert alert-info mt-3">
+                            <h6><i class="bi bi-info-circle me-1"></i> Información de la categoría</h6>
+                            <div class="row small">
+                                <div class="col-md-6">
+                                    <strong>ID:</strong> #{{ categoria.id }}<br>
+                                    <strong>Creada:</strong> 
+                                    {% if categoria.creado %}
+                                    {{ categoria.creado|date:"d/m/Y H:i" }}
+                                    {% else %}
+                                    <span class="fst-italic">Recién creada</span>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                    <strong>Productos:</strong> 
+                                    <span class="badge bg-info">{{ categoria.producto_set.count }}</span><br>
+                                    <strong>Actualizada:</strong> 
+                                    {% if categoria.actualizado %}
+                                    {{ categoria.actualizado|date:"d/m/Y H:i" }}
+                                    {% else %}
+                                    <span class="fst-italic">No actualizada</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Validaciones -->
+                        {% if categoria and categoria.producto_set.exists %}
+                        <div class="alert alert-warning mt-3">
+                            <h6><i class="bi bi-exclamation-triangle me-1"></i> Importante</h6>
+                            <p class="mb-0 small">
+                                Esta categoría tiene <strong>{{ categoria.producto_set.count }} producto(s)</strong> asociado(s).
+                                Si desactivas la categoría, estos productos dejarán de mostrarse en la tienda.
+                            </p>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Botones de acción -->
+                        <div class="d-flex justify-content-between mt-4 pt-3 border-top">
+                            <a href="{% url 'panel_admin:categorias' %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-1"></i> Cancelar
+                            </a>
+                            <div>
+                                {% if categoria %}
+                                <a href="{% url 'panel_admin:categoria_eliminar' categoria.id %}" 
+                                   class="btn btn-outline-danger me-2">
+                                    <i class="bi bi-trash me-1"></i> Eliminar
+                                </a>
+                                {% endif %}
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-check-circle me-1"></i> {{ accion }}
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Información de ayuda -->
+            <div class="card card-panel mt-3">
+                <div class="card-body">
+                    <h6><i class="bi bi-lightbulb me-1"></i> Consejos para categorías</h6>
+                    <ul class="mb-0 small">
+                        <li>Usa nombres claros y descriptivos para las categorías</li>
+                        <li>Organiza las categorías de forma lógica para los clientes</li>
+                        <li>Puedes crear subcategorías usando nombres como "Ropa > Mujeres"</li>
+                        <li>Desactiva categorías en lugar de eliminarlas si tienen productos</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
