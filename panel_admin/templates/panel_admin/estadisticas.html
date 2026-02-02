@@ -7,25 +7,137 @@
 {% endblock %}
 
 {% block content %}
+<style>
+    /* Estética Dashboard Black & White */
+    .card-panel {
+        background: #fff !important;
+        border: 1px solid #000 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+    }
+
+    /* FONDO NEGRO PARA LA SECCIÓN DE FECHAS */
+    .bg-seccion-fechas {
+        background-color: #000 !important;
+        padding: 20px;
+        border: 1px solid #000;
+    }
+
+    .card-header {
+        background: #000 !important;
+        color: #fff !important;
+        border-radius: 0 !important;
+        text-transform: uppercase;
+        font-weight: 800;
+        letter-spacing: 1px;
+        padding: 1rem 1.5rem;
+    }
+
+    /* TARJETAS DE FECHA: Blancas por defecto */
+    .stat-box {
+        background-color: #fff !important; 
+        color: #000 !important;           
+        border: 1px solid #000;
+        border-radius: 0;
+        padding: 20px;
+        transition: 0.3s ease;
+    }
+
+    /* Efecto Hover: Se ponen negras */
+    .stat-box:hover {
+        background-color: #000 !important;
+        color: #fff !important;
+        border-color: #fff;
+    }
+
+    .stat-box h3 {
+        font-weight: 900;
+        margin-bottom: 5px;
+        text-transform: uppercase;
+        color: inherit;
+    }
+    .stat-box small {
+        text-transform: uppercase;
+        font-weight: 700;
+        letter-spacing: 1px;
+        font-size: 0.65rem;
+        color: inherit;
+    }
+
+    /* Listas */
+    .list-group-item {
+        border-radius: 0 !important;
+        border: none;
+        border-bottom: 1px solid #eee !important;
+        padding: 15px 0;
+    }
+    .list-group-item:last-child {
+        border-bottom: none !important;
+    }
+
+    /* Badges */
+    .badge-bw {
+        background: #000;
+        color: #fff;
+        border-radius: 0;
+        text-transform: uppercase;
+        font-weight: 800;
+        font-size: 0.6rem;
+        padding: 5px 8px;
+    }
+    .badge-outline-bw {
+        background: transparent;
+        color: #000;
+        border: 1px solid #000;
+        border-radius: 0;
+        text-transform: uppercase;
+        font-weight: 800;
+        font-size: 0.6rem;
+        padding: 5px 8px;
+    }
+
+    /* --- CAMBIOS SOLICITADOS PARA CATEGORÍAS --- */
+    .categoria-item-negro {
+        background-color: #000 !important;
+        color: #fff !important;
+        border: 1px solid #000 !important;
+    }
+
+    .badge-blanco-custom {
+        background: #fff !important;
+        color: #000 !important;
+        border: 1px solid #fff !important;
+        border-radius: 0;
+        text-transform: uppercase;
+        font-weight: 800;
+        font-size: 0.6rem;
+        padding: 5px 8px;
+        transition: 0.3s ease;
+    }
+
+    .badge-blanco-custom:hover {
+        background: #000 !important;
+        color: #fff !important;
+        border: 1px solid #fff !important; /* Borde blanco al pasar el mouse */
+    }
+</style>
+
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card card-panel">
-                <div class="card-header">
-                    <h5 class="mb-0">Estadísticas Generales</h5>
-                </div>
+            <div class="card card-panel bg-seccion-fechas">
                 <div class="card-body">
                     <div class="row text-center">
-                        <div class="col-md-3 mb-3">
-                            <div class="p-3 border rounded">
-                                <h3 class="text-primary">{{ hoy|date:"d/m/Y" }}</h3>
-                                <small class="text-muted">Fecha actual</small>
+                        <div class="col-md-6 mb-3 mb-md-0">
+                            <div class="stat-box">
+                                <small>Fecha Actual</small>
+                                <h3 class="mb-0">{{ hoy|date:"d/m/Y" }}</h3>
                             </div>
                         </div>
-                        <div class="col-md-3 mb-3">
-                            <div class="p-3 border rounded">
-                                <h3 class="text-success">{{ hace_30_dias|date:"d/m/Y" }}</h3>
-                                <small class="text-muted">Hace 30 días</small>
+                        <div class="col-md-6">
+                            <div class="stat-box">
+                                <small>Periodo desde</small>
+                                <h3 class="mb-0">{{ hace_30_dias|date:"d/m/Y" }}</h3>
                             </div>
                         </div>
                     </div>
@@ -35,97 +147,97 @@
     </div>
     
     <div class="row">
-        <!-- Gráfico de Ventas -->
         <div class="col-lg-8 mb-4">
-            <div class="card card-panel">
+            <div class="card card-panel h-100">
                 <div class="card-header">
-                    <h5 class="mb-0">Ventas Últimos 30 Días</h5>
+                    <h5 class="mb-0 small fw-800">Ventas Últimos 30 Días</h5>
                 </div>
                 <div class="card-body">
-                    <canvas id="ventasChart" height="100"></canvas>
-                    <script>
-                    document.addEventListener('DOMContentLoaded', function() {
-                        const ctx = document.getElementById('ventasChart').getContext('2d');
-                        
-                        // Datos de ejemplo (reemplazar con datos reales)
-                        const fechas = [
-                            {% for venta in ventas_por_dia %}
-                            "{{ venta.fecha|date:'d/m' }}",
-                            {% endfor %}
-                        ];
-                        
-                        const totales = [
-                            {% for venta in ventas_por_dia %}
-                            {{ venta.total|default:0 }},
-                            {% endfor %}
-                        ];
-                        
-                        new Chart(ctx, {
-                            type: 'line',
-                            data: {
-                                labels: fechas,
-                                datasets: [{
-                                    label: 'Ventas ($)',
-                                    data: totales,
-                                    borderColor: '#3498db',
-                                    backgroundColor: 'rgba(52, 152, 219, 0.1)',
-                                    tension: 0.3,
-                                    fill: true
-                                }]
-                            },
-                            options: {
-                                responsive: true,
-                                plugins: {
-                                    legend: {
-                                        position: 'top',
-                                    }
-                                },
-                                scales: {
-                                    y: {
-                                        beginAtZero: true,
-                                        ticks: {
-                                            callback: function(value) {
-                                                return '$' + value.toLocaleString();
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        });
-                    });
-                    </script>
-                </div>
+    <canvas id="ventasChart" 
+        style="max-height: 350px;"
+        data-fechas='[{% for venta in ventas_por_dia %}"{{ venta.fecha|date:"d/m" }}"{% if not forloop.last %},{% endif %}{% endfor %}]'
+        data-totales='[{% for venta in ventas_por_dia %}{{ venta.total|default:0|safe }}{% if not forloop.last %},{% endif %}{% endfor %}]'>
+    </canvas>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const canvas = document.getElementById('ventasChart');
+        const ctx = canvas.getContext('2d');
+
+        // 2. Leemos los datos desde el HTML. JS no ve ninguna etiqueta de Django aquí.
+        const fechas = JSON.parse(canvas.getAttribute('data-fechas'));
+        const totales = JSON.parse(canvas.getAttribute('data-totales'));
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: fechas,
+                datasets: [{
+                    label: 'VENTAS ($)',
+                    data: totales,
+                    borderColor: '#000',
+                    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+                    borderWidth: 3,
+                    pointBackgroundColor: '#000',
+                    pointRadius: 4,
+                    tension: 0.2,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#eee' },
+                        ticks: {
+                            font: { weight: 'bold' },
+                            callback: value => '$' + value.toLocaleString()
+                        }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { weight: 'bold' } }
+                    }
+                }
+            }
+        });
+    });
+    </script>
+</div>
             </div>
         </div>
         
-        <!-- Productos Más Vendidos -->
         <div class="col-lg-4 mb-4">
-            <div class="card card-panel">
+            <div class="card card-panel h-100">
                 <div class="card-header">
-                    <h5 class="mb-0">Productos Más Vendidos</h5>
+                    <h5 class="mb-0 small fw-800">Top Productos</h5>
                 </div>
                 <div class="card-body">
                     {% if productos_mas_vendidos %}
-                    <div class="list-group">
+                    <div class="list-group list-group-flush">
                         {% for producto in productos_mas_vendidos %}
-                        <div class="list-group-item border-0">
+                        <div class="list-group-item">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
-                                    <strong>{{ producto.producto__nombre|truncatechars:25 }}</strong><br>
-                                    <small class="text-muted">{{ producto.total_vendido }} unidades</small>
+                                    <span class="fw-800 text-uppercase d-block" style="font-size: 0.8rem;">
+                                        {{ producto.producto__nombre|truncatechars:20 }}
+                                    </span>
+                                    <small class="text-muted fw-bold">{{ producto.total_vendido }} UNIDADES</small>
                                 </div>
                                 <div class="text-end">
-                                    <strong>${{ producto.total_ingresos|floatformat:0 }}</strong><br>
-                                    <small class="text-success">${{ producto.producto__precio|floatformat:0 }} c/u</small>
+                                    <span class="fw-900 d-block">${{ producto.total_ingresos|floatformat:0 }}</span>
+                                    <span class="badge-outline-bw">ID: {{ producto.producto__id }}</span>
                                 </div>
                             </div>
                         </div>
                         {% endfor %}
                     </div>
                     {% else %}
-                    <div class="text-center py-4">
-                        <i class="bi bi-bar-chart text-muted" style="font-size: 3rem;"></i>
-                        <p class="text-muted mt-2">No hay datos de ventas</p>
+                    <div class="text-center py-5">
+                        <p class="text-muted fw-800 small">SIN DATOS DE VENTAS</p>
                     </div>
                     {% endif %}
                 </div>
@@ -133,23 +245,26 @@
         </div>
     </div>
     
-    <!-- Categorías Populares -->
-    <div class="row">
+    <div class="row mb-4">
         <div class="col-12">
             <div class="card card-panel">
                 <div class="card-header">
-                    <h5 class="mb-0">Categorías Más Populares</h5>
+                    <h5 class="mb-0 small fw-800">Categorías Populares</h5>
                 </div>
                 <div class="card-body">
                     {% if categorias_populares %}
-                    <div class="row">
+                    <div class="row g-3">
                         {% for categoria in categorias_populares %}
-                        <div class="col-md-3 col-6 mb-3">
-                            <div class="p-3 border rounded text-center">
-                                <h5>{{ categoria.categoria__nombre|default:"Sin categoría" }}</h5>
-                                <div class="mt-2">
-                                    <span class="badge bg-primary me-2">{{ categoria.total_productos }} productos</span>
-                                    <span class="badge bg-success">{{ categoria.total_vendidos|default:0 }} vendidos</span>
+                        <div class="col-md-3">
+                            <div class="p-3 border text-center categoria-item-negro">
+                                <h6 class="fw-900 text-uppercase mb-2">
+                                    {{ categoria.categoria__nombre }} 
+                                    {{ categoria.nombre }}
+                                    {{ categoria.categoria }}
+                                </h6>
+                                <div class="d-flex justify-content-center gap-2">
+                                    <span class="badge-blanco-custom">{{ categoria.total_productos }} PRODUCTOS</span>
+                                    <span class="badge-blanco-custom">{{ categoria.total_vendidos|default:0 }} VENDIDOS</span>
                                 </div>
                             </div>
                         </div>
@@ -157,8 +272,7 @@
                     </div>
                     {% else %}
                     <div class="text-center py-4">
-                        <i class="bi bi-tags text-muted" style="font-size: 3rem;"></i>
-                        <p class="text-muted mt-2">No hay datos de categorías</p>
+                        <p class="text-muted fw-800 small">NO HAY DATOS DE CATEGORÍAS</p>
                     </div>
                     {% endif %}
                 </div>

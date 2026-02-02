@@ -3,8 +3,110 @@
 {% block page_title %}Dashboard{% endblock %}
 
 {% block content %}
+<style>
+    /* Capa de estilo Black & White sobre tu estructura original */
+    .card-panel {
+        background: #fff !important;
+        border: 1px solid #000 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+    }
+    .card-header {
+        background: #000 !important;
+        color: #fff !important;
+        border-radius: 0 !important;
+        border-bottom: 1px solid #000 !important;
+        text-transform: uppercase;
+    }
+    .card-header h5 {
+        font-weight: 700;
+        font-size: 0.85rem;
+        letter-spacing: 1px;
+    }
+    /* Iconos y textos de stats */
+    .card-icon {
+        border-radius: 0 !important;
+        background: #f8f9fa !important;
+        border: 1px solid #eee !important;
+        color: #000 !important;
+    }
+    h3 { font-weight: 800 !important; }
+    
+    /* Botones y Badges */
+    .btn-outline-primary, .btn-outline-warning, .btn-outline-success, .btn-sm {
+        border-radius: 0 !important;
+        border: 1px solid #000 !important;
+        color: #000 !important;
+        text-transform: uppercase;
+        font-weight: 700;
+        font-size: 0.7rem;
+    }
+    .btn-outline-primary:hover, .btn-outline-warning:hover, .btn-outline-success:hover {
+        background: #000 !important;
+        color: #fff !important;
+    }
+    
+    /* Forzar badges black and white */
+    .badge-estado {
+        border-radius: 0 !important;
+        border: 1px solid #000 !important;
+        text-transform: uppercase;
+        font-size: 0.6rem !important;
+        padding: 4px 6px; 
+    }
+
+    /* Pendiente destaca en negro sólido */
+    .badge-pendiente { 
+        background: #000 !important; 
+        color: #fff !important; 
+        font-weight: 800;
+    }
+    
+    .badge-pagado { background: #fff !important; color: #000 !important; }
+
+    /* Tablas */
+    .table thead {
+        background: #f9f9f9;
+        border-bottom: 2px solid #000;
+    }
+    .table thead th {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        color: #000;
+    }
+    
+    /* AJUSTE DE ACCIONES: Separación y visibilidad */
+    .table-actions a {
+        color: #000 !important;
+        margin-right: 15px !important; 
+        font-size: 1.1rem;
+        text-decoration: none;
+        display: inline-block;
+    }
+    .table-actions a:last-child {
+        margin-right: 0 !important;
+    }
+
+    /* --- ALERTA DE STOCK CON COLOR --- */
+    .alert {
+        border-radius: 0 !important;
+        border: 1px solid #000 !important;
+        font-weight: 600;
+    }
+    .alert-danger { 
+        background: #ff0000 !important; 
+        color: #fff !important; 
+    }
+    .alert-danger a, .alert-danger h6, .alert-danger i { color: #fff !important; }
+    
+    .alert-warning { 
+        background: #ffc107 !important; 
+        color: #000 !important; 
+    }
+    .alert-warning a, .alert-warning h6, .alert-warning i { color: #000 !important; }
+</style>
+
 <div class="container-fluid">
-    <!-- Estadísticas rápidas -->
     <div class="row mb-4">
         <div class="col-md-3 col-sm-6 mb-3">
             <div class="card card-panel h-100">
@@ -84,7 +186,6 @@
     </div>
     
     <div class="row">
-        <!-- Pedidos Recientes -->
         <div class="col-lg-8 mb-4">
             <div class="card card-panel h-100">
                 <div class="card-header d-flex justify-content-between align-items-center">
@@ -150,7 +251,6 @@
             </div>
         </div>
         
-        <!-- Alertas de Stock -->
         <div class="col-lg-4 mb-4">
             <div class="card card-panel h-100">
                 <div class="card-header">
@@ -164,8 +264,7 @@
                             <ul class="mb-0 mt-2">
                                 {% for producto in productos_sin_stock %}
                                 <li>
-                                    <a href="{% url 'panel_admin:producto_editar' producto.id %}" 
-                                       class="text-danger">
+                                    <a href="{% url 'panel_admin:producto_editar' producto.id %}" class="text-white">
                                         {{ producto.nombre }}
                                     </a>
                                 </li>
@@ -180,8 +279,7 @@
                             <ul class="mb-0 mt-2">
                                 {% for producto in productos_stock_bajo %}
                                 <li>
-                                    <a href="{% url 'panel_admin:producto_editar' producto.id %}" 
-                                       class="text-warning">
+                                    <a href="{% url 'panel_admin:producto_editar' producto.id %}" class="text-dark">
                                         {{ producto.nombre }} ({{ producto.stock }})
                                     </a>
                                 </li>
@@ -207,7 +305,6 @@
         </div>
     </div>
     
-    <!-- Acciones Rápidas -->
     <div class="row mt-4">
         <div class="col-12">
             <div class="card card-panel">
@@ -215,23 +312,22 @@
                     <h5 class="mb-0">Acciones Rápidas</h5>
                 </div>
                 <div class="card-body">
-                    <div class="row g-3">
-                        <div class="col-md-3 col-6">
+                    <div class="row g-3 justify-content-center">
+                        <div class="col-md-4 col-sm-6">
                             <a href="{% url 'panel_admin:producto_nuevo' %}" class="btn btn-outline-primary w-100">
                                 <i class="bi bi-plus-circle me-2"></i> Nuevo Producto
                             </a>
                         </div>
-                        <div class="col-md-3 col-6">
+                        <div class="col-md-4 col-sm-6">
                             <a href="{% url 'panel_admin:pedidos' %}?estado=pendiente" class="btn btn-outline-warning w-100">
                                 <i class="bi bi-clock me-2"></i> Pedidos Pendientes
                             </a>
                         </div>
-                        <div class="col-md-3 col-6">
+                        <div class="col-md-4 col-sm-6">
                             <a href="{% url 'panel_admin:estadisticas' %}" class="btn btn-outline-success w-100">
                                 <i class="bi bi-bar-chart me-2"></i> Ver Estadísticas
                             </a>
                         </div>
-                       
                     </div>
                 </div>
             </div>
@@ -240,16 +336,12 @@
 </div>
 
 <script>
-// Gráfico simple de ventas (puedes mejorarlo después)
 document.addEventListener('DOMContentLoaded', function() {
     const ctx = document.createElement('canvas');
     ctx.id = 'salesChart';
     document.querySelector('.row:first-child').insertAdjacentElement('afterend', 
         '<div class="row mb-4"><div class="col-12"><div class="card card-panel"><div class="card-header"><h5 class="mb-0">Ventas Últimos 7 Días</h5></div><div class="card-body"><canvas id="salesChart" height="100"></canvas></div></div></div></div>'
     );
-    
-    // Aquí podrías agregar un gráfico con Chart.js
-    // Por ahora lo dejamos como placeholder
 });
 </script>
 {% endblock %}

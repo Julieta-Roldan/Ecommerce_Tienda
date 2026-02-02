@@ -1,21 +1,61 @@
 {% extends "base.html" %}
-
+{% load humanize %}
 
 {% block content %}
-<div class="container my-5 text-center">
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 70vh;">
+    <div class="checkout-card text-center p-5 shadow-sm" style="max-width: 500px; width: 100%; border: 1px solid #eee;">
+        
+        <h6 class="text-uppercase fw-light mb-2" style="letter-spacing: 3px; color: #888;">Resumen de Pago</h6>
+        <h2 class="text-uppercase fw-800 mb-4" style="letter-spacing: 5px; font-size: 1.8rem;">PEDIDO #{{ pedido.id }}</h2>
+        
+        <hr class="mx-auto mb-4" style="width: 40px; border-top: 2px solid #000; opacity: 1;">
 
-    <h2 class="mb-3">Pedido #{{ pedido.id }}</h2>
+        <div class="mb-5">
+            <p class="mb-1" style="font-size: 0.9rem; color: #555; letter-spacing: 1px;">TOTAL A PAGAR</p>
+            <span class="display-6 fw-bold" style="color: #000;">
+                $ {{ pedido.total|floatformat:"0"|intcomma }}
+            </span>
+        </div>
 
-    <p class="lead">
-        Total a pagar: <strong>${{ pedido.total }}</strong>
-    </p>
+        <form method="POST">
+            {% csrf_token %}
+            <button class="btn-checkout-luxury">
+                PAGAR CON MERCADO PAGO
+            </button>
+        </form>
 
-    <form method="POST">
-        {% csrf_token %}
-        <button class="btn btn-primary btn-lg">
-            Pagar con Mercado Pago
-        </button>
-    </form>
-
+        <p class="mt-4 text-muted" style="font-size: 0.75rem; letter-spacing: 1px;">
+            <i class="bi bi-shield-check"></i> Pago procesado de forma segura
+        </p>
+    </div>
 </div>
+
+<style>
+    .checkout-card {
+        background-color: #ffffff;
+        border-radius: 0px; /* Mantener estilo recto minimalista */
+    }
+
+    .btn-checkout-luxury {
+        background-color: #000;
+        color: #fff;
+        border: 1px solid #000;
+        padding: 15px 30px;
+        width: 100%;
+        font-weight: 700;
+        font-size: 0.8rem;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .btn-checkout-luxury:hover {
+        background-color: #fff;
+        color: #000;
+    }
+
+    /* Ajuste para que el total resalte */
+    .fw-800 { font-weight: 800; }
+</style>
 {% endblock %}

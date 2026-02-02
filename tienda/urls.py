@@ -19,5 +19,6 @@ urlpatterns = [
     path('producto/<int:id>/', views.producto_detalle, name='producto_detalle'),
    #yo
    path('favorito/<int:id>/', views.toggle_favorito, name='toggle_favorito'),
-
 ]
+
+

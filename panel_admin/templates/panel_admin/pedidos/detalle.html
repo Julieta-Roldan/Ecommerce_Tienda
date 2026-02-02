@@ -3,33 +3,130 @@
 {% block page_title %}Pedido #{{ pedido.id }}{% endblock %}
 
 {% block content %}
+<style>
+    /* Estética Unificada Detail */
+    .card-panel {
+        background: #fff !important;
+        border: 1px solid #000 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+    }
+    .card-header {
+        background: #000 !important;
+        color: #fff !important;
+        border-radius: 0 !important;
+        border-bottom: 1px solid #000 !important;
+        text-transform: uppercase;
+        font-weight: 800;
+        letter-spacing: 1px;
+    }
+
+    /* Tipografía y Títulos */
+    h6 {
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.85rem;
+        border-left: 4px solid #000;
+        padding-left: 10px;
+        margin-bottom: 20px;
+    }
+
+    /* Tabla de Productos */
+    .table thead {
+        background: #f9f9f9 !important;
+        border-bottom: 2px solid #000 !important;
+    }
+    .table thead th {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    .table tbody td {
+        vertical-align: middle;
+        padding: 15px !important;
+        font-size: 0.85rem;
+    }
+
+    /* Estados B&W */
+    .badge-estado {
+        display: inline-block;
+        padding: 6px 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+        font-size: 0.65rem;
+        letter-spacing: 1px;
+        border: 1px solid #000;
+        text-align: center;
+    }
+    .badge-pendiente { background: #e0e0e0 !important; color: #000 !important; }
+    .badge-pagado { background: #000 !important; color: #fff !important; }
+    .badge-enviado { background: #555 !important; color: #fff !important; }
+    .badge-entregado { background: #fff !important; color: #000 !important; border: 2px solid #000 !important; }
+    .badge-cancelado { background: #ff0000 !important; color: #fff !important; border-color: #ff0000 !important; }
+
+    /* Inputs y Botones */
+    .form-select {
+        border-radius: 0 !important;
+        border: 1px solid #000 !important;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+    }
+    .btn-black {
+        background: #000 !important;
+        color: #fff !important;
+        border-radius: 0 !important;
+        font-weight: 800;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        transition: 0.2s;
+    }
+    .btn-black:hover {
+        background: #fff !important;
+        color: #000 !important;
+        border: 1px solid #000;
+    }
+    .btn-outline-black {
+        background: transparent;
+        color: #000;
+        border: 1px solid #000;
+        border-radius: 0;
+        font-weight: 800;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+    }
+    .btn-outline-black:hover {
+        background: #000;
+        color: #fff;
+    }
+
+    .info-label {
+        font-weight: 800;
+        text-transform: uppercase;
+        font-size: 0.7rem;
+        color: #666;
+        display: block;
+    }
+    .info-value {
+        font-weight: 600;
+        font-size: 0.9rem;
+        display: block;
+        margin-bottom: 10px;
+    }
+</style>
+
 <div class="container-fluid">
     <div class="row">
-        <!-- Información del Pedido -->
         <div class="col-lg-8 mb-4">
             <div class="card card-panel">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Detalle del Pedido</h5>
-                    <div>
-                        <span class="me-2">Estado actual:</span>
-                        {% if pedido.estado == 'pendiente' %}
-                        <span class="badge-estado badge-pendiente">Pendiente</span>
-                        {% elif pedido.estado == 'pagado' %}
-                        <span class="badge-estado badge-pagado">Pagado</span>
-                        {% elif pedido.estado == 'enviado' %}
-                        <span class="badge-estado badge-enviado">Enviado</span>
-                        {% elif pedido.estado == 'entregado' %}
-                        <span class="badge-estado badge-entregado">Entregado</span>
-                        {% else %}
-                        <span class="badge-estado badge-cancelado">Cancelado</span>
-                        {% endif %}
-                    </div>
+                <div class="card-header d-flex justify-content-between align-items-center py-3">
+                    <h5 class="mb-0 fw-800">DETALLE DEL PEDIDO #{{ pedido.id }}</h5>
+                    <span class="badge-estado badge-{{ pedido.estado }}">{{ pedido.estado }}</span>
                 </div>
                 
-                <div class="card-body">
-                    <!-- Cambiar Estado -->
-                    <div class="mb-4">
-                        <h6>Cambiar Estado</h6>
+                <div class="card-body p-4">
+                    <div class="mb-5">
+                        <h6>GESTIÓN DE ESTADO</h6>
                         <form method="POST">
                             {% csrf_token %}
                             <div class="row g-2">
@@ -37,49 +134,48 @@
                                     <select name="estado" class="form-select">
                                         {% for clave, valor in estados_disponibles %}
                                         <option value="{{ clave }}" {% if pedido.estado == clave %}selected{% endif %}>
-                                            {{ valor }}
+                                            {{ valor|upper }}
                                         </option>
                                         {% endfor %}
                                     </select>
                                 </div>
                                 <div class="col-md-4">
-                                    <button type="submit" class="btn btn-primary w-100">
-                                        <i class="bi bi-check-circle me-1"></i> Actualizar
+                                    <button type="submit" class="btn btn-black w-100">
+                                        ACTUALIZAR ESTADO
                                     </button>
                                 </div>
                             </div>
                         </form>
                     </div>
                     
-                    <!-- Items del Pedido -->
-                    <h6 class="mb-3">Productos</h6>
+                    <h6>PRODUCTOS EN EL PEDIDO</h6>
                     <div class="table-responsive">
-                        <table class="table">
+                        <table class="table mb-0">
                             <thead>
                                 <tr>
-                                    <th>Producto</th>
-                                    <th>Precio Unit.</th>
-                                    <th>Cantidad</th>
-                                    <th>Subtotal</th>
+                                    <th>PRODUCTO</th>
+                                    <th class="text-center">PRECIO UNIT.</th>
+                                    <th class="text-center">CANT.</th>
+                                    <th class="text-end">SUBTOTAL</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for item in items %}
                                 <tr>
                                     <td>
-                                        <strong>{{ item.nombre_producto }}</strong><br>
-                                        <small class="text-muted">ID: {{ item.producto.id }}</small>
+                                        <span class="fw-800 text-uppercase d-block">{{ item.nombre_producto }}</span>
+                                        <small class="text-muted">SKU: {{ item.producto.id }}</small>
                                     </td>
-                                    <td>${{ item.precio_unitario|floatformat:0 }}</td>
-                                    <td>{{ item.cantidad }}</td>
-                                    <td><strong>${{ item.subtotal|floatformat:0 }}</strong></td>
+                                    <td class="text-center">${{ item.precio_unitario|floatformat:0 }}</td>
+                                    <td class="text-center fw-800">{{ item.cantidad }}</td>
+                                    <td class="text-end fw-800">${{ item.subtotal|floatformat:0 }}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
                             <tfoot>
-                                <tr>
-                                    <td colspan="3" class="text-end"><strong>Total:</strong></td>
-                                    <td><strong class="h5">${{ pedido.get_total_db|floatformat:0 }}</strong></td>
+                                <tr style="border-top: 2px solid #000;">
+                                    <td colspan="3" class="text-end py-3"><span class="fw-800 text-uppercase">Total Pedido:</span></td>
+                                    <td class="text-end py-3"><span class="h4 fw-800">${{ pedido.get_total_db|floatformat:0 }}</span></td>
                                 </tr>
                             </tfoot>
                         </table>
@@ -88,62 +184,61 @@
             </div>
         </div>
         
-        <!-- Información Adicional -->
         <div class="col-lg-4">
-            <!-- Información del Carrito -->
             <div class="card card-panel mb-4">
-                <div class="card-header">
-                    <h6 class="mb-0">Información del Carrito</h6>
+                <div class="card-header py-2">
+                    <span class="fw-800 small">DATOS DEL CLIENTE</span>
                 </div>
                 <div class="card-body">
-                    {% if pedido.carrito %}
-                    <p><strong>Sesión:</strong> {{ pedido.carrito.session_key|truncatechars:20 }}</p>
-                    <p><strong>Creado:</strong> {{ pedido.carrito.creado|date:"d/m/Y H:i" }}</p>
-                    <p><strong>Actualizado:</strong> {{ pedido.carrito.actualizado|date:"d/m/Y H:i" }}</p>
-                    {% else %}
-                    <p class="text-muted">No hay carrito asociado</p>
-                    {% endif %}
+                    <span class="info-label">Email de contacto</span>
+                    <span class="info-value">{{ pedido.email|default:"SIN ESPECIFICAR" }}</span>
+                    
+                    <span class="info-label">Teléfono</span>
+                    <span class="info-value">{{ pedido.telefono|default:"SIN ESPECIFICAR" }}</span>
+                    
+                    <span class="info-label">Fecha del pedido</span>
+                    <span class="info-value">{{ pedido.fecha_creacion|date:"d/m/Y H:i" }}</span>
                 </div>
             </div>
             
-            <!-- Acciones Rápidas -->
-            <div class="card card-panel">
-                <div class="card-header">
-                    <h6 class="mb-0">Acciones</h6>
+            <div class="card card-panel mb-4">
+                <div class="card-header py-2">
+                    <span class="fw-800 small">ACCIONES RÁPIDAS</span>
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
-                        <a href="{% url 'pagar_pedido' pedido.id %}" 
-                           class="btn btn-success" target="_blank">
-                            <i class="bi bi-credit-card me-2"></i> Procesar Pago
+                        <a href="{% url 'pagar_pedido' pedido.id %}" class="btn btn-black" target="_blank">
+                            <i class="bi bi-credit-card me-2"></i> PROCESAR PAGO
                         </a>
-                        <a href="{% url 'panel_admin:pedidos' %}" 
-                           class="btn btn-outline-secondary">
-                            <i class="bi bi-arrow-left me-2"></i> Volver a Pedidos
+                        <a href="{% url 'panel_admin:pedidos' %}" class="btn btn-outline-black">
+                            <i class="bi bi-arrow-left me-2"></i> VOLVER A LISTA
                         </a>
+                        
                         {% if pedido.estado == 'pendiente' %}
+                        <hr>
                         <form method="POST" action="{% url 'panel_admin:cambiar_estado' pedido.id %}" class="d-grid">
                             {% csrf_token %}
                             <input type="hidden" name="estado" value="cancelado">
-                            <button type="submit" class="btn btn-outline-danger">
-                                <i class="bi bi-x-circle me-2"></i> Cancelar Pedido
+                            <button type="submit" class="btn btn-danger btn-sm border-0 rounded-0 fw-800">
+                                CANCELAR PEDIDO
                             </button>
                         </form>
                         {% endif %}
                     </div>
                 </div>
             </div>
-            
-            <!-- Información del Pedido -->
-            <div class="card card-panel mt-4">
-                <div class="card-header">
-                    <h6 class="mb-0">Detalles Técnicos</h6>
+
+            <div class="card card-panel">
+                <div class="card-header py-2">
+                    <span class="fw-800 small">RASTREO TÉCNICO</span>
                 </div>
                 <div class="card-body">
-                    <p><strong>ID:</strong> {{ pedido.id }}</p>
-                    <p><strong>Creado:</strong> {{ pedido.fecha_creacion|date:"d/m/Y H:i:s" }}</p>
-                    <p><strong>Email:</strong> {{ pedido.email|default:"No especificado" }}</p>
-                    <p><strong>Teléfono:</strong> {{ pedido.telefono|default:"No especificado" }}</p>
+                    {% if pedido.carrito %}
+                    <span class="info-label">ID Sesión Carrito</span>
+                    <span class="info-value text-muted" style="font-size: 0.75rem;">{{ pedido.carrito.session_key|upper }}</span>
+                    {% else %}
+                    <p class="text-muted small">SIN CARRITO ASOCIADO</p>
+                    {% endif %}
                 </div>
             </div>
         </div>

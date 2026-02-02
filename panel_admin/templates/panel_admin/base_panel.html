@@ -3,283 +3,242 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel Admin - Tienda Lore</title>
+    <title>Lore Admin - Boutique Management</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500;700&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+    
     <style>
         :root {
-            --primary-color: #2c3e50;
-            --secondary-color: #34495e;
-            --accent-color: #3498db;
-            --success-color: #27ae60;
-            --warning-color: #f39c12;
-            --danger-color: #e74c3c;
+            --sidebar-bg: #0d0d0d; /* Negro casi total para profundidad */
+            --body-bg: #f2f2f2;    /* Gris cemento claro, saca el exceso de blanco */
+            --accent: #000000;
+            --text-main: #1a1a1a;
+            --sidebar-width: 260px;
         }
         
         body {
-            background-color: #f8f9fa;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--body-bg);
+            font-family: 'Montserrat', sans-serif;
+            color: var(--text-main);
+            margin: 0;
         }
-        
+
+        /* SIDEBAR: Negro profundo con contraste alto */
         .sidebar {
             position: fixed;
             top: 0;
             left: 0;
             height: 100vh;
-            width: 250px;
-            background: var(--primary-color);
+            width: var(--sidebar-width);
+            background: var(--sidebar-bg);
             color: white;
             z-index: 1000;
-            padding-top: 20px;
-            transition: all 0.3s;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
         }
         
         .sidebar-header {
-            padding: 0 20px 20px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            margin-bottom: 20px;
+            padding: 40px 30px;
+            background: #000;
+            border-bottom: 1px solid #222;
         }
         
-        .logo-panel {
-            color: white;
-            font-weight: 700;
-            font-size: 1.5rem;
-            text-decoration: none;
-        }
-        
+       .logo-panel {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    color: white;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 6px; /* Esto es lo que le da el look de marca de lujo */
+    display: block;
+    font-weight: 700;
+}
+
+        .logo-panel i { font-size: 1rem; color: #555; margin-right: 5px; }
+
+        /* Navegación con hover de línea */
         .nav-link {
-            color: rgba(255,255,255,0.8);
-            padding: 12px 20px;
-            margin: 2px 0;
+            color: #777;
+            padding: 18px 30px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
             border-radius: 0;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
         }
         
-        .nav-link:hover, .nav-link.active {
+        .nav-link:hover {
             color: white;
-            background: rgba(255,255,255,0.1);
-            border-left: 4px solid var(--accent-color);
+            background: #1a1a1a;
         }
-        
-        .nav-link i {
-            width: 24px;
-            text-align: center;
-            margin-right: 10px;
+
+        .nav-link.active {
+            color: white;
+            background: #1a1a1a;
+            box-shadow: inset 4px 0 0 white; /* Indicador lateral */
         }
+
+        .nav-link i { font-size: 1.2rem; margin-right: 15px; }
         
+        /* CONTENIDO PRINCIPAL */
         .main-content {
-            margin-left: 250px;
-            padding: 20px;
+            margin-left: var(--sidebar-width);
             min-height: 100vh;
         }
         
         .topbar {
             background: white;
-            padding: 15px 25px;
-            border-bottom: 1px solid #dee2e6;
-            margin: -20px -20px 20px -20px;
+            padding: 20px 40px;
+            border-bottom: 1px solid #ddd;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 999;
+        }
+
+        .topbar h4 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            margin: 0;
+            font-style: italic;
         }
         
+        /* CARDS: Blancas pero con bordes definidos sobre el gris de fondo */
         .card-panel {
-            border: none;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            transition: transform 0.3s;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 0;
+            margin-bottom: 25px;
         }
         
-        .card-panel:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
-        }
-        
-        .card-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            color: white;
-        }
-        
-        .bg-primary-light { background: #e3f2fd; color: #1565c0; }
-        .bg-success-light { background: #e8f5e9; color: #2e7d32; }
-        .bg-warning-light { background: #fff3e0; color: #f57c00; }
-        .bg-danger-light { background: #ffebee; color: #c62828; }
-        
-        .badge-estado {
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-weight: 600;
+        .card-header {
+            background: transparent;
+            border-bottom: 1px solid #f0f0f0;
+            padding: 20px;
+            font-weight: 700;
             font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
-        
-        .badge-pendiente { background: #fff3cd; color: #856404; }
-        .badge-pagado { background: #d4edda; color: #155724; }
-        .badge-enviado { background: #d1ecf1; color: #0c5460; }
-        .badge-entregado { background: #d4edda; color: #155724; }
-        .badge-cancelado { background: #f8d7da; color: #721c24; }
-        
-        .table-actions a {
-            margin-right: 8px;
-            color: #6c757d;
-            transition: color 0.3s;
+
+        .card-body { padding: 25px; }
+
+        /* BOTONES: Sólidos y contundentes */
+        .btn {
+            border-radius: 0;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+            padding: 12px 24px;
         }
-        
-        .table-actions a:hover {
-            color: var(--accent-color);
+
+        .btn-black {
+            background: #000;
+            color: white;
+            border: 1px solid #000;
         }
-        
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 70px;
-            }
-            
-            .sidebar .nav-link span {
-                display: none;
-            }
-            
-            .sidebar .nav-link i {
-                margin-right: 0;
-                font-size: 1.2rem;
-            }
-            
-            .main-content {
-                margin-left: 70px;
-            }
-            
-            .logo-panel span {
-                display: none;
-            }
+
+        .btn-black:hover {
+            background: white;
+            color: #000;
+        }
+
+        /* BADGES */
+        .badge {
+            border-radius: 0;
+            padding: 6px 10px;
+            font-weight: 500;
+        }
+
+        @media (max-width: 992px) {
+            .sidebar { width: 75px; }
+            .sidebar-header, .nav-link span, .logo-panel span { display: none; }
+            .main-content { margin-left: 75px; }
+            .nav-link { justify-content: center; padding: 20px 0; }
+            .nav-link i { margin: 0; }
         }
     </style>
 </head>
 <body>
-    <!-- Sidebar -->
     <div class="sidebar">
-        <div class="sidebar-header">
+        <div class="sidebar-header text-center">
             <a href="{% url 'panel_admin:dashboard' %}" class="logo-panel">
-                <i class="bi bi-speedometer2"></i>
-                <span>Panel Admin</span>
+                Tienda Lore <span style="font-size: 0.6rem; display: block; letter-spacing: 3px; font-family: 'Montserrat'; color: #666; margin-top: 5px;">STUDIO</span>
             </a>
         </div>
         
-        <nav class="nav flex-column">
-            <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" 
-               href="{% url 'panel_admin:dashboard' %}">
-                <i class="bi bi-speedometer2"></i>
-                <span>Dashboard</span>
+        <nav class="nav flex-column mt-3">
+            <a class="nav-link {% if 'dashboard' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'panel_admin:dashboard' %}">
+                <i class="bi bi-house-door"></i> <span>Dashboard</span>
             </a>
             
-            <a class="nav-link {% if 'productos' in request.resolver_match.url_name %}active{% endif %}" 
-               href="{% url 'panel_admin:productos' %}">
-                <i class="bi bi-box-seam"></i>
-                <span>Productos</span>
+            <a class="nav-link {% if 'productos' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'panel_admin:productos' %}">
+                <i class="bi bi-box-seam"></i> <span>Productos</span>
             </a>
             
-            <a class="nav-link {% if 'pedidos' in request.resolver_match.url_name %}active{% endif %}" 
-               href="{% url 'panel_admin:pedidos' %}">
-                <i class="bi bi-receipt"></i>
-                <span>Pedidos</span>
+            <a class="nav-link {% if 'pedidos' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'panel_admin:pedidos' %}">
+                <i class="bi bi-receipt"></i> <span>Pedidos</span>
                 {% with pendientes=request.session.pedidos_pendientes|default:0 %}
                     {% if pendientes > 0 %}
-                    <span class="badge bg-danger float-end">{{ pendientes }}</span>
+                    <span class="ms-auto badge bg-white text-black">{{ pendientes }}</span>
                     {% endif %}
                 {% endwith %}
             </a>
             
-            <a class="nav-link {% if request.resolver_match.url_name == 'estadisticas' %}active{% endif %}" 
-               href="{% url 'panel_admin:estadisticas' %}">
-                <i class="bi bi-bar-chart"></i>
-                <span>Estadísticas</span>
+            <a class="nav-link {% if 'estadisticas' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'panel_admin:estadisticas' %}">
+                <i class="bi bi-bar-chart-line"></i> <span>Estadísticas</span>
             </a>
-            
-            <hr style="color: rgba(255,255,255,0.1); margin: 20px;">
-            
-            <a class="nav-link" href="/" target="_blank">
-                <i class="bi bi-shop"></i>
-                <span>Ver Tienda</span>
-            </a>
-            
-            <a class="nav-link" href="{% url 'panel_admin:logout' %}">
-                <i class="bi bi-box-arrow-right"></i>
-                <span>Cerrar Sesión</span>
-            </a>
+
+            <div class="mt-auto pb-4">
+                <a class="nav-link" href="/" target="_blank">
+                    <i class="bi bi-shop"></i> <span>Ver Tienda</span>
+                </a>
+                <a class="nav-link" href="{% url 'panel_admin:logout' %}">
+                    <i class="bi bi-box-arrow-left"></i> <span>Cerrar Sesión</span>
+                </a>
+            </div>
         </nav>
     </div>
     
-    <!-- Main Content -->
     <div class="main-content">
         <div class="topbar">
-            <h4 class="mb-0">
-                {% block page_title %}{% endblock %}
-            </h4>
-            <div>
-                <span class="text-muted me-3">
-                    <i class="bi bi-person-circle me-1"></i>
-                    {{ request.user.username }}
-                </span>
-                <span class="badge bg-secondary">{{ request.user.get_role_display }}</span>
+            <h4 class="mb-0">{% block page_title %}Overview{% endblock %}</h4>
+            <div class="user-info d-flex align-items-center">
+                <div class="text-end me-3">
+                    <div class="fw-bold small text-uppercase" style="letter-spacing: 1px;">
+                        {{ request.user.get_full_name|default:request.user.username }}
+                    </div>
+                    <div class="text-muted small" style="font-size: 0.6rem; letter-spacing: 2px;">GESTIÓN ADMIN</div>
+                </div>
+                <div class="bg-black text-white p-2 fw-bold" style="font-size: 0.75rem; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 0;">
+                    {{ request.user.username|slice:":1"|upper }}
+                </div>
             </div>
         </div>
         
-        <!-- Messages -->
-        {% if messages %}
-        <div class="mb-4">
+        <div class="p-4 p-md-5">
+            {% if messages %}
             {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            <div class="alert alert-dark border-0 rounded-0 d-flex justify-content-between align-items-center mb-4" role="alert" style="background: #1a1a1a; color: #fff;">
+                <span class="small text-uppercase fw-bold">{{ message }}</span>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
             </div>
             {% endfor %}
+            {% endif %}
+            
+            {% block content %}{% endblock %}
         </div>
-        {% endif %}
-        
-        <!-- Page Content -->
-        {% block content %}{% endblock %}
     </div>
-    
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <script>
-        // Actualizar contador de pedidos pendientes cada 30 segundos
-        function actualizarContadorPedidos() {
-            fetch('/panel_admin/pedidos/?estado=pendiente&ajax=1')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.count !== undefined) {
-                        const badge = document.querySelector('.nav-link[href*="pedidos"] .badge');
-                        if (data.count > 0) {
-                            if (badge) {
-                                badge.textContent = data.count;
-                            } else {
-                                const link = document.querySelector('.nav-link[href*="pedidos"]');
-                                link.innerHTML += ` <span class="badge bg-danger float-end">${data.count}</span>`;
-                            }
-                        } else if (badge) {
-                            badge.remove();
-                        }
-                    }
-                });
-        }
-        
-        // Actualizar cada 30 segundos
-        setInterval(actualizarContadorPedidos, 30000);
-        
-        // Inicializar tooltips
-        document.addEventListener('DOMContentLoaded', function() {
-            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl);
-            });
-        });
-    </script>
-    
     {% block extra_js %}{% endblock %}
 </body>
 </html>
