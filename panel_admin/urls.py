@@ -18,6 +18,14 @@ urlpatterns = [
     path('productos/editar/<int:id>/', views.producto_editar, name='producto_editar'),
     path('productos/eliminar/<int:id>/', views.producto_eliminar, name='producto_eliminar'),
     
+    # Talles y Colores rápidos
+    path('talles/agregar-rapido/', views.agregar_talle_rapido, name='agregar_talle_rapido'),
+    path('colores/agregar-rapido/', views.agregar_color_rapido, name='agregar_color_rapido'),
+    
+    # Eliminar talles y colores
+    path('talles/eliminar-rapido/', views.eliminar_talle_rapido, name='eliminar_talle_rapido'),
+    path('colores/eliminar-rapido/', views.eliminar_color_rapido, name='eliminar_color_rapido'),
+    
     # Categorías (NUEVO)
     path('categorias/', views.categorias_lista, name='categorias'),
     path('categorias/nueva/', views.categoria_nueva, name='categoria_nueva'),

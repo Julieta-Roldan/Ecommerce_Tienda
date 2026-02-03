@@ -17,6 +17,8 @@ from django.contrib.auth.models import User  # Importar aquí para usar en toda 
 from django.core.exceptions import PermissionDenied
 from functools import wraps
 from django.contrib.auth.models import Group, Permission
+from tienda.models import Talle, Color 
+
 
 # ==================== DECORADORES PERSONALIZADOS ====================
 
@@ -236,7 +238,7 @@ def productos_lista(request):
 @user_passes_test(es_staff)
 @requiere_ver_productos  
 def producto_nuevo(request):
-    """Crear nuevo producto (versión simplificada sin forms.py)"""
+    """Crear nuevo producto con talles y colores"""
     
     if request.method == 'POST':
         # Validar datos manualmente
@@ -272,6 +274,18 @@ def producto_nuevo(request):
                     activo=activo
                 )
                 
+                # MANEJAR TALLES (nuevo)
+                talles_ids = request.POST.getlist('talles')
+                if talles_ids:
+                    talles = Talle.objects.filter(id__in=talles_ids)
+                    producto.talles.set(talles)
+                
+                # MANEJAR COLORES (nuevo)
+                colores_ids = request.POST.getlist('colores')
+                if colores_ids:
+                    colores = Color.objects.filter(id__in=colores_ids)
+                    producto.colores.set(colores)
+                
                 # Manejo de imágenes
                 if 'imagen_principal' in request.FILES:
                     imagen = request.FILES['imagen_principal']
@@ -291,17 +305,21 @@ def producto_nuevo(request):
     
     # Si es GET o hay errores, mostrar formulario
     categorias = Categoria.objects.filter(activo=True)
+    talles = Talle.objects.all()  # NUEVO
+    colores = Color.objects.all()  # NUEVO
+    
     return render(request, 'panel_admin/productos/form.html', {
         'categorias': categorias,
+        'talles': talles,  # NUEVO
+        'colores': colores,  # NUEVO
         'titulo': 'Nuevo Producto',
         'accion': 'Crear'
     })
-
 @login_required
 @user_passes_test(es_staff)
 @requiere_ver_productos  
 def producto_editar(request, id):
-    """Editar producto existente (versión simplificada)"""
+    """Editar producto existente con talles y colores"""
     producto = get_object_or_404(Producto, id=id)
     
     if request.method == 'POST':
@@ -339,6 +357,22 @@ def producto_editar(request, id):
                 producto.activo = activo
                 producto.save()
                 
+                # MANEJAR TALLES (nuevo)
+                talles_ids = request.POST.getlist('talles')
+                if talles_ids:
+                    talles = Talle.objects.filter(id__in=talles_ids)
+                    producto.talles.set(talles)
+                else:
+                    producto.talles.clear()
+                
+                # MANEJAR COLORES (nuevo)
+                colores_ids = request.POST.getlist('colores')
+                if colores_ids:
+                    colores = Color.objects.filter(id__in=colores_ids)
+                    producto.colores.set(colores)
+                else:
+                    producto.colores.clear()
+                
                 # Manejo de imágenes
                 if 'imagen_principal' in request.FILES:
                     # Eliminar imagen principal anterior si existe
@@ -361,31 +395,49 @@ def producto_editar(request, id):
     
     # Si es GET, mostrar formulario con datos actuales
     categorias = Categoria.objects.filter(activo=True)
+    talles = Talle.objects.all()  # NUEVO
+    colores = Color.objects.all()  # NUEVO
+    
     return render(request, 'panel_admin/productos/form.html', {
         'producto': producto,
         'categorias': categorias,
+        'talles': talles,  # NUEVO
+        'colores': colores,  # NUEVO
         'titulo': f'Editar: {producto.nombre}',
         'accion': 'Actualizar'
     })
-
 @login_required
 @user_passes_test(es_staff)
 @requiere_ver_productos  
 def producto_eliminar(request, id):
-    """Eliminar producto (soft delete)"""
+    """Eliminar producto PERMANENTEMENTE"""
     producto = get_object_or_404(Producto, id=id)
     
     if request.method == 'POST':
+        # GUARDAR DATOS PARA EL MENSAJE
         producto_nombre = producto.nombre
-        producto.activo = False
-        producto.save()
-        messages.success(request, f'Producto "{producto_nombre}" desactivado correctamente')
+        categoria_nombre = producto.categoria.nombre
+        
+        # 1. ELIMINAR IMÁGENES del producto (IMPORTANTE: para liberar espacio en servidor)
+        producto.imagenes.all().delete()
+        
+        # 2. ELIMINAR FAVORITOS asociados a este producto
+        producto.favorito_set.all().delete()
+        
+        # 3. ELIMINAR RELACIONES ManyToMany (talles y colores)
+        producto.talles.clear()
+        producto.colores.clear()
+        
+        # 4. ELIMINAR EL PRODUCTO PERMANENTEMENTE
+        producto.delete()
+        
+        messages.success(request, f'Producto "{producto_nombre}" ELIMINADO PERMANENTEMENTE de la categoría "{categoria_nombre}"')
         return redirect('panel_admin:productos')
     
+    # Si es GET, mostrar formulario de confirmación
     return render(request, 'panel_admin/productos/confirmar_eliminar.html', {
         'producto': producto
     })
-
 # ==================== PEDIDOS ====================
 @login_required
 @user_passes_test(es_staff)
@@ -980,3 +1032,121 @@ def cambiar_estado_usuario(request, id):
         })
     
     return JsonResponse({'success': False}, status=400)
+
+# ==================== TALLES Y COLORES RÁPIDOS ====================
+
+@login_required
+@user_passes_test(es_staff)
+@requiere_ver_productos  
+def agregar_talle_rapido(request):
+    """Agregar talle rápido desde AJAX"""
+    if request.method == 'POST' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        nombre_talle = request.POST.get('nombre')
+        
+        if nombre_talle:
+            try:
+                talle, created = Talle.objects.get_or_create(nombre=nombre_talle.strip())
+                return JsonResponse({
+                    'success': True,
+                    'id': talle.id,
+                    'nombre': talle.nombre,
+                    'created': created
+                })
+            except Exception as e:
+                return JsonResponse({'success': False, 'error': str(e)})
+    
+    return JsonResponse({'success': False, 'error': 'Método no permitido'})
+
+@login_required
+@user_passes_test(es_staff)
+@requiere_ver_productos  
+def agregar_color_rapido(request):
+    """Agregar color rápido desde AJAX"""
+    if request.method == 'POST' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        nombre_color = request.POST.get('nombre')
+        codigo_hex = request.POST.get('codigo_hex', '#000000')
+        
+        if nombre_color:
+            try:
+                color, created = Color.objects.get_or_create(
+                    nombre=nombre_color.strip(),
+                    defaults={'codigo_hex': codigo_hex}
+                )
+                return JsonResponse({
+                    'success': True,
+                    'id': color.id,
+                    'nombre': color.nombre,
+                    'codigo_hex': color.codigo_hex or '#000000',
+                    'created': created
+                })
+            except Exception as e:
+                return JsonResponse({'success': False, 'error': str(e)})
+    
+    return JsonResponse({'success': False, 'error': 'Método no permitido'})
+
+
+@login_required
+@user_passes_test(es_staff)
+@requiere_ver_productos  
+def eliminar_talle_rapido(request):
+    """Eliminar talle desde AJAX (solo si no está en uso)"""
+    if request.method == 'POST' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        talle_id = request.POST.get('id')
+        
+        try:
+            talle = Talle.objects.get(id=talle_id)
+            talle_nombre = talle.nombre
+            
+            # Verificar si el talle está siendo usado por algún producto
+            if talle.producto_set.exists():
+                return JsonResponse({
+                    'success': False, 
+                    'error': f'El talle "{talle_nombre}" está siendo usado por {talle.producto_set.count()} productos. No se puede eliminar.'
+                })
+            
+            # Eliminar el talle
+            talle.delete()
+            return JsonResponse({
+                'success': True,
+                'message': f'Talle "{talle_nombre}" eliminado correctamente'
+            })
+            
+        except Talle.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Talle no encontrado'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    
+    return JsonResponse({'success': False, 'error': 'Método no permitido'})
+
+@login_required
+@user_passes_test(es_staff)
+@requiere_ver_productos  
+def eliminar_color_rapido(request):
+    """Eliminar color desde AJAX (solo si no está en uso)"""
+    if request.method == 'POST' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        color_id = request.POST.get('id')
+        
+        try:
+            color = Color.objects.get(id=color_id)
+            color_nombre = color.nombre
+            
+            # Verificar si el color está siendo usado por algún producto
+            if color.producto_set.exists():
+                return JsonResponse({
+                    'success': False, 
+                    'error': f'El color "{color_nombre}" está siendo usado por {color.producto_set.count()} productos. No se puede eliminar.'
+                })
+            
+            # Eliminar el color
+            color.delete()
+            return JsonResponse({
+                'success': True,
+                'message': f'Color "{color_nombre}" eliminado correctamente'
+            })
+            
+        except Color.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Color no encontrado'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    
+    return JsonResponse({'success': False, 'error': 'Método no permitido'})
