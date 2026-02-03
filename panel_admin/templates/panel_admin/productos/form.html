@@ -71,6 +71,33 @@
         background-color: #000;
         border-color: #000;
     }
+    
+    /* Estilos para botones de eliminar talles/colores */
+    .btn-remove-talle, .btn-remove-color {
+        position: absolute;
+        right: -10px;
+        top: -5px;
+        background-color: #fff;
+        border: 1px solid #000;
+        border-radius: 50%;
+        width: 16px;
+        height: 16px;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 10px;
+    }
+    
+    .form-check-inline:hover .btn-remove-talle,
+    .form-check-inline:hover .btn-remove-color {
+        display: flex;
+    }
+    
+    .btn-remove-talle:hover, .btn-remove-color:hover {
+        background-color: #000;
+        color: #fff;
+    }
 </style>
 
 <div class="container-fluid">
@@ -130,6 +157,82 @@
                             </select>
                         </div>
                         
+                        <!-- NUEVO: Talles con opción de agregar -->
+                        <div class="col-md-6">
+                            <label class="form-label">Talles Disponibles</label>
+                            <div class="mb-2">
+                                <div class="input-group input-group-sm">
+                                    <input type="text" class="form-control form-control-sm" 
+                                           id="nuevo_talle" placeholder="Ej: S, M, L, XL..." 
+                                           style="border-radius: 0;">
+                                    <button type="button" class="btn btn-dark btn-sm" 
+                                            onclick="agregarTalleRapido()" style="border-radius: 0;">
+                                        <i class="bi bi-plus"></i> Agregar
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="border border-dark p-2" style="max-height: 120px; overflow-y: auto;" id="talles_container">
+                                {% for talle in talles %}
+                                <div class="form-check form-check-inline position-relative" id="talle_item_{{ talle.id }}">
+                                    <input class="form-check-input" type="checkbox" 
+                                           name="talles" value="{{ talle.id }}" 
+                                           id="talle_{{ talle.id }}"
+                                           {% if producto and talle in producto.talles.all %}checked{% endif %}>
+                                    <label class="form-check-label small me-2" for="talle_{{ talle.id }}">
+                                        {{ talle.nombre }}
+                                    </label>
+                                    <button type="button" class="btn-remove-talle btn-close btn-close-sm" 
+                                            style="font-size: 0.6rem; padding: 0;"
+                                            onclick="eliminarTalle({{ talle.id }}, '{{ talle.nombre|escapejs }}')"
+                                            title="Eliminar este talle">
+                                    </button>
+                                </div>
+                                {% empty %}
+                                <p class="small text-muted mb-0">No hay talles creados. Agrega uno nuevo arriba.</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <!-- NUEVO: Colores con opción de agregar -->
+                        <div class="col-md-6">
+                            <label class="form-label">Colores Disponibles</label>
+                            <div class="mb-2">
+                                <div class="input-group input-group-sm">
+                                    <input type="text" class="form-control form-control-sm" 
+                                           id="nuevo_color_nombre" placeholder="Nombre del color" 
+                                           style="border-radius: 0;">
+                                    <input type="color" class="form-control form-control-sm p-1" 
+                                           id="nuevo_color_hex" value="#000000" 
+                                           style="width: 50px; border-radius: 0;">
+                                    <button type="button" class="btn btn-dark btn-sm" 
+                                            onclick="agregarColorRapido()" style="border-radius: 0;">
+                                        <i class="bi bi-plus"></i> Agregar
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="border border-dark p-2" style="max-height: 120px; overflow-y: auto;" id="colores_container">
+                                {% for color in colores %}
+                                <div class="form-check form-check-inline position-relative" id="color_item_{{ color.id }}">
+                                    <input class="form-check-input" type="checkbox" 
+                                           name="colores" value="{{ color.id }}" 
+                                           id="color_{{ color.id }}"
+                                           {% if producto and color in producto.colores.all %}checked{% endif %}>
+                                    <label class="form-check-label small d-flex align-items-center me-2" for="color_{{ color.id }}">
+                                        <span class="me-1" style="display: inline-block; width: 12px; height: 12px; background-color: {{ color.codigo_hex|default:'#000000' }}; border: 1px solid #000;"></span>
+                                        {{ color.nombre }}
+                                    </label>
+                                    <button type="button" class="btn-remove-color btn-close btn-close-sm" 
+                                            style="font-size: 0.6rem; padding: 0;"
+                                            onclick="eliminarColor({{ color.id }}, '{{ color.nombre|escapejs }}')"
+                                            title="Eliminar este color">
+                                    </button>
+                                </div>
+                                {% empty %}
+                                <p class="small text-muted mb-0">No hay colores creados. Agrega uno nuevo arriba.</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
                         <div class="col-md-6">
                             <label class="form-label">Estado</label>
                             <div class="form-check form-switch mt-2">
@@ -185,4 +288,217 @@
         </div>
     </div>
 </div>
+
+<script>
+    // Función para agregar talle rápido
+    function agregarTalleRapido() {
+        const nombre = document.getElementById('nuevo_talle').value.trim();
+        if (!nombre) {
+            alert('Por favor, ingresa un nombre para el talle');
+            return;
+        }
+        
+        // Enviar por AJAX
+        fetch('{% url "panel_admin:agregar_talle_rapido" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: `nombre=${encodeURIComponent(nombre)}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Agregar checkbox al contenedor
+                const container = document.getElementById('talles_container');
+                const checkboxId = `talle_${data.id}`;
+                
+                const html = `
+                    <div class="form-check form-check-inline position-relative" id="talle_item_${data.id}">
+                        <input class="form-check-input" type="checkbox" 
+                               name="talles" value="${data.id}" 
+                               id="${checkboxId}" checked>
+                        <label class="form-check-label small me-2" for="${checkboxId}">
+                            ${data.nombre}
+                        </label>
+                        <button type="button" class="btn-remove-talle btn-close btn-close-sm" 
+                                style="font-size: 0.6rem; padding: 0;"
+                                onclick="eliminarTalle(${data.id}, '${data.nombre.replace(/'/g, "\\'")}')"
+                                title="Eliminar este talle">
+                        </button>
+                    </div>
+                `;
+                
+                // Si estaba vacío, limpiar el mensaje
+                if (container.innerHTML.includes('No hay talles creados')) {
+                    container.innerHTML = '';
+                }
+                
+                container.innerHTML += html;
+                document.getElementById('nuevo_talle').value = '';
+                
+                if (data.created) {
+                    alert(`Talle "${data.nombre}" creado correctamente`);
+                }
+            } else {
+                alert('Error: ' + (data.error || 'No se pudo crear el talle'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al agregar talle');
+        });
+    }
+    
+    // Función para agregar color rápido
+    function agregarColorRapido() {
+        const nombre = document.getElementById('nuevo_color_nombre').value.trim();
+        const codigoHex = document.getElementById('nuevo_color_hex').value;
+        
+        if (!nombre) {
+            alert('Por favor, ingresa un nombre para el color');
+            return;
+        }
+        
+        // Enviar por AJAX
+        fetch('{% url "panel_admin:agregar_color_rapido" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: `nombre=${encodeURIComponent(nombre)}&codigo_hex=${encodeURIComponent(codigoHex)}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Agregar checkbox al contenedor
+                const container = document.getElementById('colores_container');
+                const checkboxId = `color_${data.id}`;
+                
+                const html = `
+                    <div class="form-check form-check-inline position-relative" id="color_item_${data.id}">
+                        <input class="form-check-input" type="checkbox" 
+                               name="colores" value="${data.id}" 
+                               id="${checkboxId}" checked>
+                        <label class="form-check-label small d-flex align-items-center me-2" for="${checkboxId}">
+                            <span class="me-1" style="display: inline-block; width: 12px; height: 12px; background-color: ${data.codigo_hex}; border: 1px solid #000;"></span>
+                            ${data.nombre}
+                        </label>
+                        <button type="button" class="btn-remove-color btn-close btn-close-sm" 
+                                style="font-size: 0.6rem; padding: 0;"
+                                onclick="eliminarColor(${data.id}, '${data.nombre.replace(/'/g, "\\'")}')"
+                                title="Eliminar este color">
+                        </button>
+                    </div>
+                `;
+                
+                // Si estaba vacío, limpiar el mensaje
+                if (container.innerHTML.includes('No hay colores creados')) {
+                    container.innerHTML = '';
+                }
+                
+                container.innerHTML += html;
+                document.getElementById('nuevo_color_nombre').value = '';
+                
+                if (data.created) {
+                    alert(`Color "${data.nombre}" creado correctamente`);
+                }
+            } else {
+                alert('Error: ' + (data.error || 'No se pudo crear el color'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al agregar color');
+        });
+    }
+    
+    // Permitir Enter para agregar
+    document.getElementById('nuevo_talle').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            agregarTalleRapido();
+        }
+    });
+    
+    document.getElementById('nuevo_color_nombre').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            agregarColorRapido();
+        }
+    });
+    
+    // Función para eliminar talle
+    function eliminarTalle(id, nombre) {
+        if (!confirm(`¿Eliminar el talle "${nombre}"?\n\nSolo se puede eliminar si ningún producto lo está usando.`)) {
+            return;
+        }
+        
+        fetch('{% url "panel_admin:eliminar_talle_rapido" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: `id=${id}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Remover el elemento del DOM
+                const elemento = document.getElementById(`talle_item_${id}`);
+                if (elemento) {
+                    elemento.remove();
+                }
+                alert(data.message);
+            } else {
+                alert('Error: ' + (data.error || 'No se pudo eliminar el talle'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al eliminar talle');
+        });
+    }
+    
+    // Función para eliminar color
+    function eliminarColor(id, nombre) {
+        if (!confirm(`¿Eliminar el color "${nombre}"?\n\nSolo se puede eliminar si ningún producto lo está usando.`)) {
+            return;
+        }
+        
+        fetch('{% url "panel_admin:eliminar_color_rapido" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: `id=${id}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Remover el elemento del DOM
+                const elemento = document.getElementById(`color_item_${id}`);
+                if (elemento) {
+                    elemento.remove();
+                }
+                alert(data.message);
+            } else {
+                alert('Error: ' + (data.error || 'No se pudo eliminar el color'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al eliminar color');
+        });
+    }
+</script>
+
 {% endblock %}
