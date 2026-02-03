@@ -401,24 +401,29 @@
     </div>
     
     <div class="row mt-4">
-        <div class="col-12">
+       <div class="col-12">
             <div class="card card-panel">
                 <div class="card-header">
                     <h5 class="mb-0">Acciones Rápidas</h5>
                 </div>
                 <div class="card-body">
-                    <div class="row g-3 justify-content-center">
-                        <div class="col-md-4 col-sm-6">
+                    <div class="row g-3">
+                        <div class="col-md-3 col-sm-6">
                             <a href="{% url 'panel_admin:producto_nuevo' %}" class="btn btn-outline-primary w-100">
                                 <i class="bi bi-plus-circle me-2"></i> Nuevo Producto
                             </a>
                         </div>
-                        <div class="col-md-4 col-sm-6">
+                        <div class="col-md-3 col-sm-6">
+                            <a href="{% url 'panel_admin:categoria_nueva' %}" class="btn btn-outline-primary w-100">
+                                <i class="bi bi-tag me-2"></i> Nueva Categoría
+                            </a>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
                             <a href="{% url 'panel_admin:pedidos' %}?estado=pendiente" class="btn btn-outline-warning w-100">
                                 <i class="bi bi-clock me-2"></i> Pedidos Pendientes
                             </a>
                         </div>
-                        <div class="col-md-4 col-sm-6">
+                        <div class="col-md-3 col-sm-6">
                             <a href="{% url 'panel_admin:estadisticas' %}" class="btn btn-outline-success w-100">
                                 <i class="bi bi-bar-chart me-2"></i> Ver Estadísticas
                             </a>
