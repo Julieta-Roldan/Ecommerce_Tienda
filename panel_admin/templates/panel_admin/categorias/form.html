@@ -12,7 +12,7 @@
                 </div>
                 
                 <div class="card-body">
-                    <form method="POST">
+                    <form method="POST" enctype="multipart/form-data">
                         {% csrf_token %}
                         
                         <!-- Nombre -->
@@ -47,6 +47,49 @@
                                 <div class="form-text">
                                     Las categorías inactivas no se mostrarán en la tienda.
                                 </div>
+                            </div>
+                        </div>
+
+
+                                                <!-- Imagen de fondo -->
+                        <div class="mb-4">
+                            <label for="imagen_fondo" class="form-label">
+                                <i class="bi bi-image me-1"></i>Imagen de fondo para la categoría
+                            </label>
+                            
+                            <!-- Mostrar imagen actual si existe -->
+                            {% if categoria and categoria.imagen_fondo %}
+                                <div class="mb-3" id="imagen-actual-preview">
+                                <p class="small mb-1"><strong>Imagen actual:</strong></p>
+                                <div class="border p-2 rounded" style="max-width: 200px;">
+                                    <img src="{{ categoria.imagen_fondo.url }}" alt="Imagen actual" 
+                                         class="img-fluid rounded" style="max-height: 100px;">
+                                </div>
+                                    <div class="form-text mt-1">
+                                    <!-- Campo oculto para indicar que se quiere quitar la imagen -->
+                                    <input type="hidden" name="quitar_imagen" id="quitar_imagen" value="false">
+                                    
+                                    <a href="#" onclick="
+                                        document.getElementById('imagen_fondo').value='';
+                                        document.getElementById('quitar_imagen').value='true';
+                                        document.getElementById('imagen-actual-preview').style.display='none';
+                                        return false;" 
+                                       class="text-danger small">
+                                        <i class="bi bi-x-circle me-1"></i>Quitar imagen actual
+                                    </a>
+                                </div>
+                            {% endif %}
+                            
+                            <!-- Campo para subir nueva imagen -->
+                            <input type="file" class="form-control" id="imagen_fondo" name="imagen_fondo" 
+                                   accept="image/*">
+                            <div class="form-text">
+                                Imagen que aparecerá como fondo en la página principal (recomendado: 600×400px, JPG/PNG).
+                                {% if categoria and categoria.imagen_fondo %}
+                                <br><span class="text-success">
+                                    <i class="bi bi-check-circle me-1"></i>Ya hay una imagen cargada.
+                                </span>
+                                {% endif %}
                             </div>
                         </div>
                         

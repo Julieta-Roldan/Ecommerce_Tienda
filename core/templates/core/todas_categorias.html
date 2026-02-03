@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h2 class="text-uppercase fw-800 mb-2" style="letter-spacing: 8px; font-size: 2.5rem;">
+            TODAS LAS CATEGORÍAS
+        </h2>
+        <p class="text-muted text-uppercase" style="letter-spacing: 3px; font-size: 0.7rem;">Explora nuestra colección</p>
+        <hr class="mx-auto" style="width: 60px; border-top: 2px solid #000; opacity: 1;">
+    </div>
+
+    <div class="row g-4">
+        {% for categoria in categorias %}
+        <div class="col-6 col-md-4 col-lg-3">
+            <a href="{% url 'catalogo_categoria' categoria.nombre %}" class="text-decoration-none">
+                <div class="category-card-full" style="background-image: url('{% if categoria.imagen_fondo %}{{ categoria.imagen_fondo.url }}{% else %}https://via.placeholder.com/600x400/cccccc/666666?text={{ categoria.nombre|urlencode }}{% endif %}');">
+                    <div class="category-content-full">
+                        <h3 class="category-title">{{ categoria.nombre }}</h3>
+                        {% if categoria.descripcion %}
+                        <p class="category-desc">{{ categoria.descripcion|truncatechars:80 }}</p>
+                        {% endif %}
+                        <span class="category-link">Ver productos →</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <i class="bi bi-tags text-muted" style="font-size: 3rem;"></i>
+            <p class="text-muted mt-3">No hay categorías disponibles en este momento.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    .category-card-full {
+        height: 300px;
+        background-size: cover;
+        background-position: center;
+        position: relative;
+        border-radius: 8px;
+        overflow: hidden;
+        transition: transform 0.3s ease;
+    }
+    
+    .category-card-full:hover {
+        transform: translateY(-5px);
+    }
+    
+    .category-card-full::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.7));
+    }
+    
+    .category-content-full {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 20px;
+        color: white;
+        text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+    }
+    
+    .category-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin-bottom: 5px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .category-desc {
+        font-size: 0.85rem;
+        opacity: 0.9;
+        margin-bottom: 10px;
+    }
+    
+    .category-link {
+        font-size: 0.8rem;
+        font-weight: 600;
+        letter-spacing: 1px;
+        opacity: 0.8;
+    }
+</style>
+{% endblock %}
