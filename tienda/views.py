@@ -3,11 +3,12 @@ from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required, permission_required
-from .models import Producto
+#from .models import Producto
 import json
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
 
+from .models import Producto, Categoria, Favorito
 
 # LISTAR PRODUCTOS
 @login_required
@@ -166,7 +167,7 @@ def buscar_productos(request):
 
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
-from .models import Favorito
+#from .models import Favorito
 
 @login_required # Solo usuarios logueados pueden guardar favoritos
 def toggle_favorito(request, id):
@@ -183,4 +184,9 @@ def toggle_favorito(request, id):
         return JsonResponse({"status": status})
     
     
-    
+#lo agrege yo para que lo del admin categoria nueva aparezca en el html todas las categorias
+
+def lista_categorias(request):
+    # Ahora que Categoria está en el import de arriba, no va a dar error
+    categorias = Categoria.objects.filter(activo=True)
+    return render(request, 'tienda/todas_categorias.html', {'categorias': categorias})

@@ -12,8 +12,21 @@
     </div>
 </section>
 
-<div id="categorias" style="display: block; position: relative; top: -100px; visibility: hidden;"></div>
-<div class="container mt-5 mb-5">
+<div id="categorias" style="display: block; position: relative; top: -50px; visibility: hidden;"></div>
+
+<div class="container mt-5">
+    <div class="text-center mb-4">
+        <h2 class="text-uppercase fw-800 mb-1" style="letter-spacing: 6px; font-size: 1.8rem;">Principales Categorías</h2>
+        <div class="mt-2">
+            <a href="{% url 'lista_categorias' %}" class="view-all-link">
+                VER TODAS LAS CATEGORÍAS <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+        </div>
+        <hr class="mx-auto" style="width: 50px; border-top: 2px solid #000; opacity: 1; margin-top: 15px;">
+    </div>
+</div>
+
+<div class="container mb-5">
     <div class="row g-3">
         
         <div class="col-6 col-md-3">
@@ -50,6 +63,7 @@
 
     </div>
 </div>
+
 <section class="benefits-section py-5">
     <div class="container">
         <div class="row text-center g-4">
@@ -132,6 +146,22 @@
     </div>
 </section>
 
+<style>
+    .view-all-link {
+        color: #666;
+        text-decoration: none;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 2px;
+        transition: all 0.3s ease;
+        display: inline-block;
+    }
+    .view-all-link:hover {
+        color: #000;
+        transform: translateX(5px);
+    }
+</style>
+
 <script>
     function toggleFavorito(id, nombre, precio, imagen) {
         let favoritos = JSON.parse(localStorage.getItem('mis_favoritos')) || [];
@@ -155,8 +185,6 @@
             if (icono) icono.classList.replace('bi-heart', 'bi-heart-fill');
         });
     });
-    
 </script>
-
 
 {% endblock %}
