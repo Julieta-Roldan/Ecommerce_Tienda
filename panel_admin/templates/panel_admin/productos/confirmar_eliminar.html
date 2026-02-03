@@ -1,0 +1,122 @@
+{% extends 'panel_admin/base_panel.html' %}
+
+{% block page_title %}Confirmar Eliminación{% endblock %}
+
+{% block content %}
+<style>
+    .card-panel {
+        border: 2px solid #000;
+        border-radius: 0;
+        background-color: #fff;
+    }
+    .card-header {
+        background-color: #000;
+        color: #fff;
+        border-radius: 0 !important;
+    }
+    .btn-danger {
+        background-color: #000;
+        border: 2px solid #000;
+        border-radius: 0;
+        text-transform: uppercase;
+        font-weight: 900;
+        letter-spacing: 2px;
+    }
+    .btn-danger:hover {
+        background-color: #dc3545;
+        border-color: #dc3545;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card card-panel">
+                <div class="card-header">
+                    <h5 class="mb-0 text-uppercase">Confirmar Eliminación</h5>
+                </div>
+                
+                <div class="card-body text-center">
+                    <div class="mb-4">
+                        <i class="bi bi-trash" style="font-size: 4rem; color: #000;"></i>
+                    </div>
+                    
+                    <h4 class="mb-3 text-uppercase">¿Eliminar este producto?</h4>
+                    
+                    <!-- Información del producto -->
+                    <div class="border border-dark p-3 mb-4 text-start">
+                        <div class="row">
+                            <div class="col-md-4 text-center mb-3 mb-md-0">
+                                {% if producto.imagenes.all %}
+                                    <img src="{{ producto.imagenes.first.imagen.url }}" 
+                                         alt="{{ producto.nombre }}" 
+                                         class="img-fluid" 
+                                         style="max-height: 100px; object-fit: cover;">
+                                {% else %}
+                                    <div class="bg-dark text-white d-flex align-items-center justify-content-center" 
+                                         style="width: 100px; height: 100px;">
+                                        <i class="bi bi-image" style="font-size: 2rem;"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-8">
+                                <h6 class="mb-2 fw-bold">{{ producto.nombre }}</h6>
+                                <div class="small mb-2">
+                                    <strong>Categoría:</strong> {{ producto.categoria.nombre }}<br>
+                                    <strong>Precio:</strong> ${{ producto.precio }}<br>
+                                    <strong>Stock:</strong> {{ producto.stock }} unidades
+                                </div>
+                                <div>
+                                    <span class="badge rounded-0 {% if producto.activo %}bg-dark{% else %}bg-secondary{% endif %}">
+                                        {{ producto.activo|yesno:"Activo,Inactivo" }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Advertencia -->
+    
+                    <div class="alert alert-danger border-danger mb-4">
+                        <h6 class="text-uppercase fw-bold"><i class="bi bi-exclamation-octagon-fill me-1"></i> ¡ADVERTENCIA!</h6>
+                        <p class="mb-0 small">
+                            Esta acción <strong class="text-uppercase">eliminará el producto permanentemente</strong> (hard delete).
+                            <br><br>
+                            <strong>¿QUÉ SE ELIMINARÁ?</strong>
+                            <ul class="mb-0 ps-3">
+                                <li>El producto y todos sus datos</li>
+                                <li>Todas las imágenes asociadas</li>
+                                <li>Los favoritos de los usuarios con este producto</li>
+                                <li>Su relación con talles y colores</li>
+                            </ul>
+                            <br>
+                            <strong>¡ESTA ACCIÓN NO SE PUEDE DESHACER!</strong>
+                        </p>
+                    </div>
+                    <!-- Formulario de confirmación -->
+                    <form method="POST" class="mt-4">
+                        {% csrf_token %}
+                        
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="{% url 'panel_admin:productos' %}" class="btn btn-outline-dark border-2 text-uppercase fw-bold">
+                                <i class="bi bi-arrow-left me-1"></i> Cancelar
+                            </a>
+                            
+                            <div class="d-flex gap-2">
+                                <a href="{% url 'panel_admin:producto_editar' producto.id %}" 
+                                   class="btn btn-outline-dark border-2 text-uppercase fw-bold">
+                                    <i class="bi bi-pencil me-1"></i> Editar
+                                </a>
+                                
+                                <button type="submit" class="btn btn-danger text-uppercase fw-bold px-4"
+                                onclick="return confirm('¿ESTÁS ABSOLUTAMENTE SEGURO?\\n\\nEsta acción eliminará el producto PERMANENTEMENTE.\\n\\nPresiona OK para eliminar o Cancelar para volver.');">
+                                    <i class="bi bi-trash3-fill me-1"></i> ELIMINAR PRODUCTO
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
