@@ -126,19 +126,33 @@
         border-color: #888888 !important; 
     }
 
+  /* BOTONES DE ACCIÓN UNIFICADOS */
     .btn-action {
+        width: 35px;  /* Ancho fijo */
+        height: 35px; /* Alto fijo */
+        display: flex;
+        align-items: center;
+        justify-content: center;
         border-radius: 0 !important;
         border: 1px solid #000 !important;
-        background: transparent;
+        background: transparent !important;
         color: #000 !important;
-        display: inline-flex;
-        padding: 5px 10px;
+        transition: 0.2s all ease-in-out;
+        text-decoration: none !important;
+        padding: 0 !important; /* Elimina paddings que deforman */
     }
+
     .btn-action:hover {
         background: #000 !important;
         color: #fff !important;
     }
 
+    /* Ajuste para el contenedor de los botones */
+    .actions-container {
+        display: flex;
+        justify-content: center;
+        gap: 5px; /* Espacio uniforme entre botones */
+    }
     /* BOTÓN AGREGAR NUEVO */
     .btn-agregar-interactivo {
         background: #fff !important; 
@@ -255,12 +269,23 @@
                                 {% endif %}
                             </td>
                             <td class="text-center pe-4">
-                                <div class="d-flex justify-content-center gap-2">
-                                    <a href="{% url 'panel_admin:producto_editar' producto.id %}" class="btn-action"><i class="bi bi-pencil-square"></i></a>
-                                    <a href="{% url 'producto_detalle' producto.id %}" target="_blank" class="btn-action"><i class="bi bi-eye"></i></a>
-                                   <a href="{% url 'panel_admin:producto_eliminar' producto.id %}" class="btn btn-sm btn-outline-danger"data-bs-toggle="tooltip" title="Desactivar"><i class="bi bi-trash"></i></a>
-                                </div>
-                            </td>
+    <div class="actions-container">
+        <a href="{% url 'panel_admin:producto_editar' producto.id %}" 
+           class="btn-action" title="Editar">
+           <i class="bi bi-pencil-square"></i>
+        </a>
+        
+        <a href="{% url 'producto_detalle' producto.id %}" 
+           target="_blank" class="btn-action" title="Ver">
+           <i class="bi bi-eye"></i>
+        </a>
+        
+        <a href="{% url 'panel_admin:producto_eliminar' producto.id %}" 
+           class="btn-action" title="Eliminar">
+           <i class="bi bi-trash"></i>
+        </a>
+    </div>
+</td>
                         </tr>
                         {% endfor %}
                     </tbody>

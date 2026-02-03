@@ -13,37 +13,112 @@
 </section>
 
 <!-- REEMPLAZAR desde la línea que dice <div id="categorias"... hasta después del último category-card -->
-<div id="categorias" style="display: block; position: relative; top: -100px; visibility: hidden;"></div>
-<div class="container mt-5 mb-5">
-    <div class="row g-3">
-        
-        {% for categoria in categorias %}
-        <div class="col-6 col-md-3">
-           <a href="{% url 'catalogo_categoria' categoria.nombre %}">
-                <div class="category-card" style="background-image: url('{% if categoria.imagen_fondo %}{{ categoria.imagen_fondo.url }}{% else %}https://via.placeholder.com/600x400/cccccc/666666?text={{ categoria.nombre|urlencode }}{% endif %}');">
-                    <div class="category-content">{{ categoria.nombre }}</div>
-                </div>
-            </a>
+<section id="categorias" class="py-5"> <div class="container mt-4"> <div class="text-center mb-5">
+            <h2 class="text-uppercase fw-800 mb-2" style="letter-spacing: 8px; font-size: 1.8rem;">COLECCIONES</h2>
+            <p class="text-muted small text-uppercase" style="letter-spacing: 3px;">Explorá nuestras categorías destacadas</p>
+            <hr class="mx-auto" style="width: 40px; border-top: 2px solid #000; opacity: 1;">
         </div>
-        {% empty %}
-        <!-- Si no hay categorías con imagen en la base de datos, mostramos un mensaje -->
-        <div class="col-12 text-center py-4">
-            <p class="text-muted">Categorías disponibles próximamente...</p>
-        </div>
-        {% endfor %}
 
-    </div>
+        <div class="row g-3">
+            {% for categoria in categorias %}
+            <div class="col-6 col-md-3">
+               <a href="{% url 'catalogo_categoria' categoria.nombre %}" class="text-decoration-none">
+                    <div class="category-card" style="background-image: url('{% if categoria.imagen_fondo %}{{ categoria.imagen_fondo.url }}{% else %}https://via.placeholder.com/600x400/cccccc/666666?text={{ categoria.nombre|urlencode }}{% endif %}');">
+                        <div class="category-content text-uppercase">{{ categoria.nombre }}</div>
+                    </div>
+                </a>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-4">
+                <p class="text-muted">Categorías disponibles próximamente...</p>
+            </div>
+            {% endfor %}
         </div>
-    
-    <!-- Botón VER MÁS -->
-    <div class="col-12 text-center mt-4">
-        <a href="{% url 'todas_categorias' %}" class="btn btn-outline-dark btn-lg text-uppercase fw-bold" 
-           style="letter-spacing: 2px; padding: 12px 40px; border-width: 2px;">
-            Ver todas las categorías
-        </a>
+        
+        <div class="row mt-5">
+            <div class="col-12 text-center">
+                <a href="{% url 'todas_categorias' %}" class="btn btn-ver-todas">
+                    VER TODAS LAS CATEGORÍAS
+                </a>
+            </div>
+        </div>
     </div>
-</div>
-</div>
+</section>
+
+<style>
+    /* 1. BOTONES DE CATEGORÍAS (Pantalones, Accesorios, etc.) */
+    .category-content {
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        padding: 12px 25px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        font-size: 0.9rem;
+        transition: all 0.3s ease-in-out;
+        border: 2px solid transparent;
+        display: inline-block;
+    }
+
+    .category-card:hover .category-content {
+        background-color: #000000 !important;
+        color: #ffffff !important;
+        border: 2px solid #ffffff !important;
+    }
+
+    /* 2. BOTÓN VER DETALLE (Productos Destacados) */
+    .btn-view-more {
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        border: 2px solid transparent;
+        padding: 10px 25px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .btn-view-more:hover {
+        background-color: #000000 !important;
+        color: #ffffff !important;
+        border: 2px solid #ffffff !important;
+    }
+
+    /* 3. BOTÓN AGREGAR AL CARRITO (CORREGIDO: Negro -> Blanco) */
+    .btn-dark.btn-sm.mt-2 {
+        background-color: #000000 !important; /* Fondo negro inicial */
+        color: #ffffff !important;            /* Texto blanco inicial */
+        border: 2px solid #000000 !important; /* Borde negro inicial */
+        border-radius: 0 !important;
+        transition: all 0.3s ease;
+    }
+
+    .btn-dark.btn-sm.mt-2:hover {
+        background-color: #ffffff !important; /* Fondo blanco al pasar mouse */
+        color: #000000 !important;            /* Texto negro al pasar mouse */
+        border: 2px solid #000000 !important; /* Mantiene el borde negro */
+    }
+
+    /* 4. BOTÓN VER TODAS (Mismo estilo que agregar al carrito) */
+    .btn-ver-todas {
+        background: #000 !important;
+        color: #fff !important;
+        border: 2px solid #000 !important;
+        border-radius: 0 !important;
+        padding: 12px 35px;
+        font-weight: 700;
+        font-size: 0.8rem;
+        letter-spacing: 3px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-ver-todas:hover {
+        background: #fff !important;
+        color: #000 !important;
+        border-color: #000 !important;
+    }
+</style>
 <section class="benefits-section py-5">
     <div class="container">
         <div class="row text-center g-4">

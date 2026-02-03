@@ -31,42 +31,39 @@
     }
     h3 { font-weight: 800 !important; }
 
-    /* BOTONES GENERALES (Superiores) */
-    .btn-success, .btn-outline-secondary {
+    /* BOTONES GENERALES */
+    .btn-success, .btn-outline-secondary, .btn-primary {
         border-radius: 0 !important;
         border: 1px solid #000 !important;
-        color: #000 !important;
-        background: transparent !important;
         text-transform: uppercase;
         font-weight: 700;
         font-size: 0.7rem;
+        transition: all 0.2s ease-in-out;
     }
-    .btn-success { background: #000 !important; color: #fff !important; }
 
-    /* EL BUSCADOR */
-    .bg-dark-search {
-        background-color: #000 !important;
-        border: 1px solid #000 !important;
-        border-radius: 0 !important;
+    /* Botón Filtrar (Efecto que te gustó) */
+    .btn-primary {
+        background: #000 !important;
+        color: #fff !important;
     }
-    .bg-dark-search .form-control {
-        background: #fff !important;
-        border: 1px solid #fff !important;
-        color: #000 !important;
-        border-radius: 0 !important;
-    }
-    .btn-white-search {
-        background: #fff !important;
-        color: #000 !important;
-        border: 1px solid #fff !important;
-        border-radius: 0 !important;
-        font-weight: 800;
-        text-transform: uppercase;
-    }
-    .btn-white-search:hover {
+    .btn-primary:hover {
         background: #000 !important;
         color: #fff !important;
         border: 1px solid #fff !important;
+        outline: 1px solid #000;
+    }
+
+    .btn-success { background: #000 !important; color: #fff !important; }
+
+    /* INPUTS Y SELECTS */
+    .form-control, .form-select {
+        border-radius: 0 !important;
+        border: 1px solid #000 !important;
+        font-size: 0.85rem;
+    }
+    .form-control:focus, .form-select:focus {
+        box-shadow: none !important;
+        border-color: #000 !important;
     }
 
     /* --- LAS CARDS CON EL CUADRADITO NEGRO ATRÁS --- */
@@ -81,22 +78,19 @@
 
     /* --- BOTONES DE ACCIÓN (Lápiz, Basura, Ojo) --- */
     .card.h-100 .btn-sm {
-        background: #000 !important; /* Negro por defecto */
-        color: #fff !important;       /* Icono blanco */
+        background: #000 !important;
+        color: #fff !important;
         border: 1px solid #000 !important;
         border-radius: 0 !important;
         transition: 0.2s;
     }
 
-    /* Hover de los botones: Blanco con borde y letras negras */
     .card.h-100 .btn-sm:hover {
         background: #fff !important;
         color: #000 !important;
         border: 1px solid #000 !important;
     }
 
-    /* El botón de basura suele ser rojo, pero lo puse negro para seguir tu estilo. 
-       Si querés que el icono sea rojo al pasar el mouse, avisame. */
     .text-danger { color: inherit !important; } 
 
     .badge.bg-info { background: #000 !important; color: #fff !important; border-radius: 0 !important; }
@@ -167,17 +161,6 @@
                     <p class="text-muted mb-0">Organiza tus productos por categorías</p>
                 </div>
                 <div class="col-md-4 text-end">
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
-                            <i class="bi bi-funnel"></i> Filtros
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="{% url 'panel_admin:categorias' %}">Todas</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="?estado=activas">Solo activas</a></li>
-                            <li><a class="dropdown-item" href="?estado=inactivas">Solo inactivas</a></li>
-                        </ul>
-                    </div>
                     <a href="{% url 'panel_admin:categoria_nueva' %}" class="btn btn-success ms-2">
                         <i class="bi bi-plus-circle me-1"></i> Nueva Categoría
                     </a>
@@ -186,35 +169,34 @@
         </div>
     </div>
     
-    <form method="GET" class="row g-3">
-    <div class="col-md-4">
-        <input type="text" name="q" class="form-control" placeholder="Buscar productos..." 
-               value="{{ busqueda|default:'' }}">
-    </div>
-    <div class="col-md-3">
-        <select name="categoria" class="form-select">
-            <option value="">Todas las categorías</option>
-            {% for categoria in categorias %}
-            <option value="{{ categoria.id }}" 
-                    {% if filtro_categoria|stringformat:"s" == categoria.id|stringformat:"s" %}selected{% endif %}>
-                {{ categoria.nombre }}
-            </option>
-            {% endfor %}
-        </select>
-    </div>
-    <div class="col-md-3">
-        <select name="estado" class="form-select">
-            <option value="">Todos los estados</option>
-            <option value="activos" {% if filtro_estado == 'activos' %}selected{% endif %}>Activos</option>
-            <option value="inactivos" {% if filtro_estado == 'inactivos' %}selected{% endif %}>Inactivos</option>
-        </select>
-    </div>
-    <div class="col-md-2">
-        <button type="submit" class="btn btn-primary w-100">
-            <i class="bi bi-filter"></i> Filtrar
-        </button>
-    </div>
-</form>
+    <form method="GET" class="row g-3 mb-5 px-1">
+        <div class="col-md-4">
+            <label class="small fw-bold text-uppercase mb-1">Buscar</label>
+            <input type="text" name="q" class="form-control" placeholder="Nombre de categoría..." 
+                   value="{{ busqueda|default:'' }}">
+        </div>
+        <div class="col-md-3">
+            <label class="small fw-bold text-uppercase mb-1">Categoría</label>
+            <select name="categoria" class="form-select">
+                <option value="">Todas las categorías</option>
+                {% for cat in categorias_list %} <option value="{{ cat.id }}">{{ cat.nombre }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="small fw-bold text-uppercase mb-1">Estado</label>
+            <select name="estado" class="form-select">
+                <option value="">Todos los estados</option>
+                <option value="activos">Activos</option>
+                <option value="inactivos">Inactivos</option>
+            </select>
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary w-100 py-2">
+                <i class="bi bi-filter"></i> Filtrar
+            </button>
+        </div>
+    </form>
     
     <div class="row">
         {% if categorias %}
@@ -246,7 +228,7 @@
             </div>
             {% endfor %}
         {% else %}
-            <div class="col-12 text-center py-5"><h4>No hay categorías</h4></div>
+            <div class="col-12 text-center py-5"><h4>No hay categorías cargadas</h4></div>
         {% endif %}
     </div>
 </div>

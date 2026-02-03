@@ -2,13 +2,12 @@
 {% load static %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="text-center mb-5">
-        <h2 class="text-uppercase fw-800 mb-2" style="letter-spacing: 8px; font-size: 2.5rem;">
-            TODAS LAS CATEGORÍAS
+<div class="container pt-4 pb-5"> <div class="text-center mb-5">
+        <h2 class="text-uppercase fw-800 mb-2" style="letter-spacing: 12px; font-size: 2.2rem; font-weight: 900;">
+            COLECCIONES
         </h2>
-        <p class="text-muted text-uppercase" style="letter-spacing: 3px; font-size: 0.7rem;">Explora nuestra colección</p>
-        <hr class="mx-auto" style="width: 60px; border-top: 2px solid #000; opacity: 1;">
+        <p class="text-muted text-uppercase" style="letter-spacing: 5px; font-size: 0.75rem;">Catálogo completo de categorías</p>
+        <hr class="mx-auto" style="width: 80px; border-top: 3px solid #000; opacity: 1;">
     </div>
 
     <div class="row g-4">
@@ -16,12 +15,15 @@
         <div class="col-6 col-md-4 col-lg-3">
             <a href="{% url 'catalogo_categoria' categoria.nombre %}" class="text-decoration-none">
                 <div class="category-card-full" style="background-image: url('{% if categoria.imagen_fondo %}{{ categoria.imagen_fondo.url }}{% else %}https://via.placeholder.com/600x400/cccccc/666666?text={{ categoria.nombre|urlencode }}{% endif %}');">
-                    <div class="category-content-full">
-                        <h3 class="category-title">{{ categoria.nombre }}</h3>
+                    <div class="category-overlay-luxury"></div>
+                    <div class="category-content-full text-center">
+                        <h3 class="category-title-luxury">{{ categoria.nombre }}</h3>
+                        
                         {% if categoria.descripcion %}
-                        <p class="category-desc">{{ categoria.descripcion|truncatechars:80 }}</p>
+                        <p class="category-desc-luxury d-none d-md-block">{{ categoria.descripcion|truncatechars:60 }}</p>
                         {% endif %}
-                        <span class="category-link">Ver productos →</span>
+                        
+                        <div class="btn-category-luxury">VER MÁS</div>
                     </div>
                 </div>
             </a>
@@ -36,59 +38,96 @@
 </div>
 
 <style>
+    /* Estructura de la Card (300px) */
     .category-card-full {
-        height: 300px;
+        height: 300px; 
         background-size: cover;
         background-position: center;
         position: relative;
-        border-radius: 8px;
-        overflow: hidden;
-        transition: transform 0.3s ease;
+        
+        /* --- EL TRUCO ESTÁ ACÁ --- */
+        border-radius: 20px !important; /* El redondeo del index */
+        overflow: hidden !important;   /* Corta la imagen y el overlay para que sigan la curva */
+        /* ------------------------- */
+        
+        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid #eee;
     }
     
-    .category-card-full:hover {
-        transform: translateY(-5px);
-    }
-    
-    .category-card-full::before {
-        content: '';
+    .category-overlay-luxury {
         position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.7));
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.3);
+        transition: background 0.4s ease;
+        border-radius: 20px !important; /* Reforzamos en el overlay */
+    }
+
+    .category-card-full:hover .category-overlay-luxury {
+        background: rgba(0,0,0,0.5);
+    }
+
+    .category-card-full:hover {
+        transform: translateY(-8px); /* Un poquito más de salto como en el index */
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
     }
     
     .category-content-full {
         position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        padding: 20px;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 90%;
+        z-index: 2;
         color: white;
-        text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
     }
     
-    .category-title {
+    .category-title-luxury {
         font-size: 1.2rem;
-        font-weight: 700;
-        margin-bottom: 5px;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-    
-    .category-desc {
-        font-size: 0.85rem;
-        opacity: 0.9;
+        font-weight: 800;
         margin-bottom: 10px;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        text-shadow: 1px 1px 5px rgba(0,0,0,0.5);
     }
     
-    .category-link {
-        font-size: 0.8rem;
-        font-weight: 600;
+    .category-desc-luxury {
+        font-size: 0.75rem;
+        margin-bottom: 15px;
         letter-spacing: 1px;
-        opacity: 0.8;
+        opacity: 0;
+        transition: all 0.4s ease;
+        transform: translateY(10px);
+    }
+
+    .category-card-full:hover .category-desc-luxury {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    
+    /* Botón Blanco -> Negro con borde blanco */
+    .btn-category-luxury {
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        padding: 8px 18px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        font-size: 0.7rem;
+        display: inline-block;
+        transition: all 0.3s ease;
+        border: 2px solid #ffffff !important;
+        border-radius: 0; /* Mantenemos el botón recto para contraste, o poné 50px si lo querés tipo píldora */
+    }
+    
+    .category-card-full:hover .btn-category-luxury {
+        background-color: #000000 !important;
+        color: #ffffff !important;
+        border-color: #ffffff !important;
+    }
+
+    @media (max-width: 768px) {
+        .category-card-full { height: 250px; border-radius: 15px !important; }
+        .category-title-luxury { font-size: 1rem; }
+        .btn-category-luxury { padding: 6px 12px; font-size: 0.6rem; }
     }
 </style>
 {% endblock %}
