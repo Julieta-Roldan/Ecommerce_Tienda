@@ -12,43 +12,37 @@
     </div>
 </section>
 
+<!-- REEMPLAZAR desde la línea que dice <div id="categorias"... hasta después del último category-card -->
 <div id="categorias" style="display: block; position: relative; top: -100px; visibility: hidden;"></div>
 <div class="container mt-5 mb-5">
     <div class="row g-3">
         
+        {% for categoria in categorias %}
         <div class="col-6 col-md-3">
-           <a href="{% url 'catalogo_categoria' 'Pantalones' %}">
-                <div class="category-card" style="background-image: url('https://acdn-us.mitiendanube.com/stores/001/039/300/products/_dsc0208nkjnb-8204fa31ada5a1173e17471627902197-1024-1024.webp');">
-                    <div class="category-content">Pantalones</div>
+           <a href="{% url 'catalogo_categoria' categoria.nombre %}">
+                <div class="category-card" style="background-image: url('{% if categoria.imagen_fondo %}{{ categoria.imagen_fondo.url }}{% else %}https://via.placeholder.com/600x400/cccccc/666666?text={{ categoria.nombre|urlencode }}{% endif %}');">
+                    <div class="category-content">{{ categoria.nombre }}</div>
                 </div>
             </a>
         </div>
-
-        <div class="col-6 col-md-3">
-           <a href="{% url 'catalogo_categoria' 'Remeras' %}">
-                <div class="category-card" style="background-image: url('https://acdn-us.mitiendanube.com/stores/001/039/300/products/_dsc0097-f81bb954ff3e7495a717570073424739-1024-1024.webp');">
-                    <div class="category-content">Remeras</div>
-                </div>
-            </a>
+        {% empty %}
+        <!-- Si no hay categorías con imagen en la base de datos, mostramos un mensaje -->
+        <div class="col-12 text-center py-4">
+            <p class="text-muted">Categorías disponibles próximamente...</p>
         </div>
-
-        <div class="col-6 col-md-3">
-          <a href="{% url 'catalogo_categoria' 'Vestidos' %}">
-                <div class="category-card" style="background-image: url('https://miaminovias.com/cdn/shop/files/GL3558_CHAMPAGNE_1O.jpg?v=1737356845&width=600');">
-                    <div class="category-content">Vestidos</div>
-                </div>
-            </a>
-        </div>
-
-        <div class="col-6 col-md-3">
-          <a href="{% url 'catalogo_categoria' 'Accesorios' %}">
-                <div class="category-card" style="background-image: url('https://goldgirlsdiary.wordpress.com/wp-content/uploads/2020/08/f09d9192f09d9382f09d9382f09d92b6-40f09d9388f09d92b6f09d9388f09d9388f09d938ef09d92b8f09d92bdf09d919cf09d919c-shared-by-f09d9192f09d9382f09d9382f09d92b6-on-we-heart-it.jpg');">
-                    <div class="category-content">Accesorios</div>
-                </div>
-            </a>
-        </div>
+        {% endfor %}
 
     </div>
+        </div>
+    
+    <!-- Botón VER MÁS -->
+    <div class="col-12 text-center mt-4">
+        <a href="{% url 'todas_categorias' %}" class="btn btn-outline-dark btn-lg text-uppercase fw-bold" 
+           style="letter-spacing: 2px; padding: 12px 40px; border-width: 2px;">
+            Ver todas las categorías
+        </a>
+    </div>
+</div>
 </div>
 <section class="benefits-section py-5">
     <div class="container">

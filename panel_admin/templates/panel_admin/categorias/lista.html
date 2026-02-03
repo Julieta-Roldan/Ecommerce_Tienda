@@ -99,27 +99,35 @@
         </div>
     </div>
     
-    <!-- Búsqueda -->
-    <div class="card card-panel mb-4">
-        <div class="card-body">
-            <form method="GET" class="row g-3">
-                <div class="col-md-10">
-                    <div class="input-group">
-                        <span class="input-group-text">
-                            <i class="bi bi-search"></i>
-                        </span>
-                        <input type="text" name="q" class="form-control" 
-                               placeholder="Buscar categorías por nombre..." value="{{ busqueda|default:'' }}">
-                    </div>
-                </div>
-                <div class="col-md-2">
-                    <button type="submit" class="btn btn-primary w-100">
-                        Buscar
-                    </button>
-                </div>
-            </form>
-        </div>
+    <form method="GET" class="row g-3">
+    <div class="col-md-4">
+        <input type="text" name="q" class="form-control" placeholder="Buscar productos..." 
+               value="{{ busqueda|default:'' }}">
     </div>
+    <div class="col-md-3">
+        <select name="categoria" class="form-select">
+            <option value="">Todas las categorías</option>
+            {% for categoria in categorias %}
+            <option value="{{ categoria.id }}" 
+                    {% if filtro_categoria|stringformat:"s" == categoria.id|stringformat:"s" %}selected{% endif %}>
+                {{ categoria.nombre }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-3">
+        <select name="estado" class="form-select">
+            <option value="">Todos los estados</option>
+            <option value="activos" {% if filtro_estado == 'activos' %}selected{% endif %}>Activos</option>
+            <option value="inactivos" {% if filtro_estado == 'inactivos' %}selected{% endif %}>Inactivos</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100">
+            <i class="bi bi-filter"></i> Filtrar
+        </button>
+    </div>
+</form>
     
     <!-- Lista de Categorías -->
     <div class="card card-panel">

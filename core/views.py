@@ -20,6 +20,8 @@ from tienda.models import Producto
     
 #     # Esto se los manda al HTML con el nombre 'productos'
 #     return render(request, 'core/index.html', {'productos': productos_db})
+# core/views.py - FUNCIÓN INDEX MODIFICADA
+from tienda.models import Producto, Categoria  # AGREGAR Categoria aquí
 
 def index(request):
     # Traemos los productos activos y sus imágenes
@@ -28,9 +30,14 @@ def index(request):
     # Les agregamos el cálculo de la cuota a cada uno antes de mandarlos al HTML
     for p in productos_db:
         p.cuota = p.precio / 3
-
-    return render(request, 'core/index.html', {'productos': productos_db})
-
+    
+    # TRAEMOS LAS CATEGORÍAS ACTIVAS CON IMAGEN DE FONDO
+    categorias_db = Categoria.objects.filter(activo=True).exclude(imagen_fondo='').order_by('nombre')[:4]
+    
+    return render(request, 'core/index.html', {
+        'productos': productos_db,
+        'categorias': categorias_db  # NUEVO: pasamos categorías al template
+    })
 #yo
 
 def ubicacion(request):
@@ -44,3 +51,11 @@ def carrito(request):
     # Cambiamos la ruta para que coincida con tu carpeta 'carrito'
     return render(request, 'carrito/carrito.html', {'items': items, 'total': total})
 
+# AGREGAR AL FINAL de core/views.py
+def todas_categorias(request):
+    # Traemos TODAS las categorías activas
+    categorias_db = Categoria.objects.filter(activo=True).order_by('nombre')
+    
+    return render(request, 'core/todas_categorias.html', {
+        'categorias': categorias_db
+    })

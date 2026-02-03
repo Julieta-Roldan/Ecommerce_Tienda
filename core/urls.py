@@ -6,11 +6,12 @@ from .views import index
 urlpatterns = [
     path('', views.health_check, name='core-health'),
     path('', index, name='home'),
-    
+    path('categorias/', views.todas_categorias, name='todas_categorias'),
     #yo
     path('ubicacion/', views.ubicacion, name='ubicacion'),
     path('favoritos/', views.favoritos, name='favoritos'),
     path('carrito/', views.carrito, name='carrito'),
+    
  
 
 ]

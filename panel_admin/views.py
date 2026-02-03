@@ -467,17 +467,45 @@ def pedido_detalle(request, id):
 @user_passes_test(es_staff)
 @requiere_ver_pedidos 
 def cambiar_estado_pedido(request, id):
-    """Cambiar estado de pedido (para AJAX)"""
-    if request.method == 'POST' and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        pedido = get_object_or_404(Pedido, id=id)
+    """Cambiar estado de pedido (para AJAX o POST normal)"""
+    pedido = get_object_or_404(Pedido, id=id)
+    
+    if request.method == 'POST':
         nuevo_estado = request.POST.get('estado')
         
         if nuevo_estado in dict(Pedido.ESTADOS).keys():
+            estado_anterior = pedido.estado
             pedido.estado = nuevo_estado
             pedido.save()
-            return JsonResponse({'success': True, 'nuevo_estado': pedido.estado})
+            
+            # Si cambia a "entregado" o "cancelado", podemos liberar el carrito asociado
+            if nuevo_estado in ['entregado', 'cancelado'] and pedido.carrito:
+                pedido.carrito.items.all().delete()
+            
+            # Si es AJAX, devolver JSON
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': True, 
+                    'nuevo_estado': pedido.estado,
+                    'estado_display': pedido.get_estado_display(),
+                    'mensaje': f'Pedido #{pedido.id} cambiado a "{pedido.get_estado_display()}"'
+                })
+            else:
+                # Si es POST normal, redirigir con mensaje
+                messages.success(request, 
+                    f'Pedido #{pedido.id} cambiado de "{estado_anterior}" a "{nuevo_estado}"'
+                )
+                return redirect('panel_admin:pedidos')
     
-    return JsonResponse({'success': False}, status=400)
+    # Si no es POST o hay error
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({
+            'success': False, 
+            'error': 'Método no permitido o estado inválido'
+        }, status=400)
+    else:
+        messages.error(request, 'Error al cambiar estado del pedido')
+        return redirect('panel_admin:pedidos')
 
 # ==================== ESTADÍSTICAS ====================
 @login_required
@@ -588,13 +616,22 @@ def categoria_nueva(request):
     if request.method == 'POST':
         nombre = request.POST.get('nombre')
         descripcion = request.POST.get('descripcion', '')
+        activo = request.POST.get('activo') == 'on'  # AGREGAR esta línea
         
         if nombre:
+            # Crear la categoría sin imagen primero
             categoria = Categoria.objects.create(
                 nombre=nombre,
                 descripcion=descripcion,
-                activo=True
+                activo=activo  # AGREGAR este campo
             )
+            
+            # Manejar la imagen de fondo si se subió
+            if 'imagen_fondo' in request.FILES:
+                imagen = request.FILES['imagen_fondo']
+                categoria.imagen_fondo = imagen
+                categoria.save()
+            
             messages.success(request, f'Categoría "{categoria.nombre}" creada correctamente')
             return redirect('panel_admin:categorias')
         else:
@@ -621,6 +658,17 @@ def categoria_editar(request, id):
             categoria.nombre = nombre
             categoria.descripcion = descripcion
             categoria.activo = activo
+            
+            # Manejar la imagen de fondo
+            if 'imagen_fondo' in request.FILES:
+                imagen = request.FILES['imagen_fondo']
+                categoria.imagen_fondo = imagen
+            
+            # Manejar la eliminación de imagen si se solicitó
+            if 'quitar_imagen' in request.POST and request.POST['quitar_imagen'] == 'true':
+                categoria.imagen_fondo.delete(save=False)  # Eliminar el archivo
+                categoria.imagen_fondo = None  # Limpiar el campo
+            
             categoria.save()
             
             messages.success(request, f'Categoría "{categoria.nombre}" actualizada correctamente')
@@ -638,26 +686,62 @@ def categoria_editar(request, id):
 @user_passes_test(es_staff)
 @requiere_ver_categorias 
 def categoria_eliminar(request, id):
-    """Eliminar categoría (soft delete)"""
+    """Eliminar categoría (con opciones si tiene productos)"""
     categoria = get_object_or_404(Categoria, id=id)
     
     if request.method == 'POST':
         categoria_nombre = categoria.nombre
+        accion = request.POST.get('accion')
         
-        # Verificar si hay productos en esta categoría
-        if categoria.producto_set.exists():
-            messages.error(request, 
-                f'No se puede eliminar la categoría "{categoria_nombre}" porque tiene productos asociados. '
-                'Primero mueve o elimina los productos.'
-            )
+        if accion == 'desactivar':
+            # Solo desactivar la categoría
+            categoria.activo = False
+            categoria.save()
+            messages.success(request, f'Categoría "{categoria_nombre}" desactivada correctamente')
             return redirect('panel_admin:categorias')
         
-        categoria.delete()
-        messages.success(request, f'Categoría "{categoria_nombre}" eliminada correctamente')
-        return redirect('panel_admin:categorias')
+        elif accion == 'eliminar':
+            # Eliminar permanentemente (solo si no tiene productos)
+            if categoria.producto_set.exists():
+                messages.error(request, 
+                    f'No se puede eliminar la categoría "{categoria_nombre}" porque tiene productos asociados. '
+                    'Usa la opción "Desactivar" en su lugar.'
+                )
+                return redirect('panel_admin:categorias')
+            
+            categoria.delete()
+            messages.success(request, f'Categoría "{categoria_nombre}" eliminada correctamente')
+            return redirect('panel_admin:categorias')
+        
+        elif accion == 'mover_y_eliminar':
+            # Mover productos a otra categoría y luego eliminar
+            nueva_categoria_id = request.POST.get('nueva_categoria')
+            if nueva_categoria_id:
+                try:
+                    nueva_categoria = Categoria.objects.get(id=nueva_categoria_id)
+                    # Mover todos los productos
+                    productos_afectados = categoria.producto_set.all()
+                    for producto in productos_afectados:
+                        producto.categoria = nueva_categoria
+                        producto.save()
+                    
+                    categoria.delete()
+                    messages.success(request, 
+                        f'Categoría "{categoria_nombre}" eliminada. '
+                        f'{productos_afectados.count()} productos movidos a "{nueva_categoria.nombre}"'
+                    )
+                    return redirect('panel_admin:categorias')
+                except Categoria.DoesNotExist:
+                    messages.error(request, 'Categoría destino no válida')
+            else:
+                messages.error(request, 'Debes seleccionar una categoría destino')
+    
+    # Si es GET, mostrar formulario de confirmación
+    otras_categorias = Categoria.objects.exclude(id=id).filter(activo=True)
     
     return render(request, 'panel_admin/categorias/confirmar_eliminar.html', {
-        'categoria': categoria
+        'categoria': categoria,
+        'otras_categorias': otras_categorias,
     })
 
 # ==================== USUARIOS/EMPLEADOS ====================
