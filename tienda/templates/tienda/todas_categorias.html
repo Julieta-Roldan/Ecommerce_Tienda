@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-5 pt-5">
+    <div class="text-center mb-5">
+        <h2 class="text-uppercase fw-800" style="letter-spacing: 6px;">Nuestras Categorías</h2>
+        <hr class="mx-auto" style="width: 60px; border-top: 2px solid #000; opacity: 1;">
+    </div>
+
+    <div class="row g-4">
+        {% for cat in categorias %}
+        <div class="col-6 col-md-4">
+            <a href="{% url 'catalogo_categoria' cat.nombre %}" style="text-decoration: none;">
+                <div class="card border-0 text-center p-4 shadow-sm h-100" style="background: #f8f9fa; transition: 0.3s;">
+                    <h4 class="text-uppercase fw-bold m-0" style="color: #000; letter-spacing: 2px;">{{ cat.nombre }}</h4>
+                    <p class="text-muted small mt-2">Ver productos</p>
+                </div>
+            </a>
+        </div>
+        {% empty %}
+        <p class="text-center">No hay categorías cargadas aún.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    .card:hover { transform: translateY(-5px); background: #eee !important; }
+</style>
+{% endblock %}

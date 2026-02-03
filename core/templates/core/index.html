@@ -126,6 +126,22 @@
     </div>
 </section>
 
+<style>
+    .view-all-link {
+        color: #666;
+        text-decoration: none;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 2px;
+        transition: all 0.3s ease;
+        display: inline-block;
+    }
+    .view-all-link:hover {
+        color: #000;
+        transform: translateX(5px);
+    }
+</style>
+
 <script>
     function toggleFavorito(id, nombre, precio, imagen) {
         let favoritos = JSON.parse(localStorage.getItem('mis_favoritos')) || [];
@@ -149,8 +165,6 @@
             if (icono) icono.classList.replace('bi-heart', 'bi-heart-fill');
         });
     });
-    
 </script>
-
 
 {% endblock %}

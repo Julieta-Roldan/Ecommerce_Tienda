@@ -20,7 +20,7 @@
     
     <ul class="sidebar-menu">
         <li><a href="{% url 'home' %}"><i class="bi bi-house"></i> Inicio</a></li>
-        <li><a href="{% url 'home' %}#categorias"><i class="bi bi-grid"></i> Categorías</a></li>
+        <li><a href="{% url 'lista_categorias' %}"><i class="bi bi-grid"></i> Categorías</a></li>
         <li><a href="{% url 'favoritos' %}"><i class="bi bi-heart"></i> Favoritos</a></li>
         <li><a href="{% url 'carrito_ver' %}"><i class="bi bi-bag"></i> Carrito</a></li>
         <li><a href="{% url 'ubicacion' %}"><i class="bi bi-geo-alt"></i> Ubicación</a></li>
@@ -96,7 +96,7 @@
             <div class="col-md-4 text-center">
                 <div class="footer-nav">
                     <a href="{% url 'home' %}">INICIO</a>
-                    <a href="{% url 'home' %}#categorias">CATEGORÍAS</a>
+                   <a href="{% url 'lista_categorias' %}">CATEGORÍAS</a>
                     <a href="{% url 'ubicacion' %}">UBICACIÓN</a>
                 </div>
             </div>
