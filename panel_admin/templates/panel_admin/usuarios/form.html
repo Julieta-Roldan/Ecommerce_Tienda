@@ -3,6 +3,101 @@
 {% block page_title %}{{ titulo }}{% endblock %}
 
 {% block content %}
+<style>
+    /* Estética Dashboard Black & White para Formulario */
+    .card-panel {
+        background: #fff !important;
+        border: 1px solid #000 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+    }
+
+    .card-header {
+        background: #000 !important;
+        color: #fff !important;
+        border-radius: 0 !important;
+        text-transform: uppercase;
+        font-weight: 800;
+        letter-spacing: 1px;
+        padding: 1.2rem;
+    }
+
+    .form-label {
+        text-transform: uppercase;
+        font-weight: 700;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+        color: #000;
+    }
+
+    .form-control, .form-select {
+        border: 1px solid #000 !important;
+        border-radius: 0 !important;
+        padding: 10px;
+    }
+
+    .form-control:focus {
+        box-shadow: none !important;
+        border-color: #000 !important;
+        background-color: #f8f9fa;
+    }
+
+    h6.border-bottom {
+        border-bottom: 2px solid #000 !important;
+        text-transform: uppercase;
+        font-weight: 800;
+        font-size: 0.85rem;
+    }
+
+    .card.mb-2 {
+        border: 1px solid #eee !important;
+        border-radius: 0 !important;
+        transition: 0.3s;
+    }
+
+    .card.mb-2:has(input:checked) {
+        border-color: #000 !important;
+        background-color: #f8f9fa;
+    }
+
+    .form-check-input:checked {
+        background-color: #000 !important;
+        border-color: #000 !important;
+    }
+
+    .btn {
+        border-radius: 0 !important;
+        text-transform: uppercase;
+        font-weight: 800;
+        letter-spacing: 1px;
+        padding: 10px 20px;
+        font-size: 0.8rem;
+    }
+
+    .btn-primary {
+        background: #000 !important;
+        border: 1px solid #000 !important;
+        color: #fff !important;
+    }
+
+    .btn-primary:hover {
+        background: #fff !important;
+        color: #000 !important;
+    }
+
+    .btn-outline-secondary {
+        border: 1px solid #ccc !important;
+        color: #666 !important;
+    }
+
+    .alert-info, .alert-warning {
+        border-radius: 0 !important;
+        border: 1px solid #000 !important;
+        background: #fff !important;
+        color: #000 !important;
+    }
+</style>
+
 <div class="container-fluid">
     <div class="row justify-content-center">
         <div class="col-md-8 col-lg-6">
@@ -15,7 +110,6 @@
                     <form method="POST">
                         {% csrf_token %}
                         
-                        <!-- Información básica -->
                         <div class="row mb-4">
                             <div class="col-md-12">
                                 <h6 class="border-bottom pb-2 mb-3">
@@ -23,7 +117,6 @@
                                 </h6>
                             </div>
                             
-                            <!-- Username -->
                             <div class="col-md-6 mb-3">
                                 <label for="username" class="form-label">
                                     Nombre de usuario *
@@ -40,21 +133,18 @@
                                 </div>
                             </div>
                             
-                            <!-- Email -->
                             <div class="col-md-6 mb-3">
                                 <label for="email" class="form-label">Correo electrónico</label>
                                 <input type="email" class="form-control" id="email" name="email" 
                                        value="{% if usuario %}{{ usuario.email }}{% endif %}">
                             </div>
                             
-                            <!-- Nombre -->
                             <div class="col-md-6 mb-3">
                                 <label for="first_name" class="form-label">Nombre</label>
                                 <input type="text" class="form-control" id="first_name" name="first_name" 
                                        value="{% if usuario %}{{ usuario.first_name }}{% endif %}">
                             </div>
                             
-                            <!-- Apellido -->
                             <div class="col-md-6 mb-3">
                                 <label for="last_name" class="form-label">Apellido</label>
                                 <input type="text" class="form-control" id="last_name" name="last_name" 
@@ -62,7 +152,6 @@
                             </div>
                         </div>
                         
-                        <!-- Contraseña -->
                         <div class="row mb-4">
                             <div class="col-md-12">
                                 <h6 class="border-bottom pb-2 mb-3">
@@ -86,139 +175,118 @@
                             </div>
                         </div>
                         
-                        <!-- Permisos y estado -->
                         <div class="row mb-4">
                             <div class="col-md-12">
                                 <h6 class="border-bottom pb-2 mb-3">
-                                    <i class="bi bi-gear me-2"></i>Permisos y estado
+                                    <i class="bi bi-shield-check me-2"></i>Permisos y grupos
                                 </h6>
                             </div>
-
-                            <!-- Grupos y permisos -->
-<div class="row mb-4">
-    <div class="col-md-12">
-        <h6 class="border-bottom pb-2 mb-3">
-            <i class="bi bi-shield-check me-2"></i>Permisos y grupos
-        </h6>
-    </div>
-    
-    <!-- Grupos disponibles -->
-    <div class="col-md-12 mb-3">
-        <label class="form-label">Grupos de permisos *</label>
-        <div class="form-check">
-            {% for group in grupos %}
-            <div class="card mb-2">
-                <div class="card-body py-2">
-                    <div class="form-check mb-0">
-                        <input class="form-check-input" type="checkbox" 
-                               name="groups" value="{{ group.id }}" 
-                               id="group_{{ group.id }}"
-                               {% if usuario and group in usuario.groups.all %}checked{% endif %}>
-                        <label class="form-check-label" for="group_{{ group.id }}">
-                            <strong>{{ group.name }}</strong>
-                        </label>
-                        <div class="small text-muted mt-1">
-                            {% if group.name == 'Administradores' %}
-                            <i class="bi bi-star-fill text-warning me-1"></i>Acceso completo a todo el sistema
-                            {% elif group.name == 'Empleados' %}
-                            <i class="bi bi-person-badge me-1"></i>Puede gestionar productos, categorías y pedidos
-                            {% elif group.name == 'Vendedores' %}
-                            <i class="bi bi-cart-check me-1"></i>Solo puede ver y gestionar pedidos
-                            {% else %}
-                            {{ group.permissions.count }} permisos asignados
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% empty %}
-            <div class="alert alert-warning">
-                <i class="bi bi-exclamation-triangle me-1"></i>
-                No hay grupos configurados. Ejecuta: <code>python manage.py crear_grupos</code>
-            </div>
-            {% endfor %}
-        </div>
-        <div class="form-text">
-            Los grupos definen conjuntos de permisos preconfigurados. Selecciona al menos uno.
-        </div>
-    </div>
-    
-                                <!-- Permisos individuales (solo para superusuarios) -->
-                                {% if es_superuser and permisos %}
-                                <div class="col-md-12 mb-3">
-                                    <div class="card">
-                                        <div class="card-header bg-warning text-dark">
-                                        <i class="bi bi-shield-exclamation me-1"></i>
-                                        Permisos individuales (Solo Superusuario)
-                                        </div>
-                                        <div class="card-body">
-                                            <div class="form-text mb-3">
-                                            <small>Selecciona permisos individuales adicionales (usar con cuidado).</small>
+                            
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label">Grupos de permisos *</label>
+                                <div class="form-check p-0">
+                                    {% for group in grupos %}
+                                    <div class="card mb-2">
+                                        <div class="card-body py-2">
+                                            <div class="form-check mb-0">
+                                                <input class="form-check-input" type="checkbox" 
+                                                       name="groups" value="{{ group.id }}" 
+                                                       id="group_{{ group.id }}"
+                                                       {% if usuario and group in usuario.groups.all %}checked{% endif %}>
+                                                <label class="form-check-label" for="group_{{ group.id }}">
+                                                    <strong>{{ group.name }}</strong>
+                                                </label>
+                                                <div class="small text-muted mt-1">
+                                                    {% if group.name == 'Administradores' %}
+                                                    <i class="bi bi-star-fill text-warning me-1"></i>Acceso completo a todo el sistema
+                                                    {% elif group.name == 'Empleados' %}
+                                                    <i class="bi bi-person-badge me-1"></i>Puede gestionar productos, categorías y pedidos
+                                                    {% elif group.name == 'Vendedores' %}
+                                                    <i class="bi bi-cart-check me-1"></i>Solo puede ver y gestionar pedidos
+                                                    {% else %}
+                                                    {{ group.permissions.count }} permisos asignados
+                                                    {% endif %}
+                                                </div>
                                             </div>
-                                            <div class="row">
-                                                {% for permiso in permisos|slice:":20" %}
-                                                <div class="col-md-12 mb-2">
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="checkbox" 
+                                        </div>
+                                    </div>
+                                    {% empty %}
+                                    <div class="alert alert-warning">
+                                        <i class="bi bi-exclamation-triangle me-1"></i>
+                                        No hay grupos configurados. Ejecuta: <code>python manage.py crear_grupos</code>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                <div class="form-text">
+                                    Los grupos definen conjuntos de permisos preconfigurados. Selecciona al menos uno.
+                                </div>
+                            </div>
+                            
+                            {% if es_superuser and permisos %}
+                            <div class="col-md-12 mb-3">
+                                <div class="card card-panel">
+                                    <div class="card-header bg-warning text-dark py-2" style="font-size: 0.75rem;">
+                                        <i class="bi bi-shield-exclamation me-1"></i>Permisos individuales (Solo Superusuario)
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-text mb-3">
+                                            <small>Selecciona permisos individuales adicionales (usar con cuidado).</small>
+                                        </div>
+                                        <div class="row" style="max-height: 250px; overflow-y: auto;">
+                                            {% for permiso in permisos|slice:":20" %}
+                                            <div class="col-md-12 mb-2">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" 
                                                             name="user_permissions" value="{{ permiso.id }}"
                                                             id="perm_{{ permiso.id }}"
                                                             {% if usuario and permiso in usuario.user_permissions.all %}checked{% endif %}>
-                                                        <label class="form-check-label small" for="perm_{{ permiso.id }}">
-                                                            <code>{{ permiso.codename }}</code> - {{ permiso.name|truncatechars:60 }}
-                                                        </label>
-                                                    </div>
+                                                    <label class="form-check-label small" for="perm_{{ permiso.id }}">
+                                                        <code>{{ permiso.codename }}</code> - {{ permiso.name|truncatechars:60 }}
+                                                    </label>
                                                 </div>
-                                                {% endfor %}
                                             </div>
-                                            {% if permisos.count > 20 %}
-                                            <div class="alert alert-info mt-2">
-                                                <i class="bi bi-info-circle me-1"></i>
-                                                Hay {{ permisos.count }} permisos disponibles. Mostrando los primeros 20.
-                                            </div>
-                                            {% endif %}
+                                            {% endfor %}
                                         </div>
+                                        {% if permisos.count > 20 %}
+                                        <div class="alert alert-info mt-2 py-1 small">
+                                            <i class="bi bi-info-circle me-1"></i>Hay {{ permisos.count }} permisos disponibles. Mostrando los primeros 20.
+                                        </div>
+                                        {% endif %}
                                     </div>
                                 </div>
-                                {% endif %}
                             </div>
-                            
-                            <!-- Estado -->
+                            {% endif %}
+                        </div>
+                        
+                        <div class="row mb-4">
                             <div class="col-md-6 mb-3">
                                 <div class="form-check form-switch">
                                     <input class="form-check-input" type="checkbox" id="is_active" name="is_active" 
                                            {% if not usuario or usuario.is_active %}checked{% endif %}>
-                                    <label class="form-check-label" for="is_active">
-                                        Usuario activo
-                                    </label>
+                                    <label class="form-check-label form-label" for="is_active">Usuario activo</label>
                                     <div class="form-text">
                                         Los usuarios inactivos no pueden iniciar sesión.
                                     </div>
                                 </div>
                             </div>
                             
-                            <!-- Staff -->
                             <div class="col-md-6 mb-3">
                                 <div class="form-check form-switch">
                                     <input class="form-check-input" type="checkbox" id="is_staff" name="is_staff" 
                                            {% if usuario and usuario.is_staff %}checked{% endif %}>
-                                    <label class="form-check-label" for="is_staff">
-                                        Es miembro del staff
-                                    </label>
+                                    <label class="form-check-label form-label" for="is_staff">Es miembro del staff</label>
                                     <div class="form-text">
                                         Puede acceder al panel de administración.
                                     </div>
                                 </div>
                             </div>
-                            
-                            <!-- Superusuario (solo para superusuarios) -->
+
                             {% if request.user.is_superuser %}
                             <div class="col-md-6 mb-3">
                                 <div class="form-check form-switch">
                                     <input class="form-check-input" type="checkbox" id="is_superuser" name="is_superuser" 
                                            {% if usuario and usuario.is_superuser %}checked{% endif %}>
-                                    <label class="form-check-label" for="is_superuser">
-                                        Es superusuario
-                                    </label>
+                                    <label class="form-check-label form-label" for="is_superuser">Es superusuario</label>
                                     <div class="form-text">
                                         Tiene todos los permisos sin asignarlos explícitamente.
                                     </div>
@@ -226,8 +294,7 @@
                             </div>
                             {% endif %}
                         </div>
-                        
-                        <!-- Información adicional (solo para edición) -->
+
                         {% if usuario %}
                         <div class="alert alert-info mt-4">
                             <h6><i class="bi bi-info-circle me-1"></i> Información del usuario</h6>
@@ -238,17 +305,12 @@
                                 </div>
                                 <div class="col-md-6">
                                     <strong>Último acceso:</strong><br>
-                                    {% if usuario.last_login %}
-                                    {{ usuario.last_login|date:"d/m/Y H:i" }}
-                                    {% else %}
-                                    <span class="fst-italic">Nunca ha iniciado sesión</span>
-                                    {% endif %}
+                                    {% if usuario.last_login %}{{ usuario.last_login|date:"d/m/Y H:i" }}{% else %}<span class="fst-italic">Nunca ha iniciado sesión</span>{% endif %}
                                 </div>
                             </div>
                         </div>
                         {% endif %}
                         
-                        <!-- Advertencias importantes -->
                         <div class="alert alert-warning mt-4">
                             <h6><i class="bi bi-exclamation-triangle me-1"></i> Consideraciones importantes</h6>
                             <ul class="mb-0 small">
@@ -258,7 +320,6 @@
                             </ul>
                         </div>
                         
-                        <!-- Botones -->
                         <div class="d-flex justify-content-between mt-4">
                             <a href="{% url 'panel_admin:usuarios' %}" class="btn btn-outline-secondary">
                                 <i class="bi bi-arrow-left me-1"></i> Volver
@@ -268,10 +329,9 @@
                                     <i class="bi bi-check-circle me-1"></i> {{ accion }}
                                 </button>
                                 {% if usuario and usuario != request.user %}
-                               <a href="{% url 'panel_admin:usuario_eliminar' usuario.id %}" 
-                                class="btn btn-outline-danger ms-2">
-                                <i class="bi bi-trash me-1"></i> Eliminar
-                            </a>
+                                <a href="{% url 'panel_admin:usuario_eliminar' usuario.id %}" class="btn btn-outline-danger ms-2">
+                                    <i class="bi bi-trash me-1"></i> Eliminar
+                                </a>
                                 {% endif %}
                             </div>
                         </div>

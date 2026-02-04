@@ -2,6 +2,8 @@
 
 {% block page_title %}Pedido #{{ pedido.id }}{% endblock %}
 
+{% load humanize %}
+
 {% block content %}
 <style>
     /* Estética Unificada Detail */
@@ -166,16 +168,16 @@
                                         <span class="fw-800 text-uppercase d-block">{{ item.nombre_producto }}</span>
                                         <small class="text-muted">SKU: {{ item.producto.id }}</small>
                                     </td>
-                                    <td class="text-center">${{ item.precio_unitario|floatformat:0 }}</td>
+                                    <td class="text-center">${{ item.precio_unitario|floatformat:0|intcomma }}</td>
                                     <td class="text-center fw-800">{{ item.cantidad }}</td>
-                                    <td class="text-end fw-800">${{ item.subtotal|floatformat:0 }}</td>
+                                    <td class="text-end fw-800">${{ item.precio_unitario|floatformat:0|intcomma }}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
                             <tfoot>
                                 <tr style="border-top: 2px solid #000;">
                                     <td colspan="3" class="text-end py-3"><span class="fw-800 text-uppercase">Total Pedido:</span></td>
-                                    <td class="text-end py-3"><span class="h4 fw-800">${{ pedido.get_total_db|floatformat:0 }}</span></td>
+                                    <td class="text-end py-3"><span class="h4 fw-800">${{ pedido.get_total_db|floatformat:0|intcomma }}</span></td>
                                 </tr>
                             </tfoot>
                         </table>

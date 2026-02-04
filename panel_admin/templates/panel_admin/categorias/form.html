@@ -3,6 +3,93 @@
 {% block page_title %}{{ titulo }}{% endblock %}
 
 {% block content %}
+<style>
+    /* Estética Dashboard Black & White */
+    .card-panel {
+        background: #fff !important;
+        border: 1px solid #000 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+    }
+
+    .card-header {
+        background: #000 !important;
+        color: #fff !important;
+        border-radius: 0 !important;
+        text-transform: uppercase;
+        font-weight: 800;
+        letter-spacing: 1px;
+        padding: 1.2rem;
+    }
+
+    .form-control, .form-select, .form-check-input {
+        border: 1px solid #000 !important;
+        border-radius: 0 !important;
+    }
+
+    .form-control:focus {
+        box-shadow: none !important;
+        border-color: #000 !important;
+    }
+
+    .form-label {
+        text-transform: uppercase;
+        font-weight: 700;
+        font-size: 0.8rem;
+        letter-spacing: 0.5px;
+    }
+
+    .alert {
+        border-radius: 0 !important;
+        border: 1px solid #000 !important;
+        background: #fff !important;
+        color: #000 !important;
+    }
+
+    .alert-info { border-color: #000 !important; }
+    .alert-warning { border: 2px solid #000 !important; }
+
+    .btn {
+        border-radius: 0 !important;
+        text-transform: uppercase;
+        font-weight: 800;
+        letter-spacing: 1px;
+        padding: 10px 20px;
+    }
+
+    .btn-primary {
+        background: #000 !important;
+        border: 1px solid #000 !important;
+        color: #fff !important;
+    }
+
+    .btn-primary:hover {
+        background: #fff !important;
+        color: #000 !important;
+        border: 1px solid #000 !important;
+    }
+
+    .btn-outline-danger {
+        border: 1px solid #dc3545 !important;
+        color: #dc3545 !important;
+        background: transparent !important;
+    }
+
+    .btn-outline-danger:hover {
+        background: #dc3545 !important;
+        color: #fff !important;
+    }
+
+    .btn-outline-secondary {
+        border: 1px solid #000 !important;
+        color: #000 !important;
+    }
+
+    .badge {
+        border-radius: 0 !important;
+    }
+</style>
+
 <div class="container-fluid">
     <div class="row justify-content-center">
         <div class="col-md-8 col-lg-6">
@@ -15,7 +102,6 @@
                     <form method="POST" enctype="multipart/form-data">
                         {% csrf_token %}
                         
-                        <!-- Nombre -->
                         <div class="mb-3">
                             <label for="nombre" class="form-label">
                                 <i class="bi bi-tag me-1"></i>Nombre de la categoría *
@@ -26,7 +112,6 @@
                             <div class="form-text">Nombre único para identificar la categoría (máx. 100 caracteres).</div>
                         </div>
                         
-                        <!-- Descripción -->
                         <div class="mb-3">
                             <label for="descripcion" class="form-label">
                                 <i class="bi bi-card-text me-1"></i>Descripción
@@ -36,7 +121,6 @@
                             <div class="form-text">Descripción opcional que se mostrará en la tienda.</div>
                         </div>
                         
-                        <!-- Estado -->
                         <div class="mb-4">
                             <div class="form-check form-switch">
                                 <input class="form-check-input" type="checkbox" id="activo" name="activo" 
@@ -50,37 +134,32 @@
                             </div>
                         </div>
 
-
-                                                <!-- Imagen de fondo -->
                         <div class="mb-4">
                             <label for="imagen_fondo" class="form-label">
                                 <i class="bi bi-image me-1"></i>Imagen de fondo para la categoría
                             </label>
                             
-                            <!-- Mostrar imagen actual si existe -->
                             {% if categoria and categoria.imagen_fondo %}
                                 <div class="mb-3" id="imagen-actual-preview">
-                                <p class="small mb-1"><strong>Imagen actual:</strong></p>
-                                <div class="border p-2 rounded" style="max-width: 200px;">
-                                    <img src="{{ categoria.imagen_fondo.url }}" alt="Imagen actual" 
-                                         class="img-fluid rounded" style="max-height: 100px;">
-                                </div>
+                                    <p class="small mb-1"><strong>Imagen actual:</strong></p>
+                                    <div class="border p-2" style="max-width: 200px; border: 1px solid #000 !important;">
+                                        <img src="{{ categoria.imagen_fondo.url }}" alt="Imagen actual" 
+                                             class="img-fluid" style="max-height: 100px;">
+                                    </div>
                                     <div class="form-text mt-1">
-                                    <!-- Campo oculto para indicar que se quiere quitar la imagen -->
-                                    <input type="hidden" name="quitar_imagen" id="quitar_imagen" value="false">
-                                    
-                                    <a href="#" onclick="
-                                        document.getElementById('imagen_fondo').value='';
-                                        document.getElementById('quitar_imagen').value='true';
-                                        document.getElementById('imagen-actual-preview').style.display='none';
-                                        return false;" 
-                                       class="text-danger small">
-                                        <i class="bi bi-x-circle me-1"></i>Quitar imagen actual
-                                    </a>
+                                        <input type="hidden" name="quitar_imagen" id="quitar_imagen" value="false">
+                                        <a href="#" onclick="
+                                            document.getElementById('imagen_fondo').value='';
+                                            document.getElementById('quitar_imagen').value='true';
+                                            document.getElementById('imagen-actual-preview').style.display='none';
+                                            return false;" 
+                                           class="text-danger small">
+                                            <i class="bi bi-x-circle me-1"></i>Quitar imagen actual
+                                        </a>
+                                    </div>
                                 </div>
                             {% endif %}
                             
-                            <!-- Campo para subir nueva imagen -->
                             <input type="file" class="form-control" id="imagen_fondo" name="imagen_fondo" 
                                    accept="image/*">
                             <div class="form-text">
@@ -93,7 +172,6 @@
                             </div>
                         </div>
                         
-                        <!-- Información adicional (solo para edición) -->
                         {% if categoria %}
                         <div class="alert alert-info mt-3">
                             <h6><i class="bi bi-info-circle me-1"></i> Información de la categoría</h6>
@@ -109,7 +187,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <strong>Productos:</strong> 
-                                    <span class="badge bg-info">{{ categoria.producto_set.count }}</span><br>
+                                    <span class="badge bg-dark">{{ categoria.producto_set.count }}</span><br>
                                     <strong>Actualizada:</strong> 
                                     {% if categoria.actualizado %}
                                     {{ categoria.actualizado|date:"d/m/Y H:i" }}
@@ -121,7 +199,6 @@
                         </div>
                         {% endif %}
                         
-                        <!-- Validaciones -->
                         {% if categoria and categoria.producto_set.exists %}
                         <div class="alert alert-warning mt-3">
                             <h6><i class="bi bi-exclamation-triangle me-1"></i> Importante</h6>
@@ -132,8 +209,7 @@
                         </div>
                         {% endif %}
                         
-                        <!-- Botones de acción -->
-                        <div class="d-flex justify-content-between mt-4 pt-3 border-top">
+                        <div class="d-flex justify-content-between mt-4 pt-3 border-top border-dark">
                             <a href="{% url 'panel_admin:categorias' %}" class="btn btn-outline-secondary">
                                 <i class="bi bi-arrow-left me-1"></i> Cancelar
                             </a>
@@ -153,7 +229,6 @@
                 </div>
             </div>
             
-            <!-- Información de ayuda -->
             <div class="card card-panel mt-3">
                 <div class="card-body">
                     <h6><i class="bi bi-lightbulb me-1"></i> Consejos para categorías</h6>

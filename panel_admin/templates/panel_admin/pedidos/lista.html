@@ -1,4 +1,5 @@
 {% extends 'panel_admin/base_panel.html' %}
+{% load humanize %}
 
 {% block page_title %}Pedidos{% endblock %}
 
@@ -205,7 +206,7 @@
                                     {{ pedido.estado|upper }}
                                 </span>
                             </td>
-                            <td><span class="fw-800">${{ pedido.get_total_db|floatformat:0 }}</span></td>
+                            <td><span class="fw-800">${{ pedido.get_total_db|floatformat:0|intcomma }}</span></td>
                             <td>
                                 <small class="text-muted">{{ pedido.carrito.session_key|truncatechars:8|upper|default:"-" }}</small>
                             </td>
