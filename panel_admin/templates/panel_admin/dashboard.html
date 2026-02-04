@@ -1,10 +1,11 @@
 {% extends 'panel_admin/base_panel.html' %}
+{% load humanize %} {# Cargamos la librería para el punto de miles #}
 
 {% block page_title %}Dashboard{% endblock %}
 
 {% block content %}
 <style>
-    /* Capa de estilo Black & White sobre tu estructura original */
+    /* ... (Todo tu CSS se mantiene exactamente igual) ... */
     .card-panel {
         background: #fff !important;
         border: 1px solid #000 !important;
@@ -23,7 +24,6 @@
         font-size: 0.85rem;
         letter-spacing: 1px;
     }
-    /* Iconos y textos de stats */
     .card-icon {
         border-radius: 0 !important;
         background: #f8f9fa !important;
@@ -32,7 +32,6 @@
     }
     h3 { font-weight: 800 !important; }
     
-    /* Botones y Badges */
     .btn-outline-primary, .btn-outline-warning, .btn-outline-success, .btn-sm {
         border-radius: 0 !important;
         border: 1px solid #000 !important;
@@ -46,7 +45,6 @@
         color: #fff !important;
     }
     
-    /* Forzar badges black and white */
     .badge-estado {
         border-radius: 0 !important;
         border: 1px solid #000 !important;
@@ -55,7 +53,6 @@
         padding: 4px 6px; 
     }
 
-    /* Pendiente destaca en negro sólido */
     .badge-pendiente { 
         background: #000 !important; 
         color: #fff !important; 
@@ -64,7 +61,6 @@
     
     .badge-pagado { background: #fff !important; color: #000 !important; }
 
-    /* Tablas */
     .table thead {
         background: #f9f9f9;
         border-bottom: 2px solid #000;
@@ -75,7 +71,6 @@
         color: #000;
     }
     
-    /* AJUSTE DE ACCIONES: Separación y visibilidad */
     .table-actions a {
         color: #000 !important;
         margin-right: 15px !important; 
@@ -87,7 +82,6 @@
         margin-right: 0 !important;
     }
 
-    /* --- ALERTA DE STOCK CON COLOR --- */
     .alert {
         border-radius: 0 !important;
         border: 1px solid #000 !important;
@@ -104,87 +98,143 @@
         color: #000 !important; 
     }
     .alert-warning a, .alert-warning h6, .alert-warning i { color: #000 !important; }
+
+    .card-clickable {
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    .card-clickable:hover {
+        background-color: #f8f9fa !important;
+        transform: translateY(-3px);
+        border-color: #000 !important;
+    }
+    .card-clickable:active {
+        transform: translateY(0);
+    }
+    a.text-decoration-none h3, a.text-decoration-none h6 {
+        color: #000;
+    }
+
+    .btn-stat {
+        display: inline-block;
+        margin-top: 10px;
+        padding: 5px 10px;
+        border: 1px solid #000 !important;
+        border-radius: 0 !important;
+        text-transform: uppercase;
+        font-weight: 800;
+        font-size: 0.65rem;
+        text-decoration: none !important;
+        transition: all 0.15s ease;
+        box-shadow: 2px 2px 0px 0px #000;
+    }
+    .btn-stat:hover {
+        transform: translate(-1px, -1px);
+        box-shadow: 3px 3px 0px 0px #000;
+    }
+    .btn-stat:active {
+        transform: translate(1px, 1px);
+        box-shadow: 1px 1px 0px 0px #000;
+    }
+
+    .btn-stat-success { background-color: #198754 !important; color: #fff !important; }
+    .btn-stat-warning { background-color: #ffc107 !important; color: #000 !important; }
+    .btn-stat-danger { background-color: #dc3545 !important; color: #fff !important; }
+    
+    .card-clickable:hover {
+        background-color: #fff !important;
+        transform: none !important;
+    }
 </style>
 
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col-md-3 col-sm-6 mb-3">
-            <div class="card card-panel h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-muted mb-1">Productos</h6>
-                            <h3 class="mb-0">{{ total_productos }}</h3>
-                            <small class="text-success">
-                                <i class="bi bi-check-circle me-1"></i> Activos
-                            </small>
-                        </div>
-                        <div class="card-icon bg-primary-light">
-                            <i class="bi bi-box"></i>
+            <a href="{% url 'panel_admin:productos' %}" class="text-decoration-none h-100 d-block">
+                <div class="card card-panel h-100 card-clickable">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted mb-1">Productos</h6>
+                                <h3 class="mb-0">{{ total_productos }}</h3>
+                                <span class="btn-stat btn-stat-success">
+                                    <i class="bi bi-check-circle me-1"></i> Ver Catálogo
+                                </span>
+                            </div>
+                            <div class="card-icon bg-primary-light">
+                                <i class="bi bi-box"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </a>
         </div>
         
         <div class="col-md-3 col-sm-6 mb-3">
-            <div class="card card-panel h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-muted mb-1">Pedidos Totales</h6>
-                            <h3 class="mb-0">{{ total_pedidos }}</h3>
-                            <small class="text-warning">
-                                <i class="bi bi-clock me-1"></i> {{ pedidos_pendientes }} pendientes
-                            </small>
-                        </div>
-                        <div class="card-icon bg-success-light">
-                            <i class="bi bi-receipt"></i>
+            <a href="{% url 'panel_admin:pedidos' %}?estado=pendiente" class="text-decoration-none h-100 d-block">
+                <div class="card card-panel h-100 card-clickable">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted mb-1">Pedidos Totales</h6>
+                                <h3 class="mb-0">{{ total_pedidos }}</h3>
+                                <span class="btn-stat btn-stat-warning">
+                                    <i class="bi bi-clock me-1"></i> {{ pedidos_pendientes }} pendientes
+                                </span>
+                            </div>
+                            <div class="card-icon bg-success-light">
+                                <i class="bi bi-receipt"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </a>
         </div>
         
         <div class="col-md-3 col-sm-6 mb-3">
-            <div class="card card-panel h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-muted mb-1">Ventas del Mes</h6>
-                            <h3 class="mb-0">${{ ventas_mes|floatformat:0 }}</h3>
-                            <small class="text-success">
-                                <i class="bi bi-arrow-up me-1"></i> {{ pedidos_pagados }} pagados
-                            </small>
-                        </div>
-                        <div class="card-icon bg-warning-light">
-                            <i class="bi bi-currency-dollar"></i>
+            <a href="{% url 'panel_admin:estadisticas' %}" class="text-decoration-none h-100 d-block">
+                <div class="card card-panel h-100 card-clickable">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted mb-1">Ventas del Mes</h6>
+                                {# Aplicado intcomma aquí #}
+                                <h3 class="mb-0">${{ ventas_mes|floatformat:0|intcomma }}</h3>
+                                <span class="btn-stat btn-stat-success">
+                                    <i class="bi bi-arrow-up me-1"></i> Ver Reporte
+                                </span>
+                            </div>
+                            <div class="card-icon bg-warning-light">
+                                <i class="bi bi-currency-dollar"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </a>
         </div>
         
         <div class="col-md-3 col-sm-6 mb-3">
-            <div class="card card-panel h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-muted mb-1">Stock Bajo</h6>
-                            <h3 class="mb-0">{{ productos_stock_bajo.count|add:productos_sin_stock.count }}</h3>
-                            <small class="text-danger">
-                                <i class="bi bi-exclamation-triangle me-1"></i> Revisar
-                            </small>
-                        </div>
-                        <div class="card-icon bg-danger-light">
-                            <i class="bi bi-exclamation-octagon"></i>
+            <a href="{% url 'panel_admin:productos' %}" class="text-decoration-none h-100 d-block">
+                <div class="card card-panel h-100 card-clickable">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted mb-1">Stock Bajo</h6>
+                                <h3 class="mb-0">{{ productos_stock_bajo.count|add:productos_sin_stock.count }}</h3>
+                                <span class="btn-stat btn-stat-danger">
+                                    <i class="bi bi-exclamation-triangle me-1"></i> Revisar ahora
+                                </span>
+                            </div>
+                            <div class="card-icon bg-danger-light">
+                                <i class="bi bi-exclamation-octagon"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </a>
         </div>
     </div>
-    
+
     <div class="row">
         <div class="col-12 mb-4">
             <div class="card card-panel">
@@ -318,7 +368,8 @@
                                             <span class="badge-estado badge-cancelado">Cancelado</span>
                                         {% endif %}
                                     </td>
-                                   <td>${{ pedido.get_total_db|floatformat:0 }}</td>
+                                    {# Aplicado intcomma aquí #}
+                                    <td>${{ pedido.get_total_db|floatformat:0|intcomma }}</td>
                                     <td class="table-actions">
                                         <a href="{% url 'panel_admin:pedido_detalle' pedido.id %}" 
                                            data-bs-toggle="tooltip" title="Ver detalle">
@@ -435,7 +486,7 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Si necesitas el chart de ventas, asegúrate de tener Chart.js cargado
+    // Chart logic
 });
 </script>
 {% endblock %}

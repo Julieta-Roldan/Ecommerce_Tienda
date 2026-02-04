@@ -1,4 +1,5 @@
 {% extends 'panel_admin/base_panel.html' %}
+{% load humanize %}
 
 {% block page_title %}Estadísticas{% endblock %}
 
@@ -16,7 +17,6 @@
         box-shadow: none !important;
     }
 
-    /* FONDO NEGRO PARA LA SECCIÓN DE FECHAS */
     .bg-seccion-fechas {
         background-color: #000 !important;
         padding: 20px;
@@ -33,7 +33,6 @@
         padding: 1rem 1.5rem;
     }
 
-    /* TARJETAS DE FECHA: Blancas por defecto */
     .stat-box {
         background-color: #fff !important; 
         color: #000 !important;           
@@ -43,7 +42,6 @@
         transition: 0.3s ease;
     }
 
-    /* Efecto Hover: Se ponen negras */
     .stat-box:hover {
         background-color: #000 !important;
         color: #fff !important;
@@ -64,7 +62,6 @@
         color: inherit;
     }
 
-    /* Listas */
     .list-group-item {
         border-radius: 0 !important;
         border: none;
@@ -75,16 +72,6 @@
         border-bottom: none !important;
     }
 
-    /* Badges */
-    .badge-bw {
-        background: #000;
-        color: #fff;
-        border-radius: 0;
-        text-transform: uppercase;
-        font-weight: 800;
-        font-size: 0.6rem;
-        padding: 5px 8px;
-    }
     .badge-outline-bw {
         background: transparent;
         color: #000;
@@ -96,7 +83,6 @@
         padding: 5px 8px;
     }
 
-    /* --- CAMBIOS SOLICITADOS PARA CATEGORÍAS --- */
     .categoria-item-negro {
         background-color: #000 !important;
         color: #fff !important;
@@ -115,10 +101,12 @@
         transition: 0.3s ease;
     }
 
-    .badge-blanco-custom:hover {
-        background: #000 !important;
-        color: #fff !important;
-        border: 1px solid #fff !important; /* Borde blanco al pasar el mouse */
+    /* Estilo para placeholders cuando no hay datos */
+    .placeholder-item {
+        border: 1px dashed #000 !important;
+        margin-bottom: 10px;
+        padding: 10px;
+        background: #f9f9f9;
     }
 </style>
 
@@ -147,67 +135,73 @@
     </div>
     
     <div class="row">
-        <div class="col-lg-8 mb-4">
-            <div class="card card-panel h-100">
-                <div class="card-header">
-                    <h5 class="mb-0 small fw-800">Ventas Últimos 30 Días</h5>
-                </div>
-                <div class="card-body">
-                    <canvas id="ventasChart" height="100"></canvas>
-                    <script>
-                    document.addEventListener('DOMContentLoaded', function() {
-                        const ctx = document.getElementById('ventasChart').getContext('2d');
-                        
-                        // Datos de ejemplo (reemplazar con datos reales)
-                        // const fechas = [
-                        //     {% for venta in ventas_por_dia %}
-                        //     "{{ venta.fecha|date:'d/m' }}",
-                        //     {% endfor %}
-                        // ];
-                        
-                        // const totales = [
-                        //     {% for venta in ventas_por_dia %}
-                        //     {{ venta.total|default:0 }},
-                        //     {% endfor %}
-                        // ];
-                        
-                        new Chart(ctx, {
-                            type: 'line',
-                            data: {
-                                labels: fechas,
-                                datasets: [{
-                                    label: 'Ventas ($)',
-                                    data: totales,
-                                    borderColor: '#3498db',
-                                    backgroundColor: 'rgba(52, 152, 219, 0.1)',
-                                    tension: 0.3,
-                                    fill: true
-                                }]
-                            },
-                            options: {
-                                responsive: true,
-                                plugins: {
-                                    legend: {
-                                        position: 'top',
-                                    }
-                                },
-                                scales: {
-                                    y: {
-                                        beginAtZero: true,
-                                        ticks: {
-                                            callback: function(value) {
-                                                return '$' + value.toLocaleString();
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        });
-                    });
-                    </script>
-                </div>
-            </div>
+       <div class="col-lg-8 mb-4">
+    <div class="card card-panel h-100">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 small fw-800">Ventas Últimos 30 Días</h5>
+            {% if not ventas_por_dia %}
+            <span class="badge bg-light text-dark fw-bold" style="font-size: 0.5rem; letter-spacing: 1px;">VISTA PREVIA</span>
+            {% endif %}
         </div>
+        <div class="card-body">
+            <canvas id="ventasChart" height="100"></canvas>
+            
+            {# Pasamos los datos de forma segura para que JS no tire error #}
+            {{ ventas_por_dia|json_script:"ventas-data" }}
+
+            <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const ctx = document.getElementById('ventasChart').getContext('2d');
+                
+                // Recuperamos los datos del script tag de arriba
+                const datosDjango = JSON.parse(document.getElementById('ventas-data').textContent);
+                
+                let labels = datosDjango.map(v => v.fecha_formateada || v.fecha); 
+                let data = datosDjango.map(v => v.total || 0);
+                
+                let colorLinea = '#000';
+                let colorFondo = 'rgba(0, 0, 0, 0.05)';
+
+                // Si no hay datos (labels vacío o longitud 0)
+                if (labels.length === 0) {
+                    labels = ['Día 05', 'Día 10', 'Día 15', 'Día 20', 'Día 25', 'Hoy'];
+                    data = [500, 1500, 800, 3200, 2100, 4500];
+                    colorFondo = 'rgba(0, 0, 0, 0.02)';
+                }
+                
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Ventas ($)',
+                            data: data,
+                            borderColor: colorLinea,
+                            backgroundColor: colorFondo,
+                            borderWidth: 2,
+                            pointBackgroundColor: colorLinea,
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { 
+                                beginAtZero: true, 
+                                ticks: { 
+                                    callback: (v) => '$' + v.toLocaleString() 
+                                } 
+                            }
+                        }
+                    }
+                });
+            });
+            </script>
+        </div>
+    </div>
+</div>
         
         <div class="col-lg-4 mb-4">
             <div class="card card-panel h-100">
@@ -216,28 +210,31 @@
                 </div>
                 <div class="card-body">
                     {% if productos_mas_vendidos %}
-                    <div class="list-group list-group-flush">
                         {% for producto in productos_mas_vendidos %}
                         <div class="list-group-item">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
-                                    <span class="fw-800 text-uppercase d-block" style="font-size: 0.8rem;">
-                                        {{ producto.producto__nombre|truncatechars:20 }}
-                                    </span>
+                                    <span class="fw-800 text-uppercase d-block" style="font-size: 0.8rem;">{{ producto.producto__nombre|truncatechars:20 }}</span>
                                     <small class="text-muted fw-bold">{{ producto.total_vendido }} UNIDADES</small>
                                 </div>
                                 <div class="text-end">
-                                    <span class="fw-900 d-block">${{ producto.total_ingresos|floatformat:0 }}</span>
-                                    <span class="badge-outline-bw">ID: {{ producto.producto__id }}</span>
+                                    <span class="fw-900 d-block">${{ producto.total_ingresos|floatformat:0|intcomma }}</span>
                                 </div>
                             </div>
                         </div>
                         {% endfor %}
-                    </div>
                     {% else %}
-                    <div class="text-center py-5">
-                        <p class="text-muted fw-800 small">SIN DATOS DE VENTAS</p>
-                    </div>
+                        {% for i in "123" %}
+                        <div class="placeholder-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="fw-800 text-uppercase d-block" style="font-size: 0.7rem; color: #000;">PRODUCTO PENDIENTE</span>
+                                <small class="fw-bold" style="color: #666; font-size: 0.6rem;">ESPERANDO VENTAS</small>
+                            </div>
+                            <div class="text-end">
+                                <span class="fw-900 d-block" style="color: #000;">$0.00</span>
+                            </div>
+                        </div>
+                        {% endfor %}
                     {% endif %}
                 </div>
             </div>
@@ -245,38 +242,54 @@
     </div>
     
     <div class="row mb-4">
-        <div class="col-12">
-            <div class="card card-panel">
-                <div class="card-header">
-                    <h5 class="mb-0 small fw-800">Categorías Populares</h5>
-                </div>
-                <div class="card-body">
+    <div class="col-12">
+        <div class="card card-panel">
+            <div class="card-header">
+                <h5 class="mb-0 small fw-800">Categorías Populares</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
                     {% if categorias_populares %}
-                    <div class="row g-3">
                         {% for categoria in categorias_populares %}
                         <div class="col-md-3">
-                            <div class="p-3 border text-center categoria-item-negro">
-                                <h6 class="fw-900 text-uppercase mb-2">
-                                    {{ categoria.categoria__nombre }} 
-                                    {{ categoria.nombre }}
-                                    {{ categoria.categoria }}
-                                </h6>
-                                <div class="d-flex justify-content-center gap-2">
-                                    <span class="badge-blanco-custom">{{ categoria.total_productos }} PRODUCTOS</span>
-                                    <span class="badge-blanco-custom">{{ categoria.total_vendidos|default:0 }} VENDIDOS</span>
+                            <a href="{% url 'panel_admin:productos' %}?categoria={{ categoria.categoria__id|default:categoria.id }}" class="text-decoration-none">
+                                <div class="p-3 border text-center categoria-item-negro">
+                                    <h6 class="fw-900 text-uppercase mb-2">
+                                        {{ categoria.categoria__nombre|default:categoria.nombre }}
+                                    </h6>
+                                    <div class="d-flex justify-content-center gap-2">
+                                        <span class="badge-blanco-custom">{{ categoria.total_productos }} PRODUCTOS</span>
+                                    </div>
                                 </div>
+                            </a>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        {% for i in "1234" %}
+                        <div class="col-md-3">
+                            <div class="p-3 text-center" style="border: 1px dashed #000;">
+                                <h6 class="fw-800 text-uppercase mb-2" style="font-size: 0.7rem;">Sin Categoría</h6>
+                                <span class="badge-bw" style="font-size: 0.5rem;">SIN DATOS</span>
                             </div>
                         </div>
                         {% endfor %}
-                    </div>
-                    {% else %}
-                    <div class="text-center py-4">
-                        <p class="text-muted fw-800 small">NO HAY DATOS DE CATEGORÍAS</p>
-                    </div>
                     {% endif %}
                 </div>
             </div>
         </div>
     </div>
+</div>
+
+    {% if not ventas_por_dia %}
+    <div class="row">
+        <div class="col-12 text-center mb-5">
+            <div class="py-3" style="border: 2px solid #000; display: inline-block; padding: 0 40px; background: #fff;">
+                <p class="mb-0 fw-900 text-uppercase" style="letter-spacing: 2px; font-size: 0.8rem;">
+                    💡 Los gráficos y ránkings se activarán automáticamente al registrar la primera venta.
+                </p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

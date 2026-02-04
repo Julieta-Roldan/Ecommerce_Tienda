@@ -1,4 +1,5 @@
 {% extends 'panel_admin/base_panel.html' %}
+{% load humanize %}
 
 {% block page_title %}Catálogo de Productos{% endblock %}
 
@@ -251,7 +252,7 @@
                                 <small class="text-muted">ID: #{{ producto.id }}</small>
                             </td>
                             <td><span class="small fw-700 text-uppercase">{{ producto.categoria.nombre|upper }}</span></td>
-                            <td><span class="fw-800">${{ producto.precio|floatformat:0 }}</span></td>
+                            <td><span class="fw-800">${{ producto.precio|floatformat:0|intcomma }}</span></td>
                             <td>
                                 {% if producto.stock > 10 %}
                                 <span class="badge-status bg-white text-dark">{{ producto.stock }} UNIDADES</span>

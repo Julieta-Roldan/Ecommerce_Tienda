@@ -161,7 +161,7 @@
                             </div>
                         {% endif %}
                         <h6 class="text-uppercase mb-1" style="font-size: 0.85rem;">{{ rel.nombre }}</h6>
-                        <p class="fw-bold">$ {{ rel.precio|floatformat:"0" }}</p>
+                        <p class="fw-bold">$ {{ rel.precio|floatformat:"0"|intcomma }}</p>
                     </a>
                 </div>
             </div>

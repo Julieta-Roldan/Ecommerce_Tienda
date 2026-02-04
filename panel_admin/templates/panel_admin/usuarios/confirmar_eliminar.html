@@ -3,6 +3,80 @@
 {% block page_title %}Confirmar eliminación{% endblock %}
 
 {% block content %}
+<style>
+    /* Estética Dashboard Black & White */
+    .card-panel {
+        background: #fff !important;
+        border: 1px solid #000 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+    }
+
+    .card-header {
+        background: #000 !important;
+        color: #fff !important;
+        border-radius: 0 !important;
+        text-transform: uppercase;
+        font-weight: 800;
+        letter-spacing: 1px;
+        padding: 1.2rem;
+    }
+
+    .alert-warning, .alert-info {
+        border-radius: 0 !important;
+        border: 1px solid #000 !important;
+        background: #fff !important;
+        color: #000 !important;
+    }
+
+    /* ESTE BLOQUE AHORA EN ROJO */
+    .alert-danger {
+        border-radius: 0 !important;
+        border: 2px solid #dc3545 !important; /* Rojo */
+        background: #fff !important;
+        color: #dc3545 !important; /* Texto rojo */
+    }
+    
+    .alert-danger ul, .alert-danger li {
+        color: #dc3545 !important;
+    }
+
+    .card {
+        border: 1px solid #000 !important;
+        border-radius: 0 !important;
+    }
+
+    .btn {
+        border-radius: 0 !important;
+        text-transform: uppercase;
+        font-weight: 800;
+        letter-spacing: 1px;
+        padding: 10px 20px;
+    }
+
+    .btn-danger {
+        background: #000 !important;
+        border: 1px solid #000 !important;
+        color: #fff !important;
+    }
+
+    .btn-danger:hover {
+        background: #dc3545 !important;
+        color: #fff !important;
+        border: 1px solid #dc3545 !important;
+    }
+
+    .btn-outline-secondary {
+        border: 1px solid #ccc !important;
+        color: #666 !important;
+    }
+
+    .badge {
+        border-radius: 0 !important;
+        text-transform: uppercase;
+    }
+</style>
+
 <div class="container-fluid">
     <div class="row justify-content-center">
         <div class="col-md-6 col-lg-5">
@@ -18,7 +92,7 @@
                         <i class="bi bi-person-x text-danger" style="font-size: 4rem;"></i>
                     </div>
                     
-                    <h4 class="mb-3">¿Estás seguro?</h4>
+                    <h4 class="mb-3 text-danger fw-bold">¿Estás seguro?</h4>
                     
                     <div class="alert alert-warning mb-4">
                         <p class="mb-2">
@@ -44,7 +118,6 @@
                         </ul>
                     </div>
                     
-                    <!-- Información del usuario -->
                     <div class="card mb-4">
                         <div class="card-body text-start">
                             <h6>Información del usuario:</h6>
@@ -83,12 +156,11 @@
                         </div>
                     </div>
                     
-                    <!-- Alternativas -->
                     <div class="alert alert-info">
                         <h6><i class="bi bi-lightbulb me-1"></i> ¿Consideraste estas alternativas?</h6>
                         <ul class="mb-0 small">
-                            <li><strong>Desactivar:</strong> El usuario no podrá acceder pero se mantendrán sus datos</li>
-                            <li><strong>Quitar permisos:</strong> Remover permisos de staff/superusuario si es necesario</li>
+                            <li><strong>Desactivar:</strong>El usuario no podrá acceder pero se mantendrán sus datos</li>
+                            <li><strong>Quitar permisos:</strong>Remover permisos de staff/superusuario si es necesario</li>
                         </ul>
                     </div>
                     

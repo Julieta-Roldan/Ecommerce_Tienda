@@ -27,7 +27,7 @@
         
         <hr class="sidebar-divider">
         
-        <li><a href="/panel_admin/login/"><i class="bi bi-person-lock"></i> Admin</a></li>
+        <li><a href="{% url 'panel_admin:login' %}"><i class="bi bi-person-lock"></i> Admin</a></li>
         <li><a href="https://wa.me/541135928717" target="_blank"><i class="bi bi-whatsapp"></i> WhatsApp</a></li>
     </ul>
 </div>
@@ -58,7 +58,7 @@
                 </div>
 
                 <a href="{% url 'ubicacion' %}"><i class="bi bi-geo-alt"></i></a>
-                <a href="/panel_admin/login/" title="Panel Admin"><i class="bi bi-person"></i></a>
+                <a href="{% url 'panel_admin:login' %}" title="Panel Admin"><i class="bi bi-person"></i></a>
                 <a href="{% url 'favoritos' %}"><i class="bi bi-heart"></i></a> 
                 <a href="{% url 'carrito_ver' %}"><i class="bi bi-bag"></i></a>
             </div>
