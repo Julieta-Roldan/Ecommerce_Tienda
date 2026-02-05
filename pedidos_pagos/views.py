@@ -231,3 +231,51 @@ def crear_pedido_desde_carrito(request):
 
 def pedido_exito(request):
     return render(request, 'pedidos_pagos/pedido_exito.html')
+# pedidos_pagos/views.py
+from django.db import transaction
+
+@transaction.atomic
+def checkout_view(request):
+    session_key = request.session.session_key
+    carrito = Carrito.objects.filter(session_key=session_key).first()
+
+    if not carrito or not carrito.items.exists():
+        return redirect('catalogo')
+
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        telefono = request.POST.get('telefono')
+        total = sum(item.producto.precio * item.cantidad for item in carrito.items.all())
+
+        # SOLUCIÓN AL ERROR UNIQUE: update_or_create
+        # Buscamos si el carrito ya tiene un pedido, si existe lo actualizamos, sino lo creamos.
+        pedido, created = Pedido.objects.update_or_create(
+            carrito=carrito,
+            defaults={
+                'email': email,
+                'telefono': telefono,
+                'estado': 'pendiente',
+                'total_pago': total # O 'total' según tu modelo
+            }
+        )
+
+        # Limpiamos los items viejos del pedido para no duplicar si el usuario volvió atrás
+        ItemPedido.objects.filter(pedido=pedido).delete()
+
+        # Creamos los items actuales
+        for item in carrito.items.all():
+            ItemPedido.objects.create(
+                pedido=pedido,
+                producto=item.producto,
+                nombre_producto=item.producto.nombre,
+                precio_unitario=item.producto.precio,
+                cantidad=item.cantidad
+            )
+
+        return redirect('pagar_pedido', pedido_id=pedido.id)
+
+    subtotal = sum(item.producto.precio * item.cantidad for item in carrito.items.all())
+    return render(request, 'pedidos_pagos/checkout.html', {
+        'carrito': carrito,
+        'subtotal': subtotal,
+    })
