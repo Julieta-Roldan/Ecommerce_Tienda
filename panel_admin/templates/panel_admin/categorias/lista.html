@@ -176,25 +176,26 @@
                    value="{{ busqueda|default:'' }}">
         </div>
         <div class="col-md-3">
-            <label class="small fw-bold text-uppercase mb-1">Categoría</label>
-            <select name="categoria" class="form-select">
-                <option value="">Todas las categorías</option>
-                {% for cat in categorias_list %} <option value="{{ cat.id }}">{{ cat.nombre }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="col-md-3">
-            <label class="small fw-bold text-uppercase mb-1">Estado</label>
+            <label class="small fw-bold text-uppercase mb-1">Filtrar por estado</label>
             <select name="estado" class="form-select">
-                <option value="">Todos los estados</option>
-                <option value="activos">Activos</option>
-                <option value="inactivos">Inactivos</option>
+                <option value="">Todas las categorías</option>
+                <option value="activas" {% if filtro_estado == 'activas' %}selected{% endif %}>Solo activas</option>
+                <option value="inactivas" {% if filtro_estado == 'inactivas' %}selected{% endif %}>Solo inactivas</option>
+                <option value="con_productos" {% if filtro_estado == 'con_productos' %}selected{% endif %}>Con productos</option>
+                <option value="sin_productos" {% if filtro_estado == 'sin_productos' %}selected{% endif %}>Sin productos</option>
             </select>
         </div>
         <div class="col-md-2 d-flex align-items-end">
             <button type="submit" class="btn btn-primary w-100 py-2">
                 <i class="bi bi-filter"></i> Filtrar
             </button>
+        </div>
+        <div class="col-md-3 d-flex align-items-end justify-content-end">
+            {% if busqueda or filtro_estado %}
+            <a href="{% url 'panel_admin:categorias' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-x-circle me-1"></i> Limpiar filtros
+            </a>
+            {% endif %}
         </div>
     </form>
     
@@ -214,7 +215,7 @@
                             </div>
                             <span class="badge bg-info">{{ categoria.producto_set.count }} productos</span>
                         </div>
-                        <p class="card-text text-muted small mb-3">{{ categoria.descripcion|truncatechars:120 }}</p>
+                        <p class="card-text text-muted small mb-3">{{ categoria.descripcion|truncatechars:120|default:"Sin descripción" }}</p>
                         <div class="d-flex justify-content-between align-items-center">
                             <small class="text-muted"><i class="bi bi-calendar me-1"></i>{{ categoria.creado|date:"d/m/Y" }}</small>
                             <div class="btn-group">
@@ -228,7 +229,16 @@
             </div>
             {% endfor %}
         {% else %}
-            <div class="col-12 text-center py-5"><h4>No hay categorías cargadas</h4></div>
+            <div class="col-12 text-center py-5">
+                <i class="bi bi-tags text-muted" style="font-size: 3rem;"></i>
+                <h4 class="mt-3">No hay categorías</h4>
+                {% if busqueda or filtro_estado %}
+                <p class="text-muted">No se encontraron resultados con los filtros aplicados</p>
+                <a href="{% url 'panel_admin:categorias' %}" class="btn btn-dark mt-2">Mostrar todas</a>
+                {% else %}
+                <a href="{% url 'panel_admin:categoria_nueva' %}" class="btn btn-dark mt-3">Crear primera categoría</a>
+                {% endif %}
+            </div>
         {% endif %}
     </div>
 </div>

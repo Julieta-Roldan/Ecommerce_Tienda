@@ -1,0 +1,46 @@
+{% extends 'panel_admin/base_panel.html' %}
+
+{% block page_title %}Confirmar Eliminación de Pedido{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card card-panel">
+                <div class="card-header text-center bg-danger text-white">
+                    <h5 class="mb-0">ELIMINAR PEDIDO</h5>
+                </div>
+                <div class="card-body text-center">
+                    <div class="alert alert-danger" role="alert">
+                        <h4 class="alert-heading">¡ADVERTENCIA!</h4>
+                        <p>Estás a punto de eliminar el pedido <strong>#{{ pedido.id }}</strong> del cliente <strong>{{ pedido.nombre_cliente|default:"No especificado" }}</strong>.</p>
+                        <p>Esta acción <strong>NO SE PUEDE DESHACER</strong> y eliminará todos los items asociados.</p>
+                    </div>
+
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h6 class="mb-0">Detalles del Pedido</h6>
+                        </div>
+                        <div class="card-body text-start">
+                            <p><strong>ID:</strong> #{{ pedido.id }}</p>
+                            <p><strong>Cliente:</strong> {{ pedido.nombre_cliente|default:"No especificado" }}</p>
+                            <p><strong>Email:</strong> {{ pedido.email_cliente|default:"No especificado" }}</p>
+                            <p><strong>Fecha:</strong> {{ pedido.fecha_creacion|date:"d/m/Y H:i" }}</p>
+                            <p><strong>Estado:</strong> <span class="badge bg-dark">{{ pedido.get_estado_display }}</span></p>
+                            <p><strong>Total:</strong> ${{ pedido.get_total_db|default:"0.00" }}</p>
+                        </div>
+                    </div>
+
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="d-flex justify-content-center">
+                            <a href="{% url 'panel_admin:pedidos' %}" class="btn btn-outline-dark me-3">Cancelar</a>
+                            <button type="submit" class="btn btn-danger">ELIMINAR PERMANENTEMENTE</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

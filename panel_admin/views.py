@@ -434,24 +434,57 @@ def producto_editar(request, id):
 @user_passes_test(es_staff)
 @requiere_ver_productos  
 def producto_eliminar(request, id):
+    """Eliminar un producto con manejo de relaciones"""
     producto = get_object_or_404(Producto, id=id)
     
     if request.method == 'POST':
-        producto_nombre = producto.nombre
-        categoria_nombre = producto.categoria.nombre
-        
-        producto.imagenes.all().delete()
-        producto.favorito_set.all().delete()
-        producto.talles.clear()
-        producto.colores.clear()
-        producto.delete()
-        
-        messages.success(request, f'Producto "{producto_nombre}" ELIMINADO PERMANENTEMENTE de la categoría "{categoria_nombre}"')
-        return redirect('panel_admin:productos')
+        try:
+            producto_nombre = producto.nombre
+            categoria_nombre = producto.categoria.nombre
+            
+            # 1. Verificar si hay pedidos asociados
+            tiene_pedidos = producto.itempedido_set.exists()
+            
+            if tiene_pedidos:
+                messages.error(request, 
+                    f'No se puede eliminar el producto "{producto_nombre}" porque tiene pedidos asociados. '
+                    f'Recomendación: Desactiva el producto en lugar de eliminarlo.'
+                )
+                return redirect('panel_admin:productos')
+            
+            # 2. Eliminar imágenes primero
+            producto.imagenes.all().delete()
+            
+            # 3. Eliminar de favoritos
+            producto.favorito_set.all().delete()
+            
+            # 4. Limpiar relaciones ManyToMany
+            producto.talles.clear()
+            producto.colores.clear()
+            
+            # 5. Finalmente eliminar el producto
+            producto.delete()
+            
+            messages.success(request, 
+                f'Producto "{producto_nombre}" ELIMINADO PERMANENTEMENTE de la categoría "{categoria_nombre}"'
+            )
+            return redirect('panel_admin:productos')
+            
+        except Exception as e:
+            messages.error(request, f'Error al eliminar producto: {str(e)}')
+            return redirect('panel_admin:productos')
     
-    return render(request, 'panel_admin/productos/confirmar_eliminar.html', {
-        'producto': producto
-    })
+    # Verificar relaciones antes de mostrar la confirmación
+    tiene_pedidos = producto.itempedido_set.exists()
+    num_pedidos = producto.itempedido_set.count() if tiene_pedidos else 0
+    
+    context = {
+        'producto': producto,
+        'tiene_pedidos': tiene_pedidos,
+        'num_pedidos': num_pedidos,
+    }
+    
+    return render(request, 'panel_admin/productos/confirmar_eliminar.html', context)
 
 # ==================== PEDIDOS ====================
 @login_required
@@ -673,6 +706,7 @@ def categorias_lista(request):
     context = {
         'categorias': categorias,
         'busqueda': busqueda,
+        'filtro_estado': estado,
         'categorias_activas': categorias_activas,
         'categorias_con_productos': categorias_con_productos,
         'total_productos': total_productos,
