@@ -47,6 +47,12 @@ urlpatterns = [
     # Estadísticas
     path('estadisticas/', views.estadisticas, name='estadisticas'),
 
+# #Grupos
+#     path('grupos/', views.grupos_lista, name='grupos'),
+#     path('grupos/nuevo/', views.grupo_nuevo, name='grupo_nuevo'),
+#     path('grupos/editar/<int:id>/', views.grupo_editar, name='grupo_editar'),
+#     path('grupos/eliminar/<int:id>/', views.grupo_eliminar, name='grupo_eliminar'),
+#     path('grupos/<int:id>/actualizar-permisos/', views.actualizar_permisos_grupo, name='actualizar_permisos_grupo'),
 
 
 ]

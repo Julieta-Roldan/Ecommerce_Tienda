@@ -19,7 +19,27 @@ from functools import wraps
 from django.contrib.auth.models import Group, Permission
 from tienda.models import Talle, Color 
 from pedidos_pagos.models import Pedido
+from django.contrib.auth.models import Group
 
+
+
+# AGREGA esta función después de los imports, alrededor de la línea 30:
+def inicializar_grupos_si_no_existen():
+    """Crear grupos básicos si no existen"""
+    from django.contrib.auth.models import Group
+    
+    grupos_basicos = ['Administradores', 'Empleados', 'Vendedores']
+    
+    for nombre_grupo in grupos_basicos:
+        Group.objects.get_or_create(name=nombre_grupo)
+
+
+def crear_grupos_basicos():
+    """Crear los grupos básicos si no existen"""
+    grupos_basicos = ['Administradores', 'Empleados', 'Vendedores']
+    for nombre_grupo in grupos_basicos:
+        Group.objects.get_or_create(name=nombre_grupo)
+    print("Grupos básicos creados/verificados")
 # ==================== DECORADORES PERSONALIZADOS ====================
 
 # ==================== DECORADORES PERSONALIZADOS ====================
@@ -513,6 +533,24 @@ def pedido_detalle(request, id):
     return render(request, 'panel_admin/pedidos/detalle.html', context)
 
 @login_required
+@requiere_ver_pedidos
+def pedido_eliminar(request, pedido_id):
+    """Eliminar un pedido"""
+    pedido = get_object_or_404(Pedido, id=pedido_id)
+    
+    if request.method == 'POST':
+        pedido_id = pedido.id
+        pedido.delete()
+        
+        messages.success(request, f'Pedido #{pedido_id} eliminado correctamente')
+        return redirect('panel_admin:pedidos')
+    
+    context = {
+        'pedido': pedido,
+    }
+    return render(request, 'panel_admin/pedidos/confirmar_eliminar.html', context)
+
+@login_required
 @user_passes_test(es_staff)
 @requiere_ver_pedidos 
 def cambiar_estado_pedido(request, id):
@@ -770,6 +808,10 @@ def categoria_eliminar(request, id):
 @login_required
 @requiere_ver_usuarios
 def usuarios_lista(request):
+    """Listar usuarios con gestión de grupos"""
+    # Inicializar grupos si no existen
+    inicializar_grupos_basicos()
+    
     usuarios = User.objects.all().order_by('-date_joined')
     
     tipo = request.GET.get('tipo')
@@ -810,10 +852,13 @@ def usuarios_lista(request):
     }
     
     return render(request, 'panel_admin/usuarios/lista.html', context)
-
 @login_required
 @requiere_ver_usuarios
 def usuario_nuevo(request):
+    """Crear un nuevo usuario/empleado"""
+    # Inicializar grupos básicos si no existen
+    inicializar_grupos_basicos()
+    
     if request.method == 'POST':
         username = request.POST.get('username')
         email = request.POST.get('email')
@@ -822,20 +867,17 @@ def usuario_nuevo(request):
         last_name = request.POST.get('last_name', '')
         is_staff = request.POST.get('is_staff') == 'on'
         is_active = request.POST.get('is_active') == 'on'
+        is_superuser = request.POST.get('is_superuser') == 'on' if request.user.is_superuser else False
         
+        # Obtener grupos seleccionados
         grupos_ids = request.POST.getlist('groups')
-        grupos = Group.objects.filter(id__in=grupos_ids)
-        
-        permisos_ids = []
-        if request.user.is_superuser:
-            permisos_ids = request.POST.getlist('user_permissions')
-        permisos = Permission.objects.filter(id__in=permisos_ids)
         
         if username and password:
             if User.objects.filter(username=username).exists():
                 messages.error(request, 'El nombre de usuario ya existe')
             else:
                 try:
+                    # Crear usuario
                     user = User.objects.create_user(
                         username=username,
                         email=email,
@@ -843,13 +885,14 @@ def usuario_nuevo(request):
                         first_name=first_name,
                         last_name=last_name,
                         is_staff=is_staff,
-                        is_active=is_active
+                        is_active=is_active,
+                        is_superuser=is_superuser
                     )
                     
-                    user.groups.set(grupos)
-                    
-                    if request.user.is_superuser:
-                        user.user_permissions.set(permisos)
+                    # Asignar grupos al usuario
+                    if grupos_ids:
+                        grupos = Group.objects.filter(id__in=grupos_ids)
+                        user.groups.set(grupos)
                     
                     messages.success(request, f'Usuario "{user.username}" creado correctamente')
                     return redirect('panel_admin:usuarios')
@@ -859,22 +902,30 @@ def usuario_nuevo(request):
         else:
             messages.error(request, 'Nombre de usuario y contraseña son requeridos')
     
+    # Obtener todos los grupos para el formulario
     grupos = Group.objects.all().order_by('name')
-    permisos = Permission.objects.all().order_by('name') if request.user.is_superuser else []
     
-    return render(request, 'panel_admin/usuarios/form.html', {
+    context = {
         'titulo': 'Nuevo Usuario/Empleado',
         'accion': 'Crear',
         'grupos': grupos,
-        'permisos': permisos,
+        'grupos_usuario': [], 
         'es_superuser': request.user.is_superuser,
-    })
+    }
     
+    return render(request, 'panel_admin/usuarios/form.html', context)
+
+
 @login_required
 @requiere_ver_usuarios
 def usuario_editar(request, id):
+    """Editar un usuario existente"""
+    # Inicializar grupos básicos si no existen
+    inicializar_grupos_basicos()
+    
     usuario = get_object_or_404(User, id=id)
     
+    # Verificar permisos para editar
     if usuario.is_superuser and not request.user.is_superuser:
         messages.error(request, 'No tienes permisos para editar superusuarios')
         return redirect('panel_admin:usuarios')
@@ -890,75 +941,89 @@ def usuario_editar(request, id):
         is_staff = request.POST.get('is_staff') == 'on'
         is_active = request.POST.get('is_active') == 'on'
         
-        grupos_ids = request.POST.getlist('groups')
-        grupos = Group.objects.filter(id__in=grupos_ids)
-        
-        permisos_ids = []
+        # Solo superusuarios pueden cambiar is_superuser
         if request.user.is_superuser:
-            permisos_ids = request.POST.getlist('user_permissions')
-        permisos = Permission.objects.filter(id__in=permisos_ids)
+            is_superuser = request.POST.get('is_superuser') == 'on'
+            usuario.is_superuser = is_superuser
         
+        # Obtener grupos seleccionados
+        grupos_ids = request.POST.getlist('groups')
+        
+        # Actualizar datos del usuario
         usuario.email = email
         usuario.first_name = first_name
         usuario.last_name = last_name
         usuario.is_staff = is_staff
         usuario.is_active = is_active
         
+        # Cambiar contraseña si se proporcionó una nueva
         nueva_password = request.POST.get('password')
         if nueva_password:
             usuario.set_password(nueva_password)
         
         usuario.save()
         
-        usuario.groups.set(grupos)
-        
-        if request.user.is_superuser:
-            usuario.user_permissions.set(permisos)
+        # Asignar grupos al usuario
+        if grupos_ids:
+            grupos = Group.objects.filter(id__in=grupos_ids)
+            usuario.groups.set(grupos)
+        else:
+            usuario.groups.clear()
         
         messages.success(request, f'Usuario "{usuario.username}" actualizado correctamente')
         return redirect('panel_admin:usuarios')
     
+    # Obtener todos los grupos y los grupos del usuario
     grupos = Group.objects.all().order_by('name')
-    permisos = Permission.objects.all().order_by('name') if request.user.is_superuser else []
+    grupos_usuario = usuario.groups.all()
+    grupos_usuario_ids = [grupo.id for grupo in grupos_usuario]
     
-    return render(request, 'panel_admin/usuarios/form.html', {
+    context = {
         'titulo': f'Editar: {usuario.username}',
         'accion': 'Actualizar',
         'usuario': usuario,
         'grupos': grupos,
-        'permisos': permisos,
+        'grupos_usuario': grupos_usuario_ids,
         'es_superuser': request.user.is_superuser,
-    })
+    }
+    
+    return render(request, 'panel_admin/usuarios/form.html', context)
 
 @login_required
 @requiere_ver_usuarios
 def usuario_eliminar(request, id):
     """Eliminar un usuario"""
     usuario = get_object_or_404(User, id=id)
-    
+
     if usuario == request.user:
         messages.error(request, 'No puedes eliminar tu propia cuenta')
         return redirect('panel_admin:usuarios')
-    
+
     if usuario.is_superuser and not request.user.is_superuser:
         messages.error(request, 'No tienes permisos para eliminar superusuarios')
         return redirect('panel_admin:usuarios')
-    
+
     if not request.user.is_superuser and usuario.groups.filter(name='Administradores').exists():
         messages.error(request, 'No puedes eliminar a otros administradores')
         return redirect('panel_admin:usuarios')
-    
+
     if request.method == 'POST':
         username = usuario.username
         usuario.delete()
-        messages.success(request, f'Usuario "{username}" eliminado correctamente')
+        messages.success(
+            request,
+            f'Usuario "{username}" eliminado correctamente'
+        )
         return redirect('panel_admin:usuarios')
-    
+
     context = {
         'usuario': usuario,
     }
-    return render(request, 'panel_admin/usuarios/confirmar_eliminar.html', context)
-
+    return render(
+        request,
+        'panel_admin/usuarios/confirmar_eliminar.html',
+        context
+    )
 
 # ==================== TALLES Y COLORES RÁPIDOS ====================
 
@@ -1083,33 +1148,51 @@ def eliminar_color_rapido(request):
 @login_required
 @requiere_ver_usuarios
 def cambiar_estado_usuario(request, id):
-    """Cambiar el estado activo/inactivo de un usuario"""
+    """Cambiar el estado activo/inactivo de un usuario (AJAX)"""
     usuario = get_object_or_404(User, id=id)
     
     if usuario == request.user:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': False,
+                'error': 'No puedes cambiar el estado de tu propia cuenta'
+            })
         messages.error(request, 'No puedes cambiar el estado de tu propia cuenta')
         return redirect('panel_admin:usuarios')
     
     if usuario.is_superuser and not request.user.is_superuser:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': False,
+                'error': 'No tienes permisos para cambiar el estado de superusuarios'
+            })
         messages.error(request, 'No tienes permisos para cambiar el estado de superusuarios')
         return redirect('panel_admin:usuarios')
     
     if request.method == 'POST':
-        nuevo_estado = request.POST.get('estado') == 'activo'
+        # Determinar nuevo estado
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            import json
+            data = json.loads(request.body)
+            nuevo_estado = data.get('estado', True)
+        else:
+            nuevo_estado = request.POST.get('estado') == 'true'
         
+        # Cambiar estado
         usuario.is_active = nuevo_estado
         usuario.save()
         
         estado_texto = 'activado' if nuevo_estado else 'desactivado'
-        messages.success(request, f'Usuario "{usuario.username}" {estado_texto} correctamente')
+        mensaje = f'Usuario "{usuario.username}" {estado_texto} correctamente'
         
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return JsonResponse({
                 'success': True,
                 'nuevo_estado': 'activo' if usuario.is_active else 'inactivo',
-                'mensaje': f'Usuario {estado_texto} correctamente'
+                'mensaje': mensaje
             })
         
+        messages.success(request, mensaje)
         return redirect('panel_admin:usuarios')
     
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -1121,8 +1204,28 @@ def cambiar_estado_usuario(request, id):
     messages.error(request, 'Método no permitido')
     return redirect('panel_admin:usuarios')
 
-def pedido_eliminar(request, pedido_id):
-    pedido = get_object_or_404(Pedido, id=pedido_id)
-    pedido.delete()
-    messages.success(request, f"Pedido #{pedido_id} eliminado correctamente.")
-    return redirect('panel_admin:pedidos')
+# ==================== FUNCIONES AUXILIARES ====================
+
+def inicializar_grupos_basicos():
+    """Crear los grupos básicos del sistema si no existen"""
+    grupos_basicos = [
+        {
+            'name': 'Administradores',
+            'description': 'Acceso completo a todo el sistema'
+        },
+        {
+            'name': 'Empleados', 
+            'description': 'Pueden gestionar productos, categorías y pedidos'
+        },
+        {
+            'name': 'Vendedores',
+            'description': 'Solo pueden ver y gestionar pedidos'
+        }
+    ]
+    
+    for grupo_data in grupos_basicos:
+        grupo, creado = Group.objects.get_or_create(name=grupo_data['name'])
+        if creado:
+            print(f"Grupo creado: {grupo_data['name']}")
+    
+    return True
