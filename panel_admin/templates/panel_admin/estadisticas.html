@@ -5,6 +5,7 @@
 
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 {% endblock %}
 
 {% block content %}
@@ -40,12 +41,28 @@
         border-radius: 0;
         padding: 20px;
         transition: 0.3s ease;
+        /* Para alinear el icono nuevo */
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
     }
 
-    .stat-box:hover {
-        background-color: #000 !important;
-        color: #fff !important;
-        border-color: #fff;
+    /* EFECTO HOVER PARA EL ICONO */
+    .stat-box:hover .calendar-icon {
+        transform: scale(1.2);
+        color: #666;
+    }
+
+    .calendar-icon {
+        font-size: 1.3rem;
+        transition: 0.2s;
+    }
+
+    /* ELIMINA EL ICONO NATIVO QUE NO SE PODÍA TOCAR */
+    input[type="date"]::-webkit-calendar-picker-indicator {
+        display: none;
+        -webkit-appearance: none;
     }
 
     .stat-box h3 {
@@ -101,12 +118,22 @@
         transition: 0.3s ease;
     }
 
-    /* Estilo para placeholders cuando no hay datos */
     .placeholder-item {
         border: 1px dashed #000 !important;
         margin-bottom: 10px;
         padding: 10px;
         background: #f9f9f9;
+    }
+
+    .input-date-custom {
+        border: none;
+        font-weight: 900;
+        font-size: 1.3rem;
+        text-transform: uppercase;
+        width: 100%;
+        outline: none;
+        cursor: pointer;
+        background: transparent;
     }
 </style>
 
@@ -115,93 +142,101 @@
         <div class="col-12">
             <div class="card card-panel bg-seccion-fechas">
                 <div class="card-body">
-                    <div class="row text-center">
-                        <div class="col-md-6 mb-3 mb-md-0">
-                            <div class="stat-box">
-                                <small>Fecha Actual</small>
-                                <h3 class="mb-0">{{ hoy|date:"d/m/Y" }}</h3>
+                    <form method="GET" action="">
+                        <div class="row text-center align-items-center">
+                            <div class="col-md-5 mb-3 mb-md-0">
+                                <div class="stat-box" onclick="document.getElementById('date_desde').showPicker()">
+                                    <div class="text-start flex-grow-1">
+                                        <small>Periodo desde</small>
+                                        <input type="date" id="date_desde" name="fecha_desde" class="input-date-custom" value="{{ hace_30_dias|date:'Y-m-d' }}">
+                                    </div>
+                                    <i class="bi bi-calendar-event calendar-icon"></i>
+                                </div>
+                            </div>
+                            <div class="col-md-5 mb-3 mb-md-0">
+                                <div class="stat-box" onclick="document.getElementById('date_hasta').showPicker()">
+                                    <div class="text-start flex-grow-1">
+                                        <small>Fecha Actual</small>
+                                        <input type="date" id="date_hasta" name="fecha_hasta" class="input-date-custom" value="{{ hoy|date:'Y-m-d' }}">
+                                    </div>
+                                    <i class="bi bi-calendar-check calendar-icon"></i>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-light w-100 py-3" style="border-radius: 0; border: 2px solid #000; font-weight: 900;">
+                                    FILTRAR
+                                </button>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="stat-box">
-                                <small>Periodo desde</small>
-                                <h3 class="mb-0">{{ hace_30_dias|date:"d/m/Y" }}</h3>
-                            </div>
-                        </div>
-                    </div>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
     
     <div class="row">
-       <div class="col-lg-8 mb-4">
-    <div class="card card-panel h-100">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0 small fw-800">Ventas Últimos 30 Días</h5>
-            {% if not ventas_por_dia %}
-            <span class="badge bg-light text-dark fw-bold" style="font-size: 0.5rem; letter-spacing: 1px;">VISTA PREVIA</span>
-            {% endif %}
-        </div>
-        <div class="card-body">
-            <canvas id="ventasChart" height="100"></canvas>
-            
-            {# Pasamos los datos de forma segura para que JS no tire error #}
-            {{ ventas_por_dia|json_script:"ventas-data" }}
+        <div class="col-lg-8 mb-4">
+            <div class="card card-panel h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 small fw-800">Ventas del Periodo</h5>
+                    {% if not ventas_por_dia %}
+                    <span class="badge bg-light text-dark fw-bold" style="font-size: 0.5rem; letter-spacing: 1px;">VISTA PREVIA</span>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <canvas id="ventasChart" height="100"></canvas>
+                    {{ ventas_por_dia|json_script:"ventas-data" }}
 
-            <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const ctx = document.getElementById('ventasChart').getContext('2d');
-                
-                // Recuperamos los datos del script tag de arriba
-                const datosDjango = JSON.parse(document.getElementById('ventas-data').textContent);
-                
-                let labels = datosDjango.map(v => v.fecha_formateada || v.fecha); 
-                let data = datosDjango.map(v => v.total || 0);
-                
-                let colorLinea = '#000';
-                let colorFondo = 'rgba(0, 0, 0, 0.05)';
+                    <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const ctx = document.getElementById('ventasChart').getContext('2d');
+                        const datosDjango = JSON.parse(document.getElementById('ventas-data').textContent);
+                        
+                        let labels = datosDjango.map(v => v.fecha_formateada || v.fecha); 
+                        let data = datosDjango.map(v => v.total || 0);
+                        
+                        let colorLinea = '#000';
+                        let colorFondo = 'rgba(0, 0, 0, 0.05)';
 
-                // Si no hay datos (labels vacío o longitud 0)
-                if (labels.length === 0) {
-                    labels = ['Día 05', 'Día 10', 'Día 15', 'Día 20', 'Día 25', 'Hoy'];
-                    data = [500, 1500, 800, 3200, 2100, 4500];
-                    colorFondo = 'rgba(0, 0, 0, 0.02)';
-                }
-                
-                new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'Ventas ($)',
-                            data: data,
-                            borderColor: colorLinea,
-                            backgroundColor: colorFondo,
-                            borderWidth: 2,
-                            pointBackgroundColor: colorLinea,
-                            tension: 0.4,
-                            fill: true
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: { legend: { display: false } },
-                        scales: {
-                            y: { 
-                                beginAtZero: true, 
-                                ticks: { 
-                                    callback: (v) => '$' + v.toLocaleString() 
-                                } 
-                            }
+                        if (labels.length === 0) {
+                            labels = ['Día 05', 'Día 10', 'Día 15', 'Día 20', 'Día 25', 'Hoy'];
+                            data = [500, 1500, 800, 3200, 2100, 4500];
+                            colorFondo = 'rgba(0, 0, 0, 0.02)';
                         }
-                    }
-                });
-            });
-            </script>
+                        
+                        new Chart(ctx, {
+                            type: 'line',
+                            data: {
+                                labels: labels,
+                                datasets: [{
+                                    label: 'Ventas ($)',
+                                    data: data,
+                                    borderColor: colorLinea,
+                                    backgroundColor: colorFondo,
+                                    borderWidth: 2,
+                                    pointBackgroundColor: colorLinea,
+                                    tension: 0.4,
+                                    fill: true
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                plugins: { legend: { display: false } },
+                                scales: {
+                                    y: { 
+                                        beginAtZero: true, 
+                                        ticks: { 
+                                            callback: (v) => '$' + v.toLocaleString() 
+                                        } 
+                                    }
+                                }
+                            }
+                        });
+                    });
+                    </script>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
         
         <div class="col-lg-4 mb-4">
             <div class="card card-panel h-100">
@@ -242,43 +277,43 @@
     </div>
     
     <div class="row mb-4">
-    <div class="col-12">
-        <div class="card card-panel">
-            <div class="card-header">
-                <h5 class="mb-0 small fw-800">Categorías Populares</h5>
-            </div>
-            <div class="card-body">
-                <div class="row g-3">
-                    {% if categorias_populares %}
-                        {% for categoria in categorias_populares %}
-                        <div class="col-md-3">
-                            <a href="{% url 'panel_admin:productos' %}?categoria={{ categoria.categoria__id|default:categoria.id }}" class="text-decoration-none">
-                                <div class="p-3 border text-center categoria-item-negro">
-                                    <h6 class="fw-900 text-uppercase mb-2">
-                                        {{ categoria.categoria__nombre|default:categoria.nombre }}
-                                    </h6>
-                                    <div class="d-flex justify-content-center gap-2">
-                                        <span class="badge-blanco-custom">{{ categoria.total_productos }} PRODUCTOS</span>
+        <div class="col-12">
+            <div class="card card-panel">
+                <div class="card-header">
+                    <h5 class="mb-0 small fw-800">Categorías Populares</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        {% if categorias_populares %}
+                            {% for categoria in categorias_populares %}
+                            <div class="col-md-3">
+                                <a href="{% url 'panel_admin:productos' %}?categoria={{ categoria.categoria__id|default:categoria.id }}" class="text-decoration-none">
+                                    <div class="p-3 border text-center categoria-item-negro">
+                                        <h6 class="fw-900 text-uppercase mb-2">
+                                            {{ categoria.categoria__nombre|default:categoria.nombre }}
+                                        </h6>
+                                        <div class="d-flex justify-content-center gap-2">
+                                            <span class="badge-blanco-custom">{{ categoria.total_productos }} PRODUCTOS</span>
+                                        </div>
                                     </div>
-                                </div>
-                            </a>
-                        </div>
-                        {% endfor %}
-                    {% else %}
-                        {% for i in "1234" %}
-                        <div class="col-md-3">
-                            <div class="p-3 text-center" style="border: 1px dashed #000;">
-                                <h6 class="fw-800 text-uppercase mb-2" style="font-size: 0.7rem;">Sin Categoría</h6>
-                                <span class="badge-bw" style="font-size: 0.5rem;">SIN DATOS</span>
+                                </a>
                             </div>
-                        </div>
-                        {% endfor %}
-                    {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            {% for i in "1234" %}
+                            <div class="col-md-3">
+                                <div class="p-3 text-center" style="border: 1px dashed #000;">
+                                    <h6 class="fw-800 text-uppercase mb-2" style="font-size: 0.7rem;">Sin Categoría</h6>
+                                    <span class="badge-bw" style="font-size: 0.5rem;">SIN DATOS</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
     {% if not ventas_por_dia %}
     <div class="row">
