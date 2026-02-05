@@ -116,10 +116,13 @@
 
            <div class="mt-5">
     <div class="d-flex gap-2 mb-2">
-      
-        <button class="btn btn-dark w-100 py-3 fw-bold shadow-sm text-uppercase">
-            COMPRAR AHORA
-        </button>
+
+      <!-- Botón COMPRAR AHORA -->
+<a href="{% url 'comprar_ahora' producto.id %}" 
+   class="btn btn-dark btn-lg text-uppercase fw-bold w-100 mb-2"
+   style="border-radius: 0; padding: 15px;">
+    <i class="bi bi-lightning me-2"></i> COMPRAR AHORA
+</a>
         
         <button class="btn btn-outline-dark px-4 d-flex align-items-center justify-content-center btn-favorito" 
                 data-id="{{ producto.id }}" 

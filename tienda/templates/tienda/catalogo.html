@@ -71,6 +71,12 @@
                  $ {{ producto.precio|floatformat:"0"|intcomma }}
                 </p>
 
+ <a 
+                href="{% url 'comprar_ahora' producto.id %}"
+                class="btn btn-dark btn-sm mt-2 text-uppercase fw-bold">
+                Comprar ahora
+                </a>
+
                 <a 
                 href="{% url 'carrito_agregar' producto.id %}"
                 class="btn btn-dark btn-sm mt-2 text-uppercase fw-bold">
