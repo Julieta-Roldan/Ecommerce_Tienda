@@ -18,8 +18,7 @@ from django.core.exceptions import PermissionDenied
 from functools import wraps
 from django.contrib.auth.models import Group, Permission
 from tienda.models import Talle, Color 
-
-
+from pedidos_pagos.models import Pedido
 # ==================== DECORADORES PERSONALIZADOS ====================
 
 def requiere_permiso(permiso_codename):
@@ -1150,3 +1149,9 @@ def eliminar_color_rapido(request):
             return JsonResponse({'success': False, 'error': str(e)})
     
     return JsonResponse({'success': False, 'error': 'Método no permitido'})
+
+def pedido_eliminar(request, pedido_id):
+    pedido = get_object_or_404(Pedido, id=pedido_id)
+    pedido.delete()
+    messages.success(request, f"Pedido #{pedido_id} eliminado correctamente.")
+    return redirect('panel_admin:pedidos')

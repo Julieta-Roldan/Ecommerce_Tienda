@@ -3,11 +3,126 @@
 {% block page_title %}Confirmar eliminación{% endblock %}
 
 {% block content %}
+<style>
+    /* Estilo Brutalista Black & White */
+    .card-panel {
+        border: 3px solid #000 !important;
+        border-radius: 0 !important;
+        background-color: #fff;
+    }
+    .card-header {
+        background-color: #000 !important;
+        color: #fff !important;
+        border-radius: 0 !important;
+        border-bottom: 3px solid #000;
+        text-transform: uppercase;
+        font-weight: 900;
+    }
+    
+    /* Botones Estilo Black & White */
+    .btn-danger {
+        background-color: #000 !important;
+        color: #fff !important;
+        border: 3px solid #000 !important;
+        border-radius: 0 !important;
+        text-transform: uppercase;
+        font-weight: 900;
+        letter-spacing: 1px;
+    }
+    .btn-danger:hover {
+        background-color: #d90429 !important;
+        color: #ffffff !important;
+    }
+    .btn-outline-secondary, .btn-outline-primary, .btn-outline-warning {
+        background-color: #fff !important;
+        color: #000 !important;
+        border: 2px solid #000 !important;
+        border-radius: 0 !important;
+        text-transform: uppercase;
+        font-weight: 700;
+    }
+
+    /* Estilo de Alertas con fondo blanco y letras de color */
+    .alert {
+        border: 2px solid #000 !important;
+        border-radius: 0 !important;
+        background-color: #fff !important; 
+        font-weight: 600;
+    }
+
+    /* ADVERTENCIA CRÍTICA */
+    .alert-danger {
+        color: #d90429 !important;
+        border-color: #000 !important;
+    }
+    .alert-danger h6, .alert-danger strong, .alert-danger i {
+        color: #d90429 !important;
+        font-weight: 900;
+    }
+
+    /* ALTERNATIVAS RECOMENDADAS */
+    .alert-info {
+        color: #0092af !important;
+        border-color: #000 !important;
+    }
+    .alert-info h6, .alert-info strong, .alert-info i {
+        color: #0092af !important;
+        font-weight: 900;
+    }
+
+    /* Badges */
+    .badge {
+        border-radius: 0 !important;
+        border: 1px solid #000;
+        text-transform: uppercase;
+    }
+    .bg-success { background-color: #000 !important; color: #fff !important; }
+    .bg-info { background-color: #000 !important; color: #fff !important; }
+    .card { border-radius: 0; border: 2px solid #000; }
+    
+    .main-warning-color { color: #d90429 !important; }
+
+    /* ESTILO PARA LOS BOTONES DEL FORM */
+    .btn-brutalista {
+        border: 3px solid #000 !important;
+        border-radius: 0 !important;
+        text-transform: uppercase;
+        font-weight: 900;
+        box-shadow: 4px 4px 0px #000;
+    }
+    .btn-cancelar { background-color: #fff !important; color: #000 !important; }
+    .btn-eliminar { background-color: #000 !important; color: #fff !important; }
+    .btn-eliminar:hover { background-color: #d90429 !important; color: #fff !important; }
+
+    /* MODAL CONTENT BRUTALISTA */
+    .modal-content {
+        border: 5px solid #000 !important;
+        border-radius: 0 !important;
+        box-shadow: 12px 12px 0px #000;
+        background-color: #fff !important;
+    }
+    
+    /* FONDO SÚPER BORROSO - 15px de puro blur */
+    .modal-backdrop.show {
+        backdrop-filter: blur(15px) !important;
+        -webkit-backdrop-filter: blur(15px) !important;
+        background-color: rgba(0, 0, 0, 0.7) !important;
+        opacity: 1 !important;
+    }
+
+    /* Posicionamiento a la misma altura que la card principal */
+    .modal-dialog-custom {
+        margin-top: 5rem;
+        display: flex;
+        justify-content: center;
+    }
+</style>
+
 <div class="container-fluid">
     <div class="row justify-content-center">
         <div class="col-md-6 col-lg-5">
             <div class="card card-panel">
-                <div class="card-header bg-danger text-white">
+                <div class="card-header text-center">
                     <h5 class="mb-0">
                         <i class="bi bi-exclamation-triangle me-2"></i>Confirmar eliminación
                     </h5>
@@ -15,27 +130,22 @@
                 
                 <div class="card-body text-center">
                     <div class="mb-4">
-                        <i class="bi bi-tag text-danger" style="font-size: 4rem;"></i>
+                        <i class="bi bi-tag main-warning-color" style="font-size: 4rem;"></i>
                     </div>
                     
-                    <h4 class="mb-3">¿Eliminar categoría?</h4>
+                    <h4 class="mb-3 fw-bold text-uppercase main-warning-color">¿Eliminar categoría?</h4>
                     
                     <div class="alert alert-warning mb-4">
-                        <p class="mb-2">
-                            Estás a punto de eliminar la categoría:
-                        </p>
-                        <h5 class="mb-0">{{ categoria.nombre }}</h5>
+                        <p class="mb-2 text-uppercase fw-bold">Estás a punto de eliminar la categoría:</p>
+                        <h5 class="mb-0 fw-black text-decoration-underline">{{ categoria.nombre }}</h5>
                         {% if categoria.descripcion %}
-                        <p class="mb-0 mt-2">
-                            <small>{{ categoria.descripcion|truncatechars:100 }}</small>
-                        </p>
+                        <p class="mb-0 mt-2"><small>{{ categoria.descripcion|truncatechars:100 }}</small></p>
                         {% endif %}
                     </div>
                     
-                    <!-- Información de la categoría -->
                     <div class="card mb-4">
                         <div class="card-body text-start">
-                            <h6>Información de la categoría:</h6>
+                            <h6 class="fw-bold text-uppercase small">Información de la categoría:</h6>
                             <div class="row small">
                                 <div class="col-md-6">
                                     <strong>ID:</strong> #{{ categoria.id }}<br>
@@ -45,85 +155,71 @@
                                     {% else %}
                                     <span class="badge bg-secondary">Inactiva</span>
                                     {% endif %}<br>
-                                    <strong>Creada:</strong> 
-                                    {% if categoria.creado %}
-                                    {{ categoria.creado|date:"d/m/Y" }}
-                                    {% else %}
-                                    <span class="fst-italic">Sin fecha</span>
-                                    {% endif %}
                                 </div>
                                 <div class="col-md-6">
-                                    <strong>Productos asociados:</strong> 
+                                    <strong>Productos:</strong> 
                                     <span class="badge bg-info">{{ categoria.producto_set.count }}</span><br>
-                                    <strong>Actualizada:</strong> 
-                                    {% if categoria.actualizado %}
-                                    {{ categoria.actualizado|date:"d/m/Y" }}
-                                    {% else %}
-                                    <span class="fst-italic">Sin fecha</span>
-                                    {% endif %}
                                 </div>
                             </div>
                         </div>
                     </div>
                     
-                    <!-- Advertencia importante -->
                     {% if categoria.producto_set.exists %}
                     <div class="alert alert-danger">
-                        <h6><i class="bi bi-exclamation-octagon me-1"></i> ¡ADVERTENCIA CRÍTICA!</h6>
-                        <p class="mb-2">
-                            Esta categoría tiene <strong>{{ categoria.producto_set.count }} producto(s)</strong> asociado(s).
-                        </p>
-                        <ul class="mb-0 small">
-                            <li>Si eliminas esta categoría, <strong>todos estos productos quedarán sin categoría</strong></li>
-                            <li>Los productos sin categoría <strong>no se mostrarán correctamente en la tienda</strong></li>
-                            <li>Los filtros por categoría <strong>dejarán de funcionar</strong> para estos productos</li>
+                        <h6 class="fw-bold text-uppercase"><i class="bi bi-exclamation-octagon me-1"></i> ¡ADVERTENCIA CRÍTICA!</h6>
+                        <p class="mb-2">Esta categoría tiene <strong>{{ categoria.producto_set.count }} producto(s)</strong> asociado(s).</p>
+                        <ul class="mb-0 small text-start">
+                            <li>Si eliminas esta categoría, todos estos productos quedarán sin categoría</li>
+                            <li>Los productos sin categoría no se mostrarán correctamente</li>
+                            <li>Los filtros por categoría dejarán de funcionar</li>
                         </ul>
                     </div>
                     
-                    <!-- Alternativas -->
                     <div class="alert alert-info">
-                        <h6><i class="bi bi-lightbulb me-1"></i> Alternativas recomendadas:</h6>
-                        <ul class="mb-0 small">
-                            <li><strong>Desactivar:</strong> La categoría no se mostrará en la tienda pero los productos mantendrán la relación</li>
-                            <li><strong>Mover productos:</strong> Primero mueve todos los productos a otra categoría y luego elimina esta</li>
-                            <li><strong>Renombrar:</strong> Cambia el nombre si es necesario en lugar de eliminar</li>
+                        <h6 class="fw-bold text-uppercase"><i class="bi bi-lightbulb me-1"></i> Alternativas recomendadas:</h6>
+                        <ul class="mb-0 small text-start">
+                            <li>Desactivar: Los productos mantienen la relación</li>
+                            <li>Mover productos: Cámbialos antes de eliminar</li>
+                            <li>Renombrar: Solo cambia el nombre</li>
                         </ul>
                     </div>
                     {% else %}
                     <div class="alert alert-success">
-                        <h6><i class="bi bi-check-circle me-1"></i> Categoría sin productos</h6>
-                        <p class="mb-0">
-                            Esta categoría no tiene productos asociados, por lo que su eliminación es segura.
-                        </p>
+                        <h6 class="fw-bold text-uppercase"><i class="bi bi-check-circle me-1"></i> Categoría sin productos</h6>
+                        <p class="mb-0">Eliminación segura.</p>
                     </div>
                     {% endif %}
                     
-                    <form method="POST">
-                        {% csrf_token %}
-                        <div class="d-flex justify-content-center mt-4">
-                            <a href="{% url 'panel_admin:categorias' %}" class="btn btn-outline-secondary me-3">
-                                <i class="bi bi-x-circle me-1"></i> Cancelar
-                            </a>
-                            <button type="submit" class="btn btn-danger" 
-                                    {% if categoria.producto_set.exists %}
-                                    onclick="return confirm('⚠️ ¿ESTÁS ABSOLUTAMENTE SEGURO?\\n\\nEsta categoría tiene {{ categoria.producto_set.count }} productos.\\n\\n¿Realmente quieres continuar con la eliminación?')"
-                                    {% endif %}>
-                                <i class="bi bi-trash me-1"></i> Sí, eliminar categoría
-                            </button>
-                        </div>
-                    </form>
-                    
-                    {% if categoria.producto_set.exists %}
-                    <div class="mt-4">
-                        <a href="{% url 'panel_admin:categorias' %}" class="btn btn-outline-primary btn-sm">
-                            <i class="bi bi-arrow-left me-1"></i> Volver y desactivar categoría
+                    <div class="d-flex justify-content-center mt-4">
+                        <a href="{% url 'panel_admin:categorias' %}" class="btn btn-brutalista btn-cancelar me-3">
+                            <i class="bi bi-x-circle me-1"></i> Cancelar
                         </a>
-                        <a href="{% url 'panel_admin:categorias' %}" class="btn btn-outline-warning btn-sm ms-2">
-                            <i class="bi bi-tags me-1"></i> Ver todas las categorías
-                        </a>
+                        <button type="button" class="btn btn-brutalista btn-eliminar" data-bs-toggle="modal" data-bs-target="#confirmModal">
+                            <i class="bi bi-trash me-1"></i> Sí, eliminar categoría
+                        </button>
                     </div>
-                    {% endif %}
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-custom" style="max-width: 450px; margin-left: auto; margin-right: auto;">
+        <div class="modal-content">
+            <div class="modal-body text-center p-4">
+                <h2 class="main-warning-color fw-black mb-3">⚠️ ¡ATENCIÓN!</h2>
+                <p class="fw-bold text-uppercase mb-4">
+                    ¿ESTÁS ABSOLUTAMENTE SEGURO?<br><br>
+                    <span class="text-dark">Categoría con {{ categoria.producto_set.count }} productos vinculados.</span>
+                </p>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="d-flex flex-column gap-3">
+                        <button type="submit" class="btn btn-brutalista btn-eliminar w-100" style="background-color: #d90429 !important; box-shadow: 6px 6px 0px #000;">SÍ, ELIMINAR AHORA</button>
+                        <button type="button" class="btn btn-brutalista btn-cancelar w-100" data-bs-dismiss="modal" style="box-shadow: 6px 6px 0px #000;">NO, CANCELAR</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

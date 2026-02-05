@@ -1,4 +1,5 @@
 {% extends 'panel_admin/base_panel.html' %}
+{% load humanize %}
 
 {% block page_title %}{{ titulo }}{% endblock %}
 
@@ -157,7 +158,6 @@
                             </select>
                         </div>
                         
-                        <!-- NUEVO: Talles con opción de agregar -->
                         <div class="col-md-6">
                             <label class="form-label">Talles Disponibles</label>
                             <div class="mb-2">
@@ -193,7 +193,6 @@
                             </div>
                         </div>
                         
-                        <!-- NUEVO: Colores con opción de agregar -->
                         <div class="col-md-6">
                             <label class="form-label">Colores Disponibles</label>
                             <div class="mb-2">
@@ -274,7 +273,7 @@
                             <small class="text-uppercase fw-bold">Stock</small>
                         </div>
                         <div class="col-md-3 p-3 border-end border-dark">
-                            <h4 class="fw-black mb-0">${{ producto.precio|floatformat:0 }}</h4>
+                            <h4 class="fw-black mb-0">${{ producto.precio|floatformat:0|intcomma }}</h4>
                             <small class="text-uppercase fw-bold">Precio</small>
                         </div>
                         <div class="col-md-3 p-3">
@@ -452,7 +451,7 @@
             if (data.success) {
                 // Remover el elemento del DOM
                 const elemento = document.getElementById(`talle_item_${id}`);
-                if (elemento) {
+                if (element) {
                     elemento.remove();
                 }
                 alert(data.message);
@@ -486,7 +485,7 @@
             if (data.success) {
                 // Remover el elemento del DOM
                 const elemento = document.getElementById(`color_item_${id}`);
-                if (elemento) {
+                if (element) {
                     elemento.remove();
                 }
                 alert(data.message);
