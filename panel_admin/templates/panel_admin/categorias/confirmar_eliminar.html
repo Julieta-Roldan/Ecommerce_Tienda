@@ -21,7 +21,7 @@
     
     /* Botones Estilo Black & White */
     .btn-danger {
-        background-color: #000 !important;
+        background-color: #d90429 !important;
         color: #fff !important;
         border: 3px solid #000 !important;
         border-radius: 0 !important;
@@ -30,16 +30,39 @@
         letter-spacing: 1px;
     }
     .btn-danger:hover {
-        background-color: #d90429 !important;
+        background-color: #b00020 !important;
         color: #ffffff !important;
     }
-    .btn-outline-secondary, .btn-outline-primary, .btn-outline-warning {
+    .btn-outline-secondary {
         background-color: #fff !important;
         color: #000 !important;
         border: 2px solid #000 !important;
         border-radius: 0 !important;
         text-transform: uppercase;
         font-weight: 700;
+    }
+    .btn-outline-secondary:hover {
+        background-color: #000 !important;
+        color: #fff !important;
+    }
+
+    /* ESTILO PARA LOS BOTONES DEL FORM */
+    .btn-brutalista {
+        border: 3px solid #000 !important;
+        border-radius: 0 !important;
+        text-transform: uppercase;
+        font-weight: 900;
+        box-shadow: 4px 4px 0px #000;
+    }
+    .btn-cancelar { background-color: #fff !important; color: #000 !important; }
+    .btn-eliminar { 
+        background-color: #d90429 !important; 
+        color: #fff !important;
+        border-color: #000 !important;
+    }
+    .btn-eliminar:hover { 
+        background-color: #b00020 !important; 
+        color: #fff !important; 
     }
 
     /* Estilo de Alertas con fondo blanco y letras de color */
@@ -53,20 +76,20 @@
     /* ADVERTENCIA CRÍTICA */
     .alert-danger {
         color: #d90429 !important;
-        border-color: #000 !important;
+        border-color: #d90429 !important;
     }
     .alert-danger h6, .alert-danger strong, .alert-danger i {
         color: #d90429 !important;
         font-weight: 900;
     }
 
-    /* ALTERNATIVAS RECOMENDADAS */
-    .alert-info {
-        color: #0092af !important;
-        border-color: #000 !important;
+    /* CONFIRMACIÓN SEGURA */
+    .alert-success {
+        color: #006400 !important;
+        border-color: #006400 !important;
     }
-    .alert-info h6, .alert-info strong, .alert-info i {
-        color: #0092af !important;
+    .alert-success h6, .alert-success strong, .alert-success i {
+        color: #006400 !important;
         font-weight: 900;
     }
 
@@ -76,45 +99,17 @@
         border: 1px solid #000;
         text-transform: uppercase;
     }
-    .bg-success { background-color: #000 !important; color: #fff !important; }
-    .bg-info { background-color: #000 !important; color: #fff !important; }
+    .bg-danger { background-color: #d90429 !important; color: #fff !important; }
+    .bg-success { background-color: #006400 !important; color: #fff !important; }
     .card { border-radius: 0; border: 2px solid #000; }
     
     .main-warning-color { color: #d90429 !important; }
+    .main-success-color { color: #006400 !important; }
 
-    /* ESTILO PARA LOS BOTONES DEL FORM */
-    .btn-brutalista {
-        border: 3px solid #000 !important;
-        border-radius: 0 !important;
-        text-transform: uppercase;
-        font-weight: 900;
-        box-shadow: 4px 4px 0px #000;
-    }
-    .btn-cancelar { background-color: #fff !important; color: #000 !important; }
-    .btn-eliminar { background-color: #000 !important; color: #fff !important; }
-    .btn-eliminar:hover { background-color: #d90429 !important; color: #fff !important; }
-
-    /* MODAL CONTENT BRUTALISTA */
-    .modal-content {
-        border: 5px solid #000 !important;
-        border-radius: 0 !important;
-        box-shadow: 12px 12px 0px #000;
-        background-color: #fff !important;
-    }
-    
-    /* FONDO SÚPER BORROSO - 15px de puro blur */
-    .modal-backdrop.show {
-        backdrop-filter: blur(15px) !important;
-        -webkit-backdrop-filter: blur(15px) !important;
-        background-color: rgba(0, 0, 0, 0.7) !important;
-        opacity: 1 !important;
-    }
-
-    /* Posicionamiento a la misma altura que la card principal */
-    .modal-dialog-custom {
-        margin-top: 5rem;
-        display: flex;
-        justify-content: center;
+    /* Icono grande */
+    .warning-icon-large {
+        font-size: 5rem;
+        color: #d90429;
     }
 </style>
 
@@ -124,268 +119,131 @@
             <div class="card card-panel">
                 <div class="card-header text-center">
                     <h5 class="mb-0">
-                        <i class="bi bi-exclamation-triangle me-2"></i>Confirmar eliminación
+                        <i class="bi bi-exclamation-triangle me-2"></i>ELIMINAR CATEGORÍA
                     </h5>
                 </div>
                 
                 <div class="card-body text-center">
                     <div class="mb-4">
-                        <i class="bi bi-tag main-warning-color" style="font-size: 4rem;"></i>
+                        <i class="bi bi-exclamation-octagon warning-icon-large"></i>
                     </div>
                     
-                    <h4 class="mb-3 fw-bold text-uppercase main-warning-color">¿Eliminar categoría?</h4>
+                    <h4 class="mb-3 fw-bold text-uppercase">¿ELIMINAR CATEGORÍA?</h4>
                     
-                    <div class="alert alert-warning mb-4">
-                        <p class="mb-2 text-uppercase fw-bold">Estás a punto de eliminar la categoría:</p>
-                        <h5 class="mb-0 fw-black text-decoration-underline">{{ categoria.nombre }}</h5>
-                        {% if categoria.descripcion %}
-                        <p class="mb-0 mt-2"><small>{{ categoria.descripcion|truncatechars:100 }}</small></p>
-                        {% endif %}
-                    </div>
-                    
+                    <!-- Información de la categoría -->
                     <div class="card mb-4">
-                        <div class="card-body text-start">
-                            <h6 class="fw-bold text-uppercase small">Información de la categoría:</h6>
-                            <div class="row small">
-                                <div class="col-md-6">
-                                    <strong>ID:</strong> #{{ categoria.id }}<br>
-                                    <strong>Estado:</strong> 
+                        <div class="card-body">
+                            <h5 class="mb-3 fw-black">{{ categoria.nombre }}</h5>
+                            {% if categoria.descripcion %}
+                            <p class="mb-0"><small>{{ categoria.descripcion }}</small></p>
+                            {% endif %}
+                            
+                            <div class="row mt-3 small text-center">
+                                <div class="col-6">
+                                    <strong>ID:</strong><br>
+                                    <span class="badge bg-dark">#{{ categoria.id }}</span>
+                                </div>
+                                <div class="col-6">
+                                    <strong>ESTADO:</strong><br>
                                     {% if categoria.activo %}
-                                    <span class="badge bg-success">Activa</span>
+                                    <span class="badge bg-success">ACTIVA</span>
                                     {% else %}
-                                    <span class="badge bg-secondary">Inactiva</span>
-                                    {% endif %}<br>
-                                </div>
-                                <div class="col-md-6">
-                                    <strong>Productos:</strong> 
-                                    <span class="badge bg-info">{{ categoria.producto_set.count }}</span><br>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    {% if categoria.producto_set.exists %}
-                    <div class="alert alert-danger">
-                        <h6 class="fw-bold text-uppercase"><i class="bi bi-exclamation-octagon me-1"></i> ¡ADVERTENCIA CRÍTICA!</h6>
-                        <p class="mb-2">Esta categoría tiene <strong>{{ categoria.producto_set.count }} producto(s)</strong> asociado(s).</p>
-                        <ul class="mb-0 small text-start">
-                            <li>Si eliminas esta categoría, todos estos productos quedarán sin categoría</li>
-                            <li>Los productos sin categoría no se mostrarán correctamente</li>
-                            <li>Los filtros por categoría dejarán de funcionar</li>
-                        </ul>
-                    </div>
-                    
-                    <div class="alert alert-info">
-                        <h6 class="fw-bold text-uppercase"><i class="bi bi-lightbulb me-1"></i> Alternativas recomendadas:</h6>
-                        <ul class="mb-0 small text-start">
-                            <li>Desactivar: Los productos mantienen la relación</li>
-                            <li>Mover productos: Cámbialos antes de eliminar</li>
-                            <li>Renombrar: Solo cambia el nombre</li>
-                        </ul>
-                    </div>
-                    {% else %}
-                    <div class="alert alert-success">
-                        <h6 class="fw-bold text-uppercase"><i class="bi bi-check-circle me-1"></i> Categoría sin productos</h6>
-                        <p class="mb-0">Eliminación segura.</p>
-                    </div>
-                    {% endif %}
-                    
-                    <form method="POST" id="formEliminarCategoria">
-                        {% csrf_token %}
-                        
-                        <!-- Selección de acción -->
-                        <div class="mb-4 border-top pt-3">
-                            <h6 class="fw-bold mb-3">Selecciona una acción:</h6>
-                            
-                            <!-- Opción 1: Desactivar -->
-                            <div class="form-check mb-3">
-                                <input class="form-check-input" type="radio" name="accion" 
-                                       id="accion_desactivar" value="desactivar" 
-                                       {% if not categoria.producto_set.exists %}checked{% endif %}>
-                                <label class="form-check-label fw-bold" for="accion_desactivar">
-                                    <i class="bi bi-toggle-off me-2"></i> Desactivar Categoría
-                                </label>
-                                <div class="form-text ps-4 small">
-                                    La categoría dejará de mostrarse en la tienda pero permanecerá en la base de datos.
-                                    Puedes reactivarla en cualquier momento editándola.
-                                </div>
-                            </div>
-                            
-                            <!-- Opción 2: Eliminar (solo si no tiene productos) -->
-                            <div class="form-check mb-3">
-                                <input class="form-check-input" type="radio" name="accion" 
-                                       id="accion_eliminar" value="eliminar"
-                                       {% if categoria.producto_set.exists %}disabled{% else %}{% if categoria.producto_set.exists %}{% else %}checked{% endif %}{% endif %}>
-                                <label class="form-check-label fw-bold {% if categoria.producto_set.exists %}text-muted{% endif %}" 
-                                       for="accion_eliminar">
-                                    <i class="bi bi-trash me-2"></i> Eliminar Permanentemente
-                                </label>
-                                <div class="form-text ps-4 small">
-                                    Elimina completamente la categoría de la base de datos.
-                                    {% if categoria.producto_set.exists %}
-                                    <span class="text-danger fw-bold d-block mt-1">
-                                        ❌ No disponible - Hay {{ categoria.producto_set.count }} producto(s) asociado(s).
-                                    </span>
-                                    {% else %}
-                                    <span class="text-danger fw-bold d-block mt-1">
-                                        ⚠️ ¡Esta acción no se puede deshacer!
-                                    </span>
+                                    <span class="badge bg-secondary">INACTIVA</span>
                                     {% endif %}
                                 </div>
                             </div>
-                            
-                            <!-- Opción 3: Mover y Eliminar (solo si tiene productos) -->
-                            {% if categoria.producto_set.exists %}
-                            <div class="form-check mb-3">
-                                <input class="form-check-input" type="radio" name="accion" 
-                                       id="accion_mover" value="mover_y_eliminar" checked>
-                                <label class="form-check-label fw-bold" for="accion_mover">
-                                    <i class="bi bi-arrow-right-circle me-2"></i> Mover Productos y Eliminar Categoría
-                                </label>
-                                <div class="form-text ps-4 small">
-                                    Mueve los {{ categoria.producto_set.count }} producto(s) a otra categoría y luego elimina esta.
-                                </div>
-                                
-                                <!-- Selector de categoría destino -->
-                                <div class="mt-2 ps-4 border-start border-3 border-warning" id="categoriaDestinoContainer">
-                                    <label class="form-label small fw-bold">Selecciona categoría destino:</label>
-                                    <select name="nueva_categoria" class="form-select form-select-sm" required>
-                                        <option value="">-- Elegir categoría --</option>
-                                        {% for otra_categoria in otras_categorias %}
-                                        <option value="{{ otra_categoria.id }}">{{ otra_categoria.nombre }}</option>
-                                        {% endfor %}
-                                    </select>
-                                    <div class="form-text">
-                                        Todos los productos se moverán a la categoría seleccionada.
-                                    </div>
-                                </div>
-                            </div>
-                            {% endif %}
                         </div>
+                    </div>
+                    
+                    {% if categoria.producto_set.exists %}
+                    <!-- BLOQUE: CATEGORÍA CON PRODUCTOS -->
+                    <div class="alert alert-danger">
+                        <h6 class="fw-bold text-uppercase mb-3">
+                            <i class="bi bi-x-octagon me-1"></i> ¡NO SE PUEDE ELIMINAR!
+                        </h6>
+                        <div class="mb-3">
+                            <span class="badge bg-danger" style="font-size: 1.2rem;">
+                                {{ categoria.producto_set.count }} PRODUCTO(S) VINCULADO(S)
+                            </span>
+                        </div>
+                        <p class="fw-bold mb-3">
+                            Primero debes eliminar o reasignar los {{ categoria.producto_set.count }} producto(s) asociados a esta categoría.
+                        </p>
                         
-                        <!-- Botones de acción -->
+                        <div class="text-start mt-3">
+                            <h6 class="fw-bold text-uppercase small mb-2">¿QUÉ HACER?</h6>
+                            <ol class="mb-0">
+                                <li>Elimina manualmente todos los productos de esta categoría</li>
+                                <li>O mueve los productos a otra categoría existente</li>
+                                <li>Una vez que la categoría esté vacía, podrás eliminarla</li>
+                            </ol>
+                        </div>
+                    </div>
+                    
+                    <!-- Botones para categoría con productos -->
+                    <div class="d-flex flex-column gap-2 mt-4">
+                        <a href="{% url 'panel_admin:categorias' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i> VOLVER AL LISTADO
+                        </a>
+                        <a href="{% url 'panel_admin:productos' %}?categoria={{ categoria.id }}" class="btn btn-dark">
+                            <i class="bi bi-box-seam me-1"></i> VER PRODUCTOS ASOCIADOS ({{ categoria.producto_set.count }})
+                        </a>
+                    </div>
+                    
+                    {% else %}
+                    <!-- BLOQUE: CATEGORÍA SIN PRODUCTOS (SE PUEDE ELIMINAR) -->
+                    <div class="alert alert-success">
+                        <h6 class="fw-bold text-uppercase mb-2">
+                            <i class="bi bi-check-circle me-1"></i> CATEGORÍA VACÍA
+                        </h6>
+                        <p class="mb-0">Esta categoría no tiene productos asociados. Puedes eliminarla permanentemente.</p>
+                    </div>
+                    
+                    <div class="alert alert-warning mt-3">
+                        <h6 class="fw-bold text-uppercase small mb-2">
+                            <i class="bi bi-exclamation-triangle me-1"></i> ADVERTENCIA FINAL
+                        </h6>
+                        <p class="mb-0">Esta acción eliminará permanentemente la categoría <strong>"{{ categoria.nombre }}"</strong> de la base de datos. No se puede deshacer.</p>
+                    </div>
+                    
+                    <!-- Formulario para eliminar (solo cuando no hay productos) -->
+                    <form method="POST" id="formEliminarCategoria">
+                        {% csrf_token %}
                         <div class="d-flex justify-content-between mt-4 pt-3 border-top">
                             <a href="{% url 'panel_admin:categorias' %}" class="btn btn-outline-secondary">
-                                <i class="bi bi-arrow-left me-1"></i> Cancelar
+                                <i class="bi bi-x-circle me-1"></i> CANCELAR
                             </a>
                             
-                            <button type="submit" class="btn btn-danger" id="btnConfirmar">
-                                <i class="bi bi-check-circle me-1"></i> Confirmar Acción
+                            <button type="submit" class="btn btn-danger" id="btnEliminar"
+                                    onclick="return confirmarEliminacion()">
+                                <i class="bi bi-trash me-1"></i> ELIMINAR PERMANENTEMENTE
                             </button>
                         </div>
                     </form>
-                    
-                    {% if categoria.producto_set.exists %}
-                    <div class="mt-4">
-                        <a href="{% url 'panel_admin:categorias' %}" class="btn btn-outline-primary btn-sm">
-                            <i class="bi bi-arrow-left me-1"></i> Volver y desactivar categoría
-                        </a>
-                        <a href="{% url 'panel_admin:categorias' %}" class="btn btn-outline-warning btn-sm ms-2">
-                            <i class="bi bi-tags me-1"></i> Ver todas las categorías
-                        </a>
-                        <button type="button" class="btn btn-brutalista btn-eliminar" data-bs-toggle="modal" data-bs-target="#confirmModal">
-                            <i class="bi bi-trash me-1"></i> Sí, eliminar categoría
-                        </button>
-                    </div>
                     {% endif %}
                 </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-custom" style="max-width: 450px; margin-left: auto; margin-right: auto;">
-        <div class="modal-content">
-            <div class="modal-body text-center p-4">
-                <h2 class="main-warning-color fw-black mb-3">⚠️ ¡ATENCIÓN!</h2>
-                <p class="fw-bold text-uppercase mb-4">
-                    ¿ESTÁS ABSOLUTAMENTE SEGURO?<br><br>
-                    <span class="text-dark">Categoría con {{ categoria.producto_set.count }} productos vinculados.</span>
-                </p>
-                <form method="POST">
-                    {% csrf_token %}
-                    <div class="d-flex flex-column gap-3">
-                        <button type="submit" class="btn btn-brutalista btn-eliminar w-100" style="background-color: #d90429 !important; box-shadow: 6px 6px 0px #000;">SÍ, ELIMINAR AHORA</button>
-                        <button type="button" class="btn btn-brutalista btn-cancelar w-100" data-bs-dismiss="modal" style="box-shadow: 6px 6px 0px #000;">NO, CANCELAR</button>
-                    </div>
-                </form>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const form = document.getElementById('formEliminarCategoria');
-        const btnConfirmar = document.getElementById('btnConfirmar');
-        const categoriaDestinoContainer = document.getElementById('categoriaDestinoContainer');
-        const radioButtons = document.querySelectorAll('input[name="accion"]');
+    function confirmarEliminacion() {
+        const categoriaNombre = "{{ categoria.nombre|escapejs }}";
+        const confirmacion = confirm(
+            `⚠️ ¿ESTÁS ABSOLUTAMENTE SEGURO DE ELIMINAR PERMANENTEMENTE LA CATEGORÍA?\n\n` +
+            `"${categoriaNombre}"\n\n` +
+            `✅ Esta categoría está vacía (0 productos)\n` +
+            `❌ Esta acción NO SE PUEDE DESHACER\n\n` +
+            `Para confirmar, escribe: ELIMINAR`
+        );
         
-        // Actualizar texto del botón según selección
-        function actualizarBoton() {
-            const accionSeleccionada = document.querySelector('input[name="accion"]:checked').value;
-            
-            if (accionSeleccionada === 'desactivar') {
-                btnConfirmar.innerHTML = '<i class="bi bi-toggle-off me-1"></i> Desactivar Categoría';
-                btnConfirmar.className = 'btn btn-warning';
-            } else if (accionSeleccionada === 'eliminar') {
-                btnConfirmar.innerHTML = '<i class="bi bi-trash me-1"></i> Eliminar Permanentemente';
-                btnConfirmar.className = 'btn btn-danger';
-            } else if (accionSeleccionada === 'mover_y_eliminar') {
-                btnConfirmar.innerHTML = '<i class="bi bi-arrow-right-circle me-1"></i> Mover y Eliminar';
-                btnConfirmar.className = 'btn btn-danger';
-            }
+        if (confirmacion) {
+            const respuesta = prompt('Para confirmar la eliminación permanente, escribe "ELIMINAR":');
+            return respuesta && respuesta.toUpperCase() === 'ELIMINAR';
         }
         
-        // Mostrar/ocultar selector de categoría destino
-        function mostrarCategoriaDestino() {
-            const accionSeleccionada = document.querySelector('input[name="accion"]:checked').value;
-            if (categoriaDestinoContainer) {
-                categoriaDestinoContainer.style.display = 
-                    (accionSeleccionada === 'mover_y_eliminar') ? 'block' : 'none';
-            }
-        }
-        
-        // Escuchar cambios en los radio buttons
-        radioButtons.forEach(radio => {
-            radio.addEventListener('change', function() {
-                actualizarBoton();
-                mostrarCategoriaDestino();
-            });
-        });
-        
-        // Validación del formulario
-        form.addEventListener('submit', function(e) {
-            const accionSeleccionada = document.querySelector('input[name="accion"]:checked').value;
-            
-            if (accionSeleccionada === 'mover_y_eliminar') {
-                const categoriaDestino = document.querySelector('select[name="nueva_categoria"]').value;
-                if (!categoriaDestino) {
-                    e.preventDefault();
-                    alert('Por favor, selecciona una categoría destino para mover los productos.');
-                    return false;
-                }
-            }
-            
-            if (accionSeleccionada === 'eliminar') {
-                if (!confirm('⚠️ ¿ESTÁS ABSOLUTAMENTE SEGURO DE ELIMINAR PERMANENTEMENTE ESTA CATEGORÍA?\n\n¡ESTA ACCIÓN NO SE PUEDE DESHACER!')) {
-                    e.preventDefault();
-                    return false;
-                }
-            }
-            
-            if (accionSeleccionada === 'desactivar') {
-                if (!confirm('¿Desactivar la categoría "' + '{{ categoria.nombre|escapejs }}' + '"?\n\nLa categoría dejará de mostrarse en la tienda.')) {
-                    e.preventDefault();
-                    return false;
-                }
-            }
-        });
-        
-        // Inicializar
-        actualizarBoton();
-        mostrarCategoriaDestino();
-    });
+        return false;
+    }
 </script>
 {% endblock %}
