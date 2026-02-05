@@ -30,6 +30,8 @@ class Pedido(models.Model):
 
     email = models.EmailField(blank=True, null=True)
     telefono = models.CharField(max_length=30, blank=True, null=True)
+    
+    total_pago = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
 
     estado = models.CharField(
         max_length=20,

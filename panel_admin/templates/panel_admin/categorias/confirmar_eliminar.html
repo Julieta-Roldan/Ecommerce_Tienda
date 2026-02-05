@@ -190,9 +190,98 @@
                     </div>
                     {% endif %}
                     
-                    <div class="d-flex justify-content-center mt-4">
-                        <a href="{% url 'panel_admin:categorias' %}" class="btn btn-brutalista btn-cancelar me-3">
-                            <i class="bi bi-x-circle me-1"></i> Cancelar
+                                        <form method="POST" id="formEliminarCategoria">
+                        {% csrf_token %}
+                        
+                        <!-- Selección de acción -->
+                        <div class="mb-4 border-top pt-3">
+                            <h6 class="fw-bold mb-3">Selecciona una acción:</h6>
+                            
+                            <!-- Opción 1: Desactivar -->
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="radio" name="accion" 
+                                       id="accion_desactivar" value="desactivar" 
+                                       {% if not categoria.producto_set.exists %}checked{% endif %}>
+                                <label class="form-check-label fw-bold" for="accion_desactivar">
+                                    <i class="bi bi-toggle-off me-2"></i> Desactivar Categoría
+                                </label>
+                                <div class="form-text ps-4 small">
+                                    La categoría dejará de mostrarse en la tienda pero permanecerá en la base de datos.
+                                    Puedes reactivarla en cualquier momento editándola.
+                                </div>
+                            </div>
+                            
+                            <!-- Opción 2: Eliminar (solo si no tiene productos) -->
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="radio" name="accion" 
+                                       id="accion_eliminar" value="eliminar"
+                                       {% if categoria.producto_set.exists %}disabled{% else %}{% if categoria.producto_set.exists %}{% else %}checked{% endif %}{% endif %}>
+                                <label class="form-check-label fw-bold {% if categoria.producto_set.exists %}text-muted{% endif %}" 
+                                       for="accion_eliminar">
+                                    <i class="bi bi-trash me-2"></i> Eliminar Permanentemente
+                                </label>
+                                <div class="form-text ps-4 small">
+                                    Elimina completamente la categoría de la base de datos.
+                                    {% if categoria.producto_set.exists %}
+                                    <span class="text-danger fw-bold d-block mt-1">
+                                        ❌ No disponible - Hay {{ categoria.producto_set.count }} producto(s) asociado(s).
+                                    </span>
+                                    {% else %}
+                                    <span class="text-danger fw-bold d-block mt-1">
+                                        ⚠️ ¡Esta acción no se puede deshacer!
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <!-- Opción 3: Mover y Eliminar (solo si tiene productos) -->
+                            {% if categoria.producto_set.exists %}
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="radio" name="accion" 
+                                       id="accion_mover" value="mover_y_eliminar" checked>
+                                <label class="form-check-label fw-bold" for="accion_mover">
+                                    <i class="bi bi-arrow-right-circle me-2"></i> Mover Productos y Eliminar Categoría
+                                </label>
+                                <div class="form-text ps-4 small">
+                                    Mueve los {{ categoria.producto_set.count }} producto(s) a otra categoría y luego elimina esta.
+                                </div>
+                                
+                                <!-- Selector de categoría destino -->
+                                <div class="mt-2 ps-4 border-start border-3 border-warning" id="categoriaDestinoContainer">
+                                    <label class="form-label small fw-bold">Selecciona categoría destino:</label>
+                                    <select name="nueva_categoria" class="form-select form-select-sm" required>
+                                        <option value="">-- Elegir categoría --</option>
+                                        {% for otra_categoria in otras_categorias %}
+                                        <option value="{{ otra_categoria.id }}">{{ otra_categoria.nombre }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <div class="form-text">
+                                        Todos los productos se moverán a la categoría seleccionada.
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Botones de acción -->
+                        <div class="d-flex justify-content-between mt-4 pt-3 border-top">
+                            <a href="{% url 'panel_admin:categorias' %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-1"></i> Cancelar
+                            </a>
+                            
+                            <button type="submit" class="btn btn-danger" id="btnConfirmar">
+                                <i class="bi bi-check-circle me-1"></i> Confirmar Acción
+                            </button>
+                        </div>
+                    </form>
+                    
+                    {% if categoria.producto_set.exists %}
+                    <div class="mt-4">
+                        <a href="{% url 'panel_admin:categorias' %}" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-arrow-left me-1"></i> Volver y desactivar categoría
+                        </a>
+                        <a href="{% url 'panel_admin:categorias' %}" class="btn btn-outline-warning btn-sm ms-2">
+                            <i class="bi bi-tags me-1"></i> Ver todas las categorías
                         </a>
                         <button type="button" class="btn btn-brutalista btn-eliminar" data-bs-toggle="modal" data-bs-target="#confirmModal">
                             <i class="bi bi-trash me-1"></i> Sí, eliminar categoría
@@ -224,4 +313,80 @@
         </div>
     </div>
 </div>
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('formEliminarCategoria');
+        const btnConfirmar = document.getElementById('btnConfirmar');
+        const categoriaDestinoContainer = document.getElementById('categoriaDestinoContainer');
+        const radioButtons = document.querySelectorAll('input[name="accion"]');
+        
+        // Actualizar texto del botón según selección
+        function actualizarBoton() {
+            const accionSeleccionada = document.querySelector('input[name="accion"]:checked').value;
+            
+            if (accionSeleccionada === 'desactivar') {
+                btnConfirmar.innerHTML = '<i class="bi bi-toggle-off me-1"></i> Desactivar Categoría';
+                btnConfirmar.className = 'btn btn-warning';
+            } else if (accionSeleccionada === 'eliminar') {
+                btnConfirmar.innerHTML = '<i class="bi bi-trash me-1"></i> Eliminar Permanentemente';
+                btnConfirmar.className = 'btn btn-danger';
+            } else if (accionSeleccionada === 'mover_y_eliminar') {
+                btnConfirmar.innerHTML = '<i class="bi bi-arrow-right-circle me-1"></i> Mover y Eliminar';
+                btnConfirmar.className = 'btn btn-danger';
+            }
+        }
+        
+        // Mostrar/ocultar selector de categoría destino
+        function mostrarCategoriaDestino() {
+            const accionSeleccionada = document.querySelector('input[name="accion"]:checked').value;
+            if (categoriaDestinoContainer) {
+                categoriaDestinoContainer.style.display = 
+                    (accionSeleccionada === 'mover_y_eliminar') ? 'block' : 'none';
+            }
+        }
+        
+        // Escuchar cambios en los radio buttons
+        radioButtons.forEach(radio => {
+            radio.addEventListener('change', function() {
+                actualizarBoton();
+                mostrarCategoriaDestino();
+            });
+        });
+        
+        // Validación del formulario
+        form.addEventListener('submit', function(e) {
+            const accionSeleccionada = document.querySelector('input[name="accion"]:checked').value;
+            
+            if (accionSeleccionada === 'mover_y_eliminar') {
+                const categoriaDestino = document.querySelector('select[name="nueva_categoria"]').value;
+                if (!categoriaDestino) {
+                    e.preventDefault();
+                    alert('Por favor, selecciona una categoría destino para mover los productos.');
+                    return false;
+                }
+            }
+            
+            if (accionSeleccionada === 'eliminar') {
+                if (!confirm('⚠️ ¿ESTÁS ABSOLUTAMENTE SEGURO DE ELIMINAR PERMANENTEMENTE ESTA CATEGORÍA?\n\n¡ESTA ACCIÓN NO SE PUEDE DESHACER!')) {
+                    e.preventDefault();
+                    return false;
+                }
+            }
+            
+            if (accionSeleccionada === 'desactivar') {
+                if (!confirm('¿Desactivar la categoría "' + '{{ categoria.nombre|escapejs }}' + '"?\n\nLa categoría dejará de mostrarse en la tienda.')) {
+                    e.preventDefault();
+                    return false;
+                }
+            }
+        });
+        
+        // Inicializar
+        actualizarBoton();
+        mostrarCategoriaDestino();
+    });
+</script>
 {% endblock %}

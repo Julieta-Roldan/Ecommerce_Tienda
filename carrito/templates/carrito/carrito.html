@@ -91,9 +91,11 @@
                     </div>
 
                     <!-- BOTÓN CONECTADO -->
-                   <form method="post" action="{% url 'crear_pedido_desde_carrito' %}">
-                    {% csrf_token %}
-                    <button
+                   <a href="{% url 'checkout' %}" 
+   class="btn btn-dark w-100 py-3 fw-bold text-uppercase mb-3" 
+   style="letter-spacing: 1px;">
+   Finalizar Compra
+</a>
                         type="submit"
                         class="btn btn-dark w-100 py-3 fw-bold text-uppercase mb-3"
                         style="letter-spacing: 1px;">
