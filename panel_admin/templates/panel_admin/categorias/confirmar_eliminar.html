@@ -293,6 +293,26 @@
     </div>
 </div>
 
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-custom" style="max-width: 450px; margin-left: auto; margin-right: auto;">
+        <div class="modal-content">
+            <div class="modal-body text-center p-4">
+                <h2 class="main-warning-color fw-black mb-3">⚠️ ¡ATENCIÓN!</h2>
+                <p class="fw-bold text-uppercase mb-4">
+                    ¿ESTÁS ABSOLUTAMENTE SEGURO?<br><br>
+                    <span class="text-dark">Categoría con {{ categoria.producto_set.count }} productos vinculados.</span>
+                </p>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="d-flex flex-column gap-3">
+                        <button type="submit" class="btn btn-brutalista btn-eliminar w-100" style="background-color: #d90429 !important; box-shadow: 6px 6px 0px #000;">SÍ, ELIMINAR AHORA</button>
+                        <button type="button" class="btn btn-brutalista btn-cancelar w-100" data-bs-dismiss="modal" style="box-shadow: 6px 6px 0px #000;">NO, CANCELAR</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 
