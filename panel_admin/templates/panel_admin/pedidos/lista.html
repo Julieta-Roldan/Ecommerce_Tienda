@@ -13,7 +13,7 @@
         box-shadow: none !important;
     }
     
-    /* SECCIÓN FILTROS: Fondo Negro para los labels */
+    /* SECCIÓN FILTROS */
     .filter-section {
         background: #000 !important;
         padding: 20px;
@@ -50,30 +50,8 @@
         transition: all 0.2s ease-in-out;
         text-transform: uppercase;
     }
-    .form-control:hover, .form-select:hover {
-        background-color: #eee !important;
-    }
     
-    /* Botón Filtrar: Blanco -> Negro con borde blanco al Hover */
-    .btn-black {
-        background: #fff !important;
-        color: #000 !important;
-        border-radius: 0 !important;
-        border: 1px solid #000 !important;
-        font-weight: 800;
-        font-size: 0.8rem;
-        letter-spacing: 1px;
-        transition: 0.3s;
-        padding: 12px !important;
-        text-transform: uppercase;
-    }
-    .btn-black:hover {
-        background: #000 !important;
-        color: #fff !important;
-        border: 1px solid #fff !important;
-    }
-
-    /* Botón de Acción */
+    /* Botones de Acción */
     .btn-action {
         border-radius: 0 !important;
         padding: 5px 10px;
@@ -86,49 +64,53 @@
         align-items: center;
         justify-content: center;
         text-decoration: none;
+        margin: 0 2px;
     }
     .btn-action:hover {
         background: #000 !important;
         color: #fff !important;
         transform: translateY(-2px);
     }
+    .btn-action-danger:hover {
+        background: #dc3545 !important;
+        border-color: #dc3545 !important;
+        color: #fff !important;
+    }
 
-    /* Estados */
+    /* MODAL BRUTALISTA CON DESENFOQUE */
+    .modal-backdrop.show {
+        backdrop-filter: blur(15px) !important;
+        -webkit-backdrop-filter: blur(15px) !important;
+        background-color: rgba(0, 0, 0, 0.7) !important;
+        opacity: 1 !important;
+    }
+    .modal-content {
+        border: 5px solid #000 !important;
+        border-radius: 0 !important;
+        box-shadow: 12px 12px 0px #000;
+    }
+    .btn-brutalista {
+        border: 3px solid #000 !important;
+        border-radius: 0 !important;
+        text-transform: uppercase;
+        font-weight: 900;
+        box-shadow: 4px 4px 0px #000;
+        transition: 0.2s;
+    }
+    .btn-brutalista:active {
+        transform: translate(2px, 2px);
+        box-shadow: 2px 2px 0px #000;
+    }
+
+    /* Estados y Tablas */
     .badge-estado {
-        display: inline-block;
-        padding: 6px 12px;
-        font-weight: 800;
-        text-transform: uppercase;
-        font-size: 0.6rem;
-        letter-spacing: 1px;
-        border: 1px solid #000;
-        min-width: 100px;
-        text-align: center;
+        display: inline-block; padding: 6px 12px; font-weight: 800;
+        text-transform: uppercase; font-size: 0.6rem; letter-spacing: 1px;
+        border: 1px solid #000; min-width: 100px; text-align: center;
     }
-    .badge-pendiente { 
-        background: #000000 !important; 
-        color: #ffffff !important; 
-    }
-    .badge-pagado { 
-        background: #000 !important; 
-        color: #fff !important; 
-    }
-
-    /* Tabla */
-    .table thead {
-        background: #f9f9f9 !important;
-        border-bottom: 2px solid #000 !important;
-    }
-    .table thead th {
-        font-size: 0.7rem;
-        text-transform: uppercase;
-        padding: 15px !important;
-    }
-    .table tbody tr td {
-        vertical-align: middle;
-        padding: 15px !important;
-        border-bottom: 1px solid #eee;
-    }
+    .badge-pendiente { background: #000000 !important; color: #ffffff !important; }
+    .badge-pagado { background: #000 !important; color: #fff !important; }
+    .table thead { background: #f9f9f9 !important; border-bottom: 2px solid #000 !important; }
 </style>
 
 <div class="container-fluid">
@@ -153,7 +135,7 @@
                     <input type="date" name="fecha_hasta" class="form-control" value="{{ filtro_fecha_hasta|default:'' }}">
                 </div>
                 <div class="col-md-3">
-                    <button type="submit" class="btn btn-black w-100">FILTRAR</button>
+                    <button type="submit" class="btn btn-black w-100" style="background:#fff; color:#000; border:1px solid #000; font-weight:800; padding:12px; text-transform:uppercase;">FILTRAR</button>
                 </div>
             </form>
         </div>
@@ -171,8 +153,8 @@
         <div class="col-md-6">
             <div class="card card-panel bg-dark text-white">
                 <div class="card-body py-3 d-flex justify-content-between align-items-center">
-                    <span class="fw-800 small text-uppercase" style="color: rgb(0, 0, 0) !important;">Pagados</span>
-                    <span class="h5 mb-0 fw-800" style="color: rgb(0, 0, 0) !important;">{{ total_pagados }}</span>
+                    <span class="fw-800 small text-uppercase" style="color: #fff !important;">Pagados</span>
+                    <span class="h5 mb-0 fw-800" style="color: #fff !important;">{{ total_pagados }}</span>
                 </div>
             </div>
         </div>
@@ -214,6 +196,49 @@
                                 <a href="{% url 'panel_admin:pedido_detalle' pedido.id %}" class="btn-action" title="Ver Detalle">
                                     <i class="bi bi-eye"></i>
                                 </a>
+                                
+                                <button type="button" class="btn-action" style="color: #d90429 !important;" data-bs-toggle="modal" data-bs-target="#modalEliminar{{ pedido.id }}">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+
+                               <div class="modal fade" id="modalEliminar{{ pedido.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 480px;">
+        <div class="modal-content" style="border: 5px solid #000 !important; border-radius: 0 !important; box-shadow: 12px 12px 0px #000; background-color: #fff !important;">
+            <div class="modal-body p-5 text-center">
+                <div class="mb-4">
+                    <i class="bi bi-exclamation-triangle-fill" style="font-size: 3rem; color: #dc3545;"></i>
+                </div>
+
+                <h2 class="fw-900 text-uppercase mb-3" style="letter-spacing: -1px; line-height: 0.9;">
+                    ¿BORRAR PEDIDO?
+                </h2>
+
+                <div class="border border-dark p-3 mb-4 bg-light text-start">
+                    <p class="mb-2 fw-bold text-uppercase small text-danger">Atención Crítica:</p>
+                    <p class="mb-0 small fw-bold">
+                        Estás por eliminar el pedido <span class="text-decoration-underline">#{{ pedido.id }}</span>. 
+                        Esta acción es irreversible y se perderán todos los registros asociados.
+                    </p>
+                </div>
+
+                <div class="d-grid gap-3">
+                    <a href="{% url 'panel_admin:pedido_eliminar' pedido.id %}" 
+                       class="btn btn-brutalista btn-danger-brutal py-3" 
+                       style="background-color: #dc3545 !important; color: #fff !important; border: 3px solid #000 !important; border-radius: 0 !important; text-transform: uppercase; font-weight: 900; box-shadow: 6px 6px 0px #000; transition: all 0.2s;">
+                        SÍ, ELIMINAR AHORA
+                    </a>
+                    
+                    <button type="button" 
+                            class="btn btn-brutalista btn-light py-3" 
+                            data-bs-dismiss="modal"
+                            style="background-color: #fff !important; color: #000 !important; border: 3px solid #000 !important; border-radius: 0 !important; text-transform: uppercase; font-weight: 900; box-shadow: 6px 6px 0px #000; transition: all 0.2s;">
+                        CANCELAR
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
                             </td>
                         </tr>
                         {% empty %}

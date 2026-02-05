@@ -36,6 +36,7 @@ urlpatterns = [
     path('pedidos/', views.pedidos_lista, name='pedidos'),
     path('pedidos/<int:id>/', views.pedido_detalle, name='pedido_detalle'),
     path('pedidos/<int:id>/cambiar-estado/', views.cambiar_estado_pedido, name='cambiar_estado'),
+    path('pedidos/<int:pedido_id>/eliminar/', views.pedido_eliminar, name='pedido_eliminar'),
     
     # Usuarios/Empleados (NUEVO)
     path('usuarios/', views.usuarios_lista, name='usuarios'),
@@ -45,4 +46,7 @@ urlpatterns = [
     path('usuarios/eliminar/<int:id>/', views.usuario_eliminar, name='usuario_eliminar'),
     # Estadísticas
     path('estadisticas/', views.estadisticas, name='estadisticas'),
+
+
+
 ]

@@ -663,3 +663,17 @@ img {
 #btn-search-trigger:hover {
     transform: scale(1.1);
 }
+
+
+/* Esto selecciona el icono de calendario nativo de Chrome/Edge */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+    padding: 5px;
+}
+
+/* El efecto cuando pasas el mouse sobre la caja */
+.stat-box:hover input[type="date"]::-webkit-calendar-picker-indicator {
+    transform: scale(1.4);
+    filter: invert(0.5); /* Cambia un poco el tono para que se note el "feedback" */
+}

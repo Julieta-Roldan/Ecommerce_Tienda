@@ -17,8 +17,8 @@ from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from functools import wraps
 from django.contrib.auth.models import Group, Permission
-from tienda.models import Talle, Color
-
+from tienda.models import Talle, Color 
+from pedidos_pagos.models import Pedido
 
 # ==================== DECORADORES PERSONALIZADOS ====================
 
@@ -1121,3 +1121,8 @@ def cambiar_estado_usuario(request, id):
     messages.error(request, 'Método no permitido')
     return redirect('panel_admin:usuarios')
 
+def pedido_eliminar(request, pedido_id):
+    pedido = get_object_or_404(Pedido, id=pedido_id)
+    pedido.delete()
+    messages.success(request, f"Pedido #{pedido_id} eliminado correctamente.")
+    return redirect('panel_admin:pedidos')
