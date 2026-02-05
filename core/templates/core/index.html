@@ -12,8 +12,9 @@
     </div>
 </section>
 
-<!-- REEMPLAZAR desde la línea que dice <div id="categorias"... hasta después del último category-card -->
-<section id="categorias" class="py-5"> <div class="container mt-4"> <div class="text-center mb-5">
+<section id="categorias" class="py-5"> 
+    <div class="container mt-4"> 
+        <div class="text-center mb-5">
             <h2 class="text-uppercase fw-800 mb-2" style="letter-spacing: 8px; font-size: 1.8rem;">COLECCIONES</h2>
             <p class="text-muted small text-uppercase" style="letter-spacing: 3px;">Explorá nuestras categorías destacadas</p>
             <hr class="mx-auto" style="width: 40px; border-top: 2px solid #000; opacity: 1;">
@@ -83,19 +84,25 @@
         border: 2px solid #ffffff !important;
     }
 
-    /* 3. BOTÓN AGREGAR AL CARRITO (CORREGIDO: Negro -> Blanco) */
-    .btn-dark.btn-sm.mt-2 {
-        background-color: #000000 !important; /* Fondo negro inicial */
-        color: #ffffff !important;            /* Texto blanco inicial */
-        border: 2px solid #000000 !important; /* Borde negro inicial */
+    /* 3. BOTONES DE ACCIÓN (Agregar al Carrito y Comprar Ahora) */
+    .product-card-cool .btn-dark {
+        background-color: #000000 !important;
+        color: #ffffff !important;
+        border: 2px solid #000000 !important;
         border-radius: 0 !important;
+        padding: 10px 20px !important;
+        font-weight: 700 !important;
+        letter-spacing: 2px;
         transition: all 0.3s ease;
+        text-transform: uppercase !important;
+        font-size: 0.8rem !important;
+        width: 100%;
     }
 
-    .btn-dark.btn-sm.mt-2:hover {
-        background-color: #ffffff !important; /* Fondo blanco al pasar mouse */
-        color: #000000 !important;            /* Texto negro al pasar mouse */
-        border: 2px solid #000000 !important; /* Mantiene el borde negro */
+    .product-card-cool .btn-dark:hover {
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        border: 2px solid #000000 !important;
     }
 
     /* 4. BOTÓN VER TODAS (Mismo estilo que agregar al carrito) */
@@ -119,6 +126,7 @@
         border-color: #000 !important;
     }
 </style>
+
 <section class="benefits-section py-5">
     <div class="container">
         <div class="row text-center g-4">
@@ -191,13 +199,16 @@
                         </p>
                         
                         <div class="d-grid gap-1">
-                            <!-- Botón COMPRAR AHORA (nuevo) -->
-                            <a href="{% url 'comprar_ahora' producto.id %}" class="btn btn-dark btn-sm text-uppercase fw-bold"style="border-radius: 0; padding: 10px 20px;"><i class="bi bi-lightning me-1"></i>
-                             Comprar ahora
+                            <!-- Botón COMPRAR AHORA -->
+                            <a href="{% url 'comprar_ahora' producto.id %}" class="btn btn-dark btn-sm text-uppercase fw-bold">
+                                <i class="bi bi-lightning me-1"></i>
+                                Comprar ahora
                             </a>
-                        <a href="{% url 'carrito_agregar' producto.id %}" class="btn btn-dark btn-sm mt-2 text-uppercase fw-bold" style="border-radius: 0; padding: 10px 20px;">
-                            Agregar al carrito
-                        </a>
+                            <!-- Botón AGREGAR AL CARRITO -->
+                            <a href="{% url 'carrito_agregar' producto.id %}" class="btn btn-dark btn-sm mt-2 text-uppercase fw-bold">
+                                Agregar al carrito
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>

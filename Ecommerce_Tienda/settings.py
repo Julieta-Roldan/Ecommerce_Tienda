@@ -33,7 +33,7 @@ SECRET_KEY = 'django-insecure-swf(qsx2&&#naar*(o#jz8q!jatw%1qrj)j3i8&v2i!qkcw%#4
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['tiendalore.pythonanywhere.com']
 
 
 # Application definition
@@ -63,7 +63,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    # 'panel_admin.middleware.PedidosPendientesMiddleware', 
+    # 'panel_admin.middleware.PedidosPendientesMiddleware',
 ]
 
 ROOT_URLCONF = 'Ecommerce_Tienda.urls'
@@ -146,7 +146,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-# STATIC_URL = 'static/'
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -157,14 +157,21 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # STATIC & MEDIA FILES
 # ==============================
 
-STATIC_URL = 'static/'
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/5.2/howto/static-files/
+
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'  # Este es el directorio donde se almacenarán los archivos estáticos.
+
+# Este es el directorio donde Django buscará los archivos estáticos adicionales
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
-    
+    os.path.join(BASE_DIR, 'static'),  # Asegúrate de que este directorio tenga tus archivos estáticos
 ]
 
+# Media files
 MEDIA_URL = '/media/'
-MEDIA_ROOT =  BASE_DIR / 'media' 
+MEDIA_ROOT = BASE_DIR / 'media'
+
 
 MERCADOPAGO_ACCESS_TOKEN = os.environ.get("MERCADOPAGO_ACCESS_TOKEN")
 MERCADOPAGO_PUBLIC_KEY = os.environ.get("MERCADOPAGO_PUBLIC_KEY")
