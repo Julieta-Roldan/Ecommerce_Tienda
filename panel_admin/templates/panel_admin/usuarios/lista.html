@@ -271,21 +271,21 @@
                                 {% else %}<span class="text-muted small">---</span>{% endif %}
                             </td>
                             <td>
-                                {% if usuario.is_superuser %}
-                                <span class="badge-estado badge-negro">Super</span>
-                                {% endif %}
-                                {% if usuario.is_staff %}
-                                <span class="badge-estado badge-blanco">Staff</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if usuario.is_active %}
-                                <span class="text-success small fw-bold uppercase">● Activo</span>
-                                {% else %}
-                                <span class="text-danger small fw-bold uppercase">○ Inactivo</span>
-                                {% endif %}
-                            </td>
-                            <td>
+                            {% if usuario.is_superuser %}
+                            <span class="badge-estado badge-negro">Super</span>
+                            {% endif %}
+                            {% if usuario.is_staff %}
+                            <span class="badge-estado badge-blanco">Staff</span>
+                            {% endif %}
+                            <br>
+                            <small class="text-muted">
+                                {% for grupo in usuario.groups.all %}
+                                <span class="badge bg-secondary">{{ grupo.name }}</span>
+                                {% empty %}
+                                Sin grupos
+                                {% endfor %}
+                            </small>
+                        </td>
                                 <small class="text-muted">{{ usuario.last_login|date:"d/m/Y H:i"|default:"Nunca" }}</small>
                             </td>
                             <td class="text-center">

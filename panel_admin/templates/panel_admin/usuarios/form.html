@@ -34,7 +34,7 @@
         <div class="col-md-8">
             <div class="card card-panel">
                 <div class="card-header text-center">
-                    NUEVO USUARIO / EMPLEADO
+                    {% if usuario %}EDITAR USUARIO{% else %}NUEVO USUARIO / EMPLEADO{% endif %}
                 </div>
                 <div class="card-body p-4">
                     <form method="POST">
@@ -50,60 +50,44 @@
                                 <label class="form-label">Email</label>
                                 <input type="email" class="form-control" name="email" value="{{ usuario.email|default:'' }}">
                             </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Nombre</label>
+                                <input type="text" class="form-control" name="first_name" value="{{ usuario.first_name|default:'' }}">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Apellido</label>
+                                <input type="text" class="form-control" name="last_name" value="{{ usuario.last_name|default:'' }}">
+                            </div>
                             <div class="col-md-12">
-                                <label class="form-label">{% if usuario %}Nueva Contraseña{% else %}Contraseña *{% endif %}</label>
+                                <label class="form-label">{% if usuario %}Nueva Contraseña (dejar en blanco para no cambiar){% else %}Contraseña *{% endif %}</label>
                                 <input type="password" class="form-control" name="password" {% if not usuario %}required{% endif %}>
                             </div>
                         </div>
 
-                        <h6 class="section-title">Accesos y Permisos</h6>
+                        <h6 class="section-title">Grupos y Roles</h6>
                         <div class="permisos-container mb-4">
-                            {% comment %} 
-                                Definimos manualmente los permisos que pediste. 
-                                El 'codename' debe coincidir con los de tu DB. 
-                            {% endcomment %}
-                            
+                            {% for grupo in grupos %}
                             <div class="permiso-row">
-                                <span class="permiso-text"><i class="bi bi-tags"></i> Gestionar Categorías</span>
+                                <span class="permiso-text">
+                                    <i class="bi 
+                                        {% if grupo.name == 'Administradores' %}bi-shield-check
+                                        {% elif grupo.name == 'Empleados' %}bi-person-badge
+                                        {% elif grupo.name == 'Vendedores' %}bi-cart-check
+                                        {% else %}bi-people{% endif %}">
+                                    </i> {{ grupo.name }}
+                                </span>
                                 <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" name="permisos_manual" value="add_categoria">
+                                    <input class="form-check-input" type="checkbox" 
+                                           name="groups" 
+                                           value="{{ grupo.id }}"
+                                           {% if grupo.id in grupos_usuario %}checked{% endif %}>
                                 </div>
                             </div>
-
-                            <div class="permiso-row">
-                                <span class="permiso-text"><i class="bi bi-box-seam"></i> Gestionar Productos</span>
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" name="permisos_manual" value="add_producto">
-                                </div>
+                            {% empty %}
+                            <div class="text-center py-3">
+                                <p class="text-muted mb-0">No hay grupos configurados</p>
                             </div>
-
-                            <div class="permiso-row">
-                                <span class="permiso-text"><i class="bi bi-cart-check"></i> Gestionar Pedidos</span>
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" name="permisos_manual" value="add_pedido">
-                                </div>
-                            </div>
-
-                            <div class="permiso-row">
-                                <span class="permiso-text"><i class="bi bi-speedometer2"></i> Acceso al Dashboard</span>
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" name="permisos_manual" value="view_dashboard">
-                                </div>
-                            </div>
-
-                            <div class="permiso-row">
-                                <span class="permiso-text"><i class="bi bi-graph-up-arrow"></i> Acceso a Estadísticas</span>
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" name="permisos_manual" value="view_estadisticas">
-                                </div>
-                            </div>
-
-                            <div class="permiso-row">
-                                <span class="permiso-text"><i class="bi bi-people"></i> Acceso a Usuarios</span>
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" name="permisos_manual" value="view_user">
-                                </div>
-                            </div>
+                            {% endfor %}
                         </div>
 
                         <h6 class="section-title">Nivel de Sistema</h6>
@@ -120,12 +104,14 @@
                                     <label class="form-label ms-2 mb-0" for="is_staff">Miembro Staff</label>
                                 </div>
                             </div>
+                            {% if es_superuser %}
                             <div class="col-md-4">
                                 <div class="form-check form-switch d-flex align-items-center">
                                     <input class="form-check-input" type="checkbox" id="is_superuser" name="is_superuser" {% if usuario.is_superuser %}checked{% endif %}>
                                     <label class="form-label ms-2 mb-0" for="is_superuser">Superusuario</label>
                                 </div>
                             </div>
+                            {% endif %}
                         </div>
 
                         <div class="d-flex justify-content-between border-top pt-4">
