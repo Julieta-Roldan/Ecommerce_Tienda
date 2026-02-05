@@ -189,7 +189,12 @@
                         <p class="price-tag">
                             $ {{ producto.precio|floatformat:"0"|intcomma }}
                         </p>
-
+                        
+                        <div class="d-grid gap-1">
+                            <!-- Botón COMPRAR AHORA (nuevo) -->
+                            <a href="{% url 'comprar_ahora' producto.id %}" class="btn btn-dark btn-sm text-uppercase fw-bold"style="border-radius: 0; padding: 10px 20px;"><i class="bi bi-lightning me-1"></i>
+                             Comprar ahora
+                            </a>
                         <a href="{% url 'carrito_agregar' producto.id %}" class="btn btn-dark btn-sm mt-2 text-uppercase fw-bold" style="border-radius: 0; padding: 10px 20px;">
                             Agregar al carrito
                         </a>

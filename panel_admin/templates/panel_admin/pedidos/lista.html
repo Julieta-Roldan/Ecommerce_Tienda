@@ -139,7 +139,7 @@
                     <label class="label-filter">Estado</label>
                     <select name="estado" class="form-select">
                         <option value="">TODOS LOS ESTADOS</option>
-                        {% for clave, valor in pedidos_recientes.0.get_estados %}
+                        {% for clave, valor in estados_pedido %}
                         <option value="{{ clave }}" {% if filtro_estado == clave %}selected{% endif %}>{{ valor|upper }}</option>
                         {% endfor %}
                     </select>

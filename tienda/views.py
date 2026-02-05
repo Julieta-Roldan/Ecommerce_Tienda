@@ -9,6 +9,13 @@ from django.shortcuts import get_object_or_404
 from django.db.models import Q
 
 from .models import Producto, Categoria, Favorito
+from django.conf import settings
+from django.contrib import messages
+from django.shortcuts import redirect  
+from pedidos_pagos.models import Pedido, ItemPedido
+from django.db import transaction
+from carrito.models import Carrito, ItemCarrito
+
 
 # LISTAR PRODUCTOS
 @login_required
@@ -190,3 +197,42 @@ def lista_categorias(request):
     # Ahora que Categoria está en el import de arriba, no va a dar error
     categorias = Categoria.objects.filter(activo=True)
     return render(request, 'tienda/todas_categorias.html', {'categorias': categorias})
+
+# tienda/views.py
+
+def comprar_ahora(request, id):
+    """
+    Compra rápida: Prepara el carrito con 1 solo producto 
+    y redirige al formulario de contacto (Checkout).
+    """
+    try:
+        # 1. Obtenemos el producto (que esté activo y con stock)
+        producto = get_object_or_404(Producto, id=id, activo=True, stock__gt=0)
+        
+        # 2. Aseguramos que el usuario tenga una sesión activa
+        if not request.session.session_key:
+            request.session.create()
+        
+        # 3. Obtenemos o creamos el carrito vinculado a la sesión
+        carrito, created = Carrito.objects.get_or_create(
+            session_key=request.session.session_key
+        )
+        
+        # 4. LIMPIEZA: Borramos lo que hubiera antes para que sea "Compra Única"
+        carrito.items.all().delete()
+        
+        # 5. Agregamos el producto seleccionado
+        ItemCarrito.objects.create(
+            carrito=carrito,
+            producto=producto,
+            cantidad=1
+        )
+        
+        # 6. REDIRECCIÓN: En lugar de crear el pedido aquí, 
+        # lo mandamos a que ponga su Mail y Teléfono
+        return redirect('checkout') # Asegúrate que este nombre coincida con tu urls.py
+        
+    except Exception as e:
+        from django.contrib import messages
+        messages.error(request, f"Hubo un problema con la compra rápida: {str(e)}")
+        return redirect('producto_detalle', id=id)

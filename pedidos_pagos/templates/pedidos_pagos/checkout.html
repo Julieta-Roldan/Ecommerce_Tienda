@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row g-5">
+        <div class="col-md-7">
+            <h4 class="mb-4 text-uppercase fw-bold" style="letter-spacing: 2px;">Datos de Contacto</h4>
+            <hr>
+            
+            <form method="POST" action="{% url 'checkout' %}" class="mt-4">
+                {% csrf_token %}
+                
+                <div class="mb-3">
+                    <label for="email" class="form-label small fw-bold text-muted text-uppercase">Correo Electrónico</label>
+                    <input type="email" name="email" id="email" class="form-control form-control-lg border-dark" 
+                           placeholder="ejemplo@correo.com" required style="border-radius: 0;">
+                    <div class="form-text">Te enviaremos el comprobante a este mail.</div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="telefono" class="form-label small fw-bold text-muted text-uppercase">WhatsApp / Teléfono</label>
+                    <input type="tel" name="telefono" id="telefono" class="form-control form-control-lg border-dark" 
+                           placeholder="11 1234 5678" required style="border-radius: 0;">
+                    <div class="form-text">Necesario para coordinar el envío.</div>
+                </div>
+
+                <button type="submit" class="btn btn-dark w-100 py-3 fw-bold text-uppercase mt-3" 
+                        style="letter-spacing: 2px; border-radius: 0;">
+                    Ir a pagar con Mercado Pago
+                </button>
+            </form>
+            
+            <a href="{% url 'carrito_ver' %}" class="btn btn-link text-dark mt-3 p-0 text-decoration-none small">
+                <i class="bi bi-arrow-left"></i> Volver al carrito
+            </a>
+        </div>
+
+        <div class="col-md-5">
+            <div class="card border-0 bg-light p-4" style="border-radius: 0;">
+                <h5 class="text-uppercase fw-bold mb-4" style="letter-spacing: 1px;">Resumen de compra</h5>
+                
+                {% for item in carrito.items.all %}
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="d-flex align-items-center">
+                        <div class="position-relative">
+                            {% if item.producto.imagenes.all %}
+                                <img src="{{ item.producto.imagenes.first.imagen.url }}" 
+                                     class="rounded border" style="width: 60px; height: 60px; object-fit: cover;">
+                            {% endif %}
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-secondary">
+                                {{ item.cantidad }}
+                            </span>
+                        </div>
+                        <div class="ms-3">
+                            <p class="mb-0 fw-bold small text-uppercase">{{ item.producto.nombre }}</p>
+                        </div>
+                    </div>
+                    <span class="fw-bold small">${{ item.subtotal|floatformat:0|intcomma }}</span>
+                </div>
+                {% endfor %}
+                
+                <hr>
+                
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted small">Subtotal</span>
+                    <span class="small">${{ subtotal|floatformat:0|intcomma }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-3">
+                    <span class="text-muted small">Envío</span>
+                    <span class="text-success small fw-bold">Gratis</span>
+                </div>
+                
+                <div class="d-flex justify-content-between border-top pt-3">
+                    <h4 class="fw-bold">TOTAL</h4>
+                    <h4 class="fw-bold">${{ subtotal|floatformat:0|intcomma }}</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
